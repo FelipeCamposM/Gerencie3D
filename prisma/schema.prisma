@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           Int      @id @default(autoincrement())
+  primeiroNome String
+  ultimoNome   String
+  email        String   @unique
+  senhaHash    String
+  role         String   @default("user") // user, admin
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relações
+  impressorasUsadas    Impressora[]  @relation("UltimoUsuario")
+  filamentosComprados  Filamento[]   @relation("CompradorFilamento")
+  filamentosUtilizados Filamento[]   @relation("UltimoUsuarioFilamento")
+  impressoes           Impressao3D[]
+
+  @@map("usuarios")
+}
+
+model Impressora {
+  id                  Int       @id @default(autoincrement())
+  nome                String
+  modelo              String
+  marca               String
+  localizacao         String
+  gastoEnergiaKwh     Float // Gasto de energia por hora em kWh
+  precoEnergiaKwh     Float // Preço da energia na cidade em R$ por kWh
+  filamentoTotalUsado Float     @default(0) // Total de filamento usado em gramas
+  ultimoUso           DateTime?
+  status              String    @default("disponivel") // disponivel, em_uso, manutencao
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relações
+  ultimoUsuarioId Int?
+  ultimoUsuario   Usuario? @relation("UltimoUsuario", fields: [ultimoUsuarioId], references: [id])
+
+  ultimaImpressaoId String?      @unique
+  ultimaImpressao   Impressao3D? @relation("UltimaImpressao", fields: [ultimaImpressaoId], references: [id])
+
+  impressoes Impressao3D[] @relation("ImpressoraUsada")
+
+  @@map("impressoras")
+}
+
+model Filamento {
+  id               String    @id @default(cuid())
+  tipo             String // PLA, ABS, PETG, TPU, etc
+  cor              String
+  pesoInicial      Float     @default(1000) // Peso inicial em gramas (1kg)
+  pesoAtual        Float // Peso atual em gramas
+  precoCompra      Float // Quanto pagou na compra
+  dataCompra       DateTime  @default(now())
+  ultimaUtilizacao DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relações
+  compradorId Int
+  comprador   Usuario @relation("CompradorFilamento", fields: [compradorId], references: [id])
+
+  ultimoUsuarioId Int?
+  ultimoUsuario   Usuario? @relation("UltimoUsuarioFilamento", fields: [ultimoUsuarioId], references: [id])
+
+  impressoes ImpressaoFilamento[]
+
+  @@map("filamentos")
+}
+
+model Impressao3D {
+  id                  String    @id @default(cuid())
+  nomeProjeto         String
+  tempoImpressao      Int // Tempo em minutos
+  filamentoTotalUsado Float // Total de filamento usado em gramas
+  custoTotal          Float // Custo total da impressão (filamento + energia)
+  custoEnergia        Float // Custo de energia calculado
+  custoFilamento      Float // Custo de filamento calculado
+  precoVenda          Float? // Preço de venda (opcional)
+  lucro               Float? // Lucro calculado (precoVenda - custoTotal)
+  status              String    @default("concluida") // concluida, em_andamento, cancelada, falhou
+  observacoes         String?
+  dataInicio          DateTime  @default(now())
+  dataConclusao       DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relações
+  usuarioId Int
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  impressoraId Int
+  impressora   Impressora @relation("ImpressoraUsada", fields: [impressoraId], references: [id])
+
+  ultimaImpressaoDe Impressora? @relation("UltimaImpressao")
+
+  filamentos ImpressaoFilamento[]
+
+  @@map("impressoes_3d")
+}
+
+// Tabela intermediária para relação muitos-para-muitos entre Impressao3D e Filamento
+model ImpressaoFilamento {
+  id              String   @id @default(cuid())
+  quantidadeUsada Float // Quantidade usada em gramas
+  createdAt       DateTime @default(now())
+
+  impressaoId String
+  impressao   Impressao3D @relation(fields: [impressaoId], references: [id], onDelete: Cascade)
+
+  filamentoId String
+  filamento   Filamento @relation(fields: [filamentoId], references: [id])
+
+  @@unique([impressaoId, filamentoId])
+  @@map("impressao_filamento")
+}

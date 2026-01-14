@@ -1,0 +1,99 @@
+diff --git a/node_modules/oracledb/lib/configProviders/azure.js b/node_modules/oracledb/lib/configProviders/azure.js
+index 4cfbea5..188146f 100644
+--- a/node_modules/oracledb/lib/configProviders/azure.js
++++ b/node_modules/oracledb/lib/configProviders/azure.js
+@@ -43,8 +43,8 @@ class AzureProvider extends base {
+   // Require/import modules from Azure SDK
+   //---------------------------------------------------------------------------
+   init() {
+-    ({ AppConfigurationClient } = require("@azure/app-configuration"));
+-    ({ ClientSecretCredential, ClientCertificateCredential, ChainedTokenCredential, ManagedIdentityCredential, EnvironmentCredential } = require("@azure/identity"));
++    // ({ AppConfigurationClient } = require("@azure/app-configuration"));
++    // ({ ClientSecretCredential, ClientCertificateCredential, ChainedTokenCredential, ManagedIdentityCredential, EnvironmentCredential } = require("@azure/identity"));
+   }
+ 
+   //---------------------------------------------------------------------------
+@@ -164,7 +164,7 @@ class AzureProvider extends base {
+         obj = paramJson.value;
+       }
+       if (obj.uri) {
+-        const { SecretClient } = require("@azure/keyvault-secrets");
++        // const { SecretClient } = require("@azure/keyvault-secrets");
+         const vault_detail = await this._parsePwd(obj.uri);
+         const client1 = new SecretClient(vault_detail[0], this.credential);
+         return  (await client1.getSecret(vault_detail[1])).value;
+diff --git a/node_modules/oracledb/lib/configProviders/ociobject.js b/node_modules/oracledb/lib/configProviders/ociobject.js
+index 8b53387..b87bc55 100644
+--- a/node_modules/oracledb/lib/configProviders/ociobject.js
++++ b/node_modules/oracledb/lib/configProviders/ociobject.js
+@@ -50,8 +50,8 @@ class OCIProvider extends base {
+   // Require/import modules from ociobject
+   //---------------------------------------------------------------------------
+   init() {
+-    oci.common = require('oci-common');
+-    oci.objectstorage = require('oci-objectstorage');
++    // oci.common = require('oci-common');
++    // oci.objectstorage = require('oci-objectstorage');
+   }
+ 
+   //---------------------------------------------------------------------------
+@@ -176,33 +176,36 @@ class OCIProvider extends base {
+   async retrieveParamValueFromVault(param) {
+     if (this.obj[param].type == "azurevault") {
+       if (this.obj[param].authentication) {
+-        const { SecretClient } = require("@azure/keyvault-secrets");
+-        const {ClientSecretCredential, ClientCertificateCredential} = require("@azure/identity");
+-        if (this.obj[param].authentication.azure_client_secret)
+-          this.credential = new ClientSecretCredential(this.obj[param].authentication.azure_tenant_id, this.obj[param].authentication.azure_client_id, this.obj[param].authentication.azure_client_secret);
+-        else if (this.obj[param].authentication.azure_client_certificate_path)
+-          this.credential = new ClientCertificateCredential(this.obj[param].authentication.azure_tenant_id, this.obj[param].authentication.azure_client_id, this.obj[param].authentication.azure_client_certificate_path);
+-        else
+-          errors.throwErr(errors.ERR_AZURE_VAULT_AUTH_FAILED);
+-        const vault_detail = await this._parsePwd(this.obj[param].value);
+-        const client1 = new SecretClient(vault_detail[0], this.credential);
+-        return (await client1.getSecret(vault_detail[1])).value;
++        // const { SecretClient } = require("@azure/keyvault-secrets");
++        // const {ClientSecretCredential, ClientCertificateCredential} = require("@azure/identity");
++        // if (this.obj[param].authentication.azure_client_secret)
++        //   this.credential = new ClientSecretCredential(this.obj[param].authentication.azure_tenant_id, this.obj[param].authentication.azure_client_id, this.obj[param].authentication.azure_client_secret);
++        // else if (this.obj[param].authentication.azure_client_certificate_path)
++        //   this.credential = new ClientCertificateCredential(this.obj[param].authentication.azure_tenant_id, this.obj[param].authentication.azure_client_id, this.obj[param].authentication.azure_client_certificate_path);
++        // else
++        //   errors.throwErr(errors.ERR_AZURE_VAULT_AUTH_FAILED);
++        // const vault_detail = await this._parsePwd(this.obj[param].value);
++        // const client1 = new SecretClient(vault_detail[0], this.credential);
++        // return (await client1.getSecret(vault_detail[1])).value;
++        return null;
+       } else {
+         errors.throwErr(errors.ERR_AZURE_VAULT_AUTH_FAILED);
+       }
+     } else if (this.obj[param].type == "ocivault") {
+-      const secrets = require('oci-secrets');
+-      const secretClientOci =  new secrets.SecretsClient({
+-        authenticationDetailsProvider: this.credential
+-      });
+-      const getSecretBundleRequest = {
+-        secretId: this.obj[param].value
+-      };
+-      const getSecretBundleResponse = await secretClientOci.getSecretBundle(getSecretBundleRequest);
+-      const base64content = getSecretBundleResponse.secretBundle.secretBundleContent.content;
+-      // decode base64 content
+-      const returnVal = Buffer.from(base64content, "base64").toString("utf-8");
+-      return returnVal;
++      // const secrets = require('oci-secrets');
++      // const secretClientOci =  new secrets.SecretsClient({
++      //   authenticationDetailsProvider: this.credential
++      // });
++      // const getSecretBundleRequest = {
++      //   secretId: this.obj[param].value
++      // };
++      // const getSecretBundleResponse = await secretClientOci.getSecretBundle(getSecretBundleRequest);
++      // const base64content = getSecretBundleResponse.secretBundle.secretBundleContent.content;
++      // // decode base64 content
++      // const returnVal = Buffer.from(base64content, "base64").toString("utf-8");
++      // return returnVal;
++
++      return null;
+     }  else {
+       return this.obj[param];
+     }

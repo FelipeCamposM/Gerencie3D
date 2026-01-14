@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "buildCommand": "chmod +x build.sh && ./build.sh",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+  "NODE_ENV": "production"
+  },
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 512
+    },
+    "src/app/api/proxy/**/*.ts": {
+      "maxDuration": 25,
+      "memory": 1024
+    }
+  },
+  "regions": ["cle1"]
+}

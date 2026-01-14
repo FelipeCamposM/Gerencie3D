@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+.npm
+
+# Build outputs
+.next/
+out/
+dist/
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+
+# Cache
+.cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations/
+
+# Keep instantclient for deployment
+!instantclient-basic.zip

@@ -10,6 +10,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Printer,
+  Activity,
+  AlertTriangle,
+  TrendingUp,
+  Zap,
+  Package,
+  Edit,
+  Eye,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -288,20 +298,125 @@ function ImpressorasContent() {
     }
   };
 
+  const disponiveisCount = impressoras.filter(
+    (i) => i.status === "disponivel"
+  ).length;
+  const emUsoCount = impressoras.filter((i) => i.status === "em_uso").length;
+  const manutencaoCount = impressoras.filter(
+    (i) => i.status === "manutencao"
+  ).length;
+  const totalFilamento = impressoras.reduce(
+    (acc, i) => acc + i.filamentoTotalUsado,
+    0
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-slate-800">Impressoras 3D</h1>
+          <div>
+            <h1 className="text-4xl font-bold text-slate-800">
+              Impressoras 3D
+            </h1>
+            <p className="text-slate-600 mt-2">
+              Gerencie suas impressoras e monitore o status
+            </p>
+          </div>
           <button
             onClick={handleCreateClick}
-            className="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2"
           >
-            + Nova Impressora
+            <Printer className="h-5 w-5" />
+            Nova Impressora
           </button>
         </div>
+
+        {/* Stats Cards */}
+        {!loading && impressoras.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">
+                    Total de Impressoras
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900 mt-2">
+                    {impressoras.length}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Printer className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">
+                    Disponíveis
+                  </p>
+                  <p className="text-2xl font-bold text-green-600 mt-2">
+                    {disponiveisCount}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">Em Uso</p>
+                  <p className="text-2xl font-bold text-blue-600 mt-2">
+                    {emUsoCount}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Activity className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">
+                    Filamento Total Usado
+                  </p>
+                  <p className="text-2xl font-bold text-purple-600 mt-2">
+                    {(totalFilamento / 1000).toFixed(1)}kg
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Package className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+
+            {manutencaoCount > 0 && (
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-orange-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Em Manutenção
+                    </p>
+                    <p className="text-2xl font-bold text-orange-600 mt-2">
+                      {manutencaoCount}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <AlertTriangle className="h-6 w-6 text-orange-600" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {loading ? (
           <div className="text-slate-700 text-center py-12">Carregando...</div>
@@ -314,68 +429,95 @@ function ImpressorasContent() {
             {impressoras.map((impressora) => (
               <div
                 key={impressora.id}
-                className="bg-white p-6 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all shadow-sm"
+                className="bg-white rounded-lg border border-slate-200 hover:shadow-lg transition-all shadow-sm overflow-hidden"
               >
                 {impressora.imagemImpressora && (
-                  <div className="mb-4 relative w-full aspect-square bg-slate-100">
+                  <div className="relative w-full aspect-square bg-slate-100">
                     <Image
                       src={impressora.imagemImpressora}
                       alt={impressora.nome}
                       fill
-                      className="object-cover rounded-lg"
-                      sizes="(max-width: 100px) 100vw, (max-width: 100px) 50vw, 33vw"
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       unoptimized
                     />
                   </div>
                 )}
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-slate-800">
-                    {impressora.nome}
-                  </h3>
-                  <span
-                    className={`${getStatusColor(
-                      impressora.status
-                    )} text-white text-xs px-3 py-1 rounded-full`}
-                  >
-                    {getStatusText(impressora.status)}
-                  </span>
-                </div>
 
-                <div className="space-y-2 text-sm">
-                  <p className="text-gray-400">
-                    <span className="font-semibold">Modelo:</span>{" "}
-                    {impressora.modelo}
-                  </p>
-                  <p className="text-gray-400">
-                    <span className="font-semibold">Localização:</span>{" "}
-                    {impressora.localizacao}
-                  </p>
-                  <p className="text-gray-400">
-                    <span className="font-semibold">Filamento usado:</span>{" "}
-                    {impressora.filamentoTotalUsado.toFixed(0)}g
-                  </p>
-                  {impressora.ultimoUsuario && (
-                    <p className="text-gray-400">
-                      <span className="font-semibold">Último uso:</span>{" "}
-                      {impressora.ultimoUsuario.primeiroNome}{" "}
-                      {impressora.ultimoUsuario.ultimoNome}
-                    </p>
-                  )}
-                </div>
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2">
+                      <Printer className="h-5 w-5 text-blue-600" />
+                      <h3 className="text-xl font-bold text-slate-800">
+                        {impressora.nome}
+                      </h3>
+                    </div>
+                    <span
+                      className={`${getStatusColor(
+                        impressora.status
+                      )} text-white text-xs px-3 py-1 rounded-full font-medium`}
+                    >
+                      {getStatusText(impressora.status)}
+                    </span>
+                  </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-700 flex gap-2">
-                  <button
-                    onClick={() => handleDetailsClick(impressora)}
-                    className="flex-1 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded transition-colors text-sm"
-                  >
-                    Ver Detalhes
-                  </button>
-                  <button
-                    onClick={() => handleEditClick(impressora)}
-                    className="flex-1 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded transition-colors text-sm"
-                  >
-                    Editar
-                  </button>
+                  <div className="space-y-3 text-sm mb-6">
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <div className="h-1 w-1 bg-slate-400 rounded-full"></div>
+                      <span className="font-semibold">Modelo:</span>
+                      <span className="text-slate-800">
+                        {impressora.modelo}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <div className="h-1 w-1 bg-slate-400 rounded-full"></div>
+                      <span className="font-semibold">Localização:</span>
+                      <span className="text-slate-800">
+                        {impressora.localizacao}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Package className="h-4 w-4 text-purple-600" />
+                      <span className="font-semibold">Filamento usado:</span>
+                      <span className="text-slate-800">
+                        {impressora.filamentoTotalUsado.toFixed(0)}g
+                      </span>
+                    </div>
+                    {impressora.ultimoUsuario && (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Activity className="h-4 w-4 text-blue-600" />
+                        <span className="font-semibold">Último uso:</span>
+                        <span className="text-slate-800">
+                          {impressora.ultimoUsuario.primeiroNome}{" "}
+                          {impressora.ultimoUsuario.ultimoNome}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <Zap className="h-4 w-4 text-yellow-600" />
+                      <span className="font-semibold">Energia:</span>
+                      <span className="text-slate-800">
+                        {impressora.gastoEnergiaKwh.toFixed(2)} kWh
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDetailsClick(impressora)}
+                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Detalhes
+                    </button>
+                    <button
+                      onClick={() => handleEditClick(impressora)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Editar
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -915,7 +1057,7 @@ function ImpressorasContent() {
           <DialogFooter>
             <Button
               onClick={() => setDetailsModalOpen(false)}
-              className="bg-slate-600 hover:bg-slate-700"
+              className="bg-blue-600 hover:bg-blue-700"
             >
               Fechar
             </Button>

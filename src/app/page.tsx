@@ -3,6 +3,31 @@ import { useAuth } from "../contexts/AuthContext";
 import Header from "../components/header";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { useState, useEffect } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+} from "recharts";
+import {
+  Printer,
+  Package,
+  ClipboardList,
+  TrendingUp,
+  Activity,
+  Clock,
+} from "lucide-react";
 
 export default function Home() {
   return (
@@ -23,6 +48,16 @@ interface Filamento {
 
 interface Impressao {
   dataInicio: string;
+  status: string;
+  filamentoTotalUsado: number;
+  nomeProjeto: string;
+  [key: string]: unknown;
+}
+
+interface FilamentoData {
+  tipo: string;
+  pesoAtual: number;
+  pesoInicial: number;
   [key: string]: unknown;
 }
 
@@ -37,6 +72,21 @@ function HomeContent() {
     impressoesMes: 0,
     loading: true,
   });
+  const [chartData, setChartData] = useState<{
+    statusImpressoras: Array<{ name: string; value: number; color: string }>;
+    impressoesPorDia: Array<{ dia: string; quantidade: number }>;
+    filamentosPorTipo: Array<{
+      tipo: string;
+      quantidade: number;
+      peso: number;
+    }>;
+    impressoesRecentes: Impressao[];
+  }>({
+    statusImpressoras: [],
+    impressoesPorDia: [],
+    filamentosPorTipo: [],
+    impressoesRecentes: [],
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -48,32 +98,106 @@ function HomeContent() {
             fetch("/api/impressoes"),
           ]);
 
-        const impressoras = await impressorasRes.json();
-        const filamentos = await filamentosRes.json();
-        const impressoes = await impressoesRes.json();
+        const impressoras: Impressora[] = await impressorasRes.json();
+        const filamentos: FilamentoData[] = await filamentosRes.json();
+        const impressoes: Impressao[] = await impressoesRes.json();
 
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
 
         const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
 
+        // Stats básicas
+        const disponíveis = impressoras.filter(
+          (i) => i.status === "disponivel"
+        ).length;
+        const emUso = impressoras.filter((i) => i.status === "em_uso").length;
+        const manutencao = impressoras.filter(
+          (i) => i.status === "manutencao"
+        ).length;
+
+        // Dados para gráfico de pizza - Status das Impressoras
+        const statusData = [
+          { name: "Disponíveis", value: disponíveis, color: "#10b981" },
+          { name: "Em Uso", value: emUso, color: "#3b82f6" },
+          { name: "Manutenção", value: manutencao, color: "#ef4444" },
+        ].filter((item) => item.value > 0);
+
+        // Dados para gráfico de barras - Impressões por dia (últimos 7 dias)
+        const impressoesPorDia = [];
+        for (let i = 6; i >= 0; i--) {
+          const dia = new Date();
+          dia.setDate(dia.getDate() - i);
+          dia.setHours(0, 0, 0, 0);
+          const proximoDia = new Date(dia);
+          proximoDia.setDate(proximoDia.getDate() + 1);
+
+          const count = impressoes.filter((imp) => {
+            const dataImp = new Date(imp.dataInicio);
+            return dataImp >= dia && dataImp < proximoDia;
+          }).length;
+
+          impressoesPorDia.push({
+            dia: dia.toLocaleDateString("pt-BR", {
+              weekday: "short",
+              day: "2-digit",
+            }),
+            quantidade: count,
+          });
+        }
+
+        // Dados para gráfico - Filamentos por tipo
+        const filamentosPorTipoMap = new Map<
+          string,
+          { quantidade: number; peso: number }
+        >();
+        filamentos.forEach((fil) => {
+          const existing = filamentosPorTipoMap.get(fil.tipo) || {
+            quantidade: 0,
+            peso: 0,
+          };
+          filamentosPorTipoMap.set(fil.tipo, {
+            quantidade: existing.quantidade + 1,
+            peso: existing.peso + fil.pesoAtual,
+          });
+        });
+
+        const filamentosPorTipo = Array.from(
+          filamentosPorTipoMap.entries()
+        ).map(([tipo, data]) => ({
+          tipo,
+          quantidade: data.quantidade,
+          peso: Math.round(data.peso),
+        }));
+
+        // Impressões recentes
+        const impressoesRecentes = impressoes
+          .sort(
+            (a, b) =>
+              new Date(b.dataInicio).getTime() -
+              new Date(a.dataInicio).getTime()
+          )
+          .slice(0, 5);
+
         setStats({
           totalImpressoras: impressoras.length || 0,
-          impressorasDisponiveis:
-            impressoras.filter((i: Impressora) => i.status === "disponivel")
-              .length || 0,
-          impressorasEmUso:
-            impressoras.filter((i: Impressora) => i.status === "em_uso")
-              .length || 0,
+          impressorasDisponiveis: disponíveis,
+          impressorasEmUso: emUso,
           totalFilamentos: filamentos.length || 0,
           impressoesHoje:
-            impressoes.filter((i: Impressao) => new Date(i.dataInicio) >= hoje)
-              .length || 0,
+            impressoes.filter((i) => new Date(i.dataInicio) >= hoje).length ||
+            0,
           impressoesMes:
-            impressoes.filter(
-              (i: Impressao) => new Date(i.dataInicio) >= inicioMes
-            ).length || 0,
+            impressoes.filter((i) => new Date(i.dataInicio) >= inicioMes)
+              .length || 0,
           loading: false,
+        });
+
+        setChartData({
+          statusImpressoras: statusData,
+          impressoesPorDia,
+          filamentosPorTipo,
+          impressoesRecentes,
         });
       } catch (error) {
         console.error("Erro ao buscar estatísticas:", error);
@@ -110,64 +234,239 @@ function HomeContent() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-slate-600 text-sm mb-2 font-medium">
-              Total de Impressoras
-            </h3>
-            <p className="text-3xl font-bold text-slate-800">
-              {stats.totalImpressoras}
-            </p>
-            <p className="text-sm text-slate-500 mt-2">
-              {stats.impressorasDisponiveis} disponíveis
-            </p>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Total de Impressoras
+                </p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">
+                  {stats.totalImpressoras}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Printer className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-slate-600 text-sm mb-2 font-medium">
-              Impressoras em Uso
-            </h3>
-            <p className="text-3xl font-bold text-slate-600">
-              {stats.impressorasEmUso}
-            </p>
-            <p className="text-sm text-slate-500 mt-2">Atualmente operando</p>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Disponíveis
+                </p>
+                <p className="text-2xl font-bold text-green-600 mt-2">
+                  {stats.impressorasDisponiveis}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-slate-600 text-sm mb-2 font-medium">
-              Filamentos em Estoque
-            </h3>
-            <p className="text-3xl font-bold text-green-600">
-              {stats.totalFilamentos}
-            </p>
-            <p className="text-sm text-slate-500 mt-2">Bobinas disponíveis</p>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">Em Uso</p>
+                <p className="text-2xl font-bold text-blue-600 mt-2">
+                  {stats.impressorasEmUso}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Activity className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-slate-600 text-sm mb-2 font-medium">
-              Impressões Hoje
-            </h3>
-            <p className="text-3xl font-bold text-purple-600">
-              {stats.impressoesHoje}
-            </p>
-            <p className="text-sm text-slate-500 mt-2">Iniciadas hoje</p>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Total de Filamentos
+                </p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">
+                  {stats.totalFilamentos}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Package className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-slate-600 text-sm mb-2 font-medium">
-              Impressões Este Mês
-            </h3>
-            <p className="text-3xl font-bold text-yellow-600">
-              {stats.impressoesMes}
-            </p>
-            <p className="text-sm text-slate-500 mt-2">Total do mês</p>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Impressões Hoje
+                </p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">
+                  {stats.impressoesHoje}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Clock className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-            <h3 className="text-slate-600 text-sm mb-2 font-medium">
-              Status do Sistema
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-500">
+                  Impressões Este Mês
+                </p>
+                <p className="text-2xl font-bold text-slate-900 mt-2">
+                  {stats.impressoesMes}
+                </p>
+              </div>
+              <div className="h-12 w-12 bg-cyan-100 rounded-lg flex items-center justify-center">
+                <ClipboardList className="h-6 w-6 text-cyan-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Gráfico de Status das Impressoras */}
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Status das Impressoras
             </h3>
-            <p className="text-3xl font-bold text-green-500">●</p>
-            <p className="text-sm text-slate-500 mt-2">Operacional</p>
+            {chartData.statusImpressoras.length > 0 ? (
+              <div className="h-64 flex items-center justify-center">
+                <PieChart width={380} height={250}>
+                  <Pie
+                    data={chartData.statusImpressoras}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {chartData.statusImpressoras.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-slate-400">
+                Nenhum dado disponível
+              </div>
+            )}
+          </div>
+
+          {/* Gráfico de Impressões por Dia */}
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Impressões nos Últimos 7 Dias
+            </h3>
+            {chartData.impressoesPorDia.length > 0 ? (
+              <div className="h-64 flex items-center justify-center">
+                <BarChart
+                  width={380}
+                  height={250}
+                  data={chartData.impressoesPorDia}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="dia" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="quantidade" fill="#3b82f6" />
+                </BarChart>
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-slate-400">
+                Nenhum dado disponível
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Filamentos e Impressões Recentes */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Gráfico de Filamentos por Tipo */}
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Filamentos por Tipo
+            </h3>
+            {chartData.filamentosPorTipo.length > 0 ? (
+              <div className="h-64 flex items-center justify-center">
+                <BarChart
+                  width={380}
+                  height={250}
+                  data={chartData.filamentosPorTipo}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="tipo" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="quantidade" fill="#8b5cf6" name="Quantidade" />
+                </BarChart>
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-slate-400">
+                Nenhum dado disponível
+              </div>
+            )}
+          </div>
+
+          {/* Impressões Recentes */}
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Impressões Recentes
+            </h3>
+            {chartData.impressoesRecentes.length > 0 ? (
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                {chartData.impressoesRecentes.map((impressao, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900 text-sm">
+                        {impressao.nomeProjeto || `Impressão #${impressao.id}`}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {new Date(impressao.dataInicio).toLocaleDateString(
+                          "pt-BR"
+                        )}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <span
+                        className={`inline-block px-2 py-1 text-xs font-medium rounded ${
+                          impressao.status === "concluida"
+                            ? "bg-green-100 text-green-800"
+                            : impressao.status === "em_andamento"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {impressao.status === "concluida"
+                          ? "Concluída"
+                          : impressao.status === "em_andamento"
+                          ? "Em Andamento"
+                          : "Cancelada"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="h-64 flex items-center justify-center text-slate-400">
+                Nenhuma impressão recente
+              </div>
+            )}
           </div>
         </div>
 
@@ -175,26 +474,45 @@ function HomeContent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <a
             href="/impressoras"
-            className="bg-slate-600 hover:bg-slate-700 text-white p-6 rounded-lg transition-all shadow-md hover:shadow-lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white p-6 rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-4"
           >
-            <h3 className="text-xl font-bold mb-2">🖨️ Impressoras</h3>
-            <p className="text-sm">Gerenciar impressoras 3D</p>
+            <div className="h-12 w-12 bg-blue-500 rounded-lg flex items-center justify-center">
+              <Printer className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-1">Impressoras</h3>
+              <p className="text-sm text-blue-100">Gerenciar impressoras 3D</p>
+            </div>
           </a>
 
           <a
             href="/filamentos"
-            className="bg-slate-600 hover:bg-slate-700 text-white p-6 rounded-lg transition-all shadow-md hover:shadow-lg"
+            className="bg-purple-600 hover:bg-purple-700 text-white p-6 rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-4"
           >
-            <h3 className="text-xl font-bold mb-2">🧵 Filamentos</h3>
-            <p className="text-sm">Controlar estoque de filamentos</p>
+            <div className="h-12 w-12 bg-purple-500 rounded-lg flex items-center justify-center">
+              <Package className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-1">Filamentos</h3>
+              <p className="text-sm text-purple-100">
+                Controlar estoque de filamentos
+              </p>
+            </div>
           </a>
 
           <a
             href="/impressoes"
-            className="bg-slate-600 hover:bg-slate-700 text-white p-6 rounded-lg transition-all shadow-md hover:shadow-lg"
+            className="bg-cyan-600 hover:bg-cyan-700 text-white p-6 rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-4"
           >
-            <h3 className="text-xl font-bold mb-2">📊 Impressões</h3>
-            <p className="text-sm">Registrar e visualizar impressões</p>
+            <div className="h-12 w-12 bg-cyan-500 rounded-lg flex items-center justify-center">
+              <ClipboardList className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold mb-1">Impressões</h3>
+              <p className="text-sm text-cyan-100">
+                Registrar e visualizar impressões
+              </p>
+            </div>
           </a>
         </div>
       </div>

@@ -1,12 +1,5 @@
 import { Card, CardContent } from "../ui/card";
-import {
-  Users,
-  BadgeCent,
-  ShoppingCart,
-  Truck,
-  ShieldCheck,
-  Store,
-} from "lucide-react";
+import { Users, ShieldCheck } from "lucide-react";
 import { Usuario } from "./types";
 
 interface UsuariosStatsProps {

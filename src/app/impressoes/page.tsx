@@ -122,6 +122,7 @@ function ImpressoesContent() {
     }, 60000); // 60000ms = 1 minuto
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterStatus]);
 
   // Atualizar timers a cada segundo
@@ -157,6 +158,7 @@ function ImpressoesContent() {
     const interval = setInterval(updateTimers, 1000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [impressoes]);
 
   const fetchImpressoes = async () => {

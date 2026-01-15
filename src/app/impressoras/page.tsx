@@ -110,7 +110,6 @@ function ImpressorasContent() {
     initialValue: 0,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -122,6 +121,7 @@ function ImpressorasContent() {
     }, 60000); // 60000ms = 1 minuto
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchImpressoras = async () => {

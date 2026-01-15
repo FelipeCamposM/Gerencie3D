@@ -14,26 +14,16 @@ import {
   TableRow,
 } from "../ui/table";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
   Edit2,
   Trash2,
   Mail,
-  ShieldCheck,
-  ShoppingCart,
-  Truck,
-  Circle,
-  BadgeCent,
   UserPlus,
-  Store,
 } from "lucide-react";
 import { Usuario } from "./types";
 import {
   getInitials,
-  getLevelBadgeClass,
-  getLevelBadgeStyle,
-  getLevelBadgeConfig,
 } from "./utils";
 import { UserPermissionsBadge } from "./UserPermissionsBadge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,25 +35,6 @@ interface UsuariosTableProps {
   onDeleteUser: (id: string) => void;
   onCreateUser: () => void;
 }
-
-const getLevelIcon = (level?: string | null) => {
-  const iconProps = { size: 14, className: "mr-1" };
-
-  switch ((level || "").toLowerCase()) {
-    case "adm":
-      return <ShieldCheck {...iconProps} />;
-    case "vendas":
-      return <ShoppingCart {...iconProps} />;
-    case "financeiro":
-      return <BadgeCent {...iconProps} />;
-    case "logistica":
-      return <Truck {...iconProps} />;
-    case "marketplace":
-      return <Store {...iconProps} />;
-    default:
-      return <Circle {...iconProps} />;
-  }
-};
 
 export function UsuariosTable({
   usuarios,

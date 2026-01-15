@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import db from "@/lib/db";
 
 // Endpoint para verificar e atualizar status de impressoras
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Buscar todas as impressões em andamento
     const impressoesEmAndamento = await db.impressao3D.findMany({

@@ -9,13 +9,6 @@ import {
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import {
-  Select as CustomSelect,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "../ui/select";
 import { Edit2 } from "lucide-react";
 import { Usuario, EditUserForm } from "./types";
 import { PermissionsSelect } from "./PermissionsSelect";

@@ -85,6 +85,7 @@ function CriarImpressaoContent() {
     if (formData.tempoImpressao !== totalMinutos) {
       setFormData((prev) => ({ ...prev, tempoImpressao: totalMinutos }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.horas, formData.minutos]);
 
   useEffect(() => {
@@ -208,6 +209,7 @@ function CriarImpressaoContent() {
   // Calcular automaticamente o preço de venda
   useEffect(() => {
     calcularPrecoVenda();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     formData.tempoImpressao,
     formData.impressoraId,

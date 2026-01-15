@@ -83,6 +83,7 @@ function ImpressorasContent() {
     precoEnergiaKwh: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {

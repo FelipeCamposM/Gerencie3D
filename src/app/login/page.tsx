@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -14,6 +15,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
+import { UserPlus } from "lucide-react";
 
 interface LoginForm {
   email: string;
@@ -251,6 +253,24 @@ export default function Login() {
                     </Button>
                   </div>
                 </form>
+              </div>
+            )}
+
+            {/* Link para Cadastro */}
+            {!showForgot && (
+              <div className="pt-4 border-t border-slate-700">
+                <p className="text-center text-slate-400 text-sm mb-3">
+                  Não tem uma conta?
+                </p>
+                <Link href="/cadastro">
+                  <Button
+                    variant="outline"
+                    className="w-full h-11 bg-slate-700/50 hover:bg-slate-600 text-white border-slate-600 font-medium transition-all duration-200"
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Criar Conta
+                  </Button>
+                </Link>
               </div>
             )}
           </CardContent>

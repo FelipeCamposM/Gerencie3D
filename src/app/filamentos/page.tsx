@@ -24,6 +24,10 @@ export default function FilamentosPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [filamentoToDelete, setFilamentoToDelete] = useState<string | null>(
+    null
+  );
   const [selectedFilamento, setSelectedFilamento] = useState<Filamento | null>(
     null
   );
@@ -118,16 +122,23 @@ export default function FilamentosPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Tem certeza que deseja deletar este filamento?")) return;
+  const handleDelete = (id: string) => {
+    setFilamentoToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!filamentoToDelete) return;
 
     try {
-      const response = await fetch(`/api/filamentos/${id}`, {
+      const response = await fetch(`/api/filamentos/${filamentoToDelete}`, {
         method: "DELETE",
       });
 
       if (response.ok) {
         fetchFilamentos();
+        setDeleteModalOpen(false);
+        setFilamentoToDelete(null);
       }
     } catch (error) {
       console.error("Erro ao deletar filamento:", error);
@@ -184,9 +195,11 @@ export default function FilamentosPage() {
                 <Plus className="mr-2 h-4 w-4" /> Novo Filamento
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Criar Novo Filamento</DialogTitle>
+                <DialogTitle className="text-slate-800">
+                  Criar Novo Filamento
+                </DialogTitle>
               </DialogHeader>
               <FilamentForm
                 formData={formData}
@@ -225,9 +238,11 @@ export default function FilamentosPage() {
 
         {/* Modal de Edição */}
         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Editar Filamento</DialogTitle>
+              <DialogTitle className="text-slate-800">
+                Editar Filamento
+              </DialogTitle>
             </DialogHeader>
             <FilamentForm
               formData={formData}
@@ -246,6 +261,38 @@ export default function FilamentosPage() {
           onOpenChange={setDetailsModalOpen}
           filamento={filamentoDetalhes}
         />
+
+        {/* Modal de Confirmação de Exclusão */}
+        <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+          <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-slate-800 text-xl font-bold">
+                Confirmar Exclusão
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-slate-700">
+                Tem certeza que deseja excluir este filamento? Esta ação não
+                pode ser desfeita.
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteModalOpen(false)}
+                className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmDelete}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Excluir
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   );

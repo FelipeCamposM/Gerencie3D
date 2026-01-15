@@ -70,13 +70,13 @@ export function UsuariosTable({
   onCreateUser,
 }: UsuariosTableProps) {
   return (
-    <Card className="bg-slate-800/50 border-slate-700">
+    <Card className="bg-white border-slate-200 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div>
-          <CardTitle className="text-white">
+          <CardTitle className="text-slate-800">
             Lista de Usuários ({usuarios.length})
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-600">
             Gerencie todos os usuários do sistema
           </CardDescription>
         </div>
@@ -91,12 +91,20 @@ export function UsuariosTable({
       <CardContent>
         <Table>
           <TableHeader>
-            <TableRow className="border-slate-700 hover:bg-slate-700/30">
-              <TableHead className="text-slate-300 pl-15">Usuário</TableHead>
-              <TableHead className="text-slate-300">Contato</TableHead>
-              <TableHead className="text-slate-300">Cargo</TableHead>
-              <TableHead className="text-slate-300">Permissões</TableHead>
-              <TableHead className="text-slate-300 text-right pr-12">
+            <TableRow className="border-slate-200 hover:bg-slate-50">
+              <TableHead className="text-slate-700 font-semibold pl-15">
+                Usuário
+              </TableHead>
+              <TableHead className="text-slate-700 font-semibold">
+                Contato
+              </TableHead>
+              <TableHead className="text-slate-700 font-semibold">
+                Cargo
+              </TableHead>
+              <TableHead className="text-slate-700 font-semibold">
+                Permissões
+              </TableHead>
+              <TableHead className="text-slate-700 font-semibold text-right pr-12">
                 Ações
               </TableHead>
             </TableRow>
@@ -106,7 +114,7 @@ export function UsuariosTable({
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="text-center py-8 text-slate-400"
+                  className="text-center py-8 text-slate-500"
                 >
                   Nenhum usuário encontrado
                 </TableCell>
@@ -115,12 +123,12 @@ export function UsuariosTable({
               usuarios.map((usuario) => (
                 <TableRow
                   key={usuario.id}
-                  className="border-slate-700 hover:bg-slate-700/30"
+                  className="border-slate-200 hover:bg-slate-50"
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-blue-500/20 text-blue-400 font-semibold">
+                        <AvatarFallback className="bg-blue-500/10 text-blue-600 font-semibold border border-blue-200">
                           {getInitials(
                             usuario.primeiroNome,
                             usuario.ultimoNome
@@ -128,10 +136,10 @@ export function UsuariosTable({
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium text-white">
+                        <p className="font-medium text-slate-800">
                           {usuario.primeiroNome} {usuario.ultimoNome}
                         </p>
-                        <p className="text-sm text-slate-400">
+                        <p className="text-sm text-slate-500">
                           ID: {String(usuario.id).slice(0, 8)}...
                         </p>
                       </div>
@@ -140,11 +148,11 @@ export function UsuariosTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-slate-400" />
-                      <span className="text-slate-300">{usuario.email}</span>
+                      <span className="text-slate-700">{usuario.email}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="text-slate-300">{usuario.role}</p>
+                    <p className="text-slate-700 font-medium">{usuario.role}</p>
                   </TableCell>
                   <TableCell>
                     <UserPermissionsBadge
@@ -157,7 +165,7 @@ export function UsuariosTable({
                         variant="outline"
                         size="sm"
                         onClick={() => onEditUser(usuario)}
-                        className="bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600"
+                        className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
@@ -165,7 +173,7 @@ export function UsuariosTable({
                         variant="outline"
                         size="sm"
                         onClick={() => onDeleteUser(String(usuario.id))}
-                        className="bg-red-500/20 border-red-500/30 text-red-400 hover:bg-red-500/30"
+                        className="bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

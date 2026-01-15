@@ -1,10 +1,10 @@
-'use client';
-import { useState } from 'react';
-import { Users } from 'lucide-react';
-import Header from '../../components/header';
-import ProtectedRoute from '../../components/ProtectedRoute';
-import AdminRoute from '../../components/AdminRoute';
-import { LoadingPage } from '../../components/LoadingPage';
+"use client";
+import { useState } from "react";
+import { Users } from "lucide-react";
+import Header from "../../components/header";
+import ProtectedRoute from "../../components/ProtectedRoute";
+import AdminRoute from "../../components/AdminRoute";
+import { LoadingPage } from "../../components/LoadingPage";
 import {
   UsuariosStats,
   UsuariosControls,
@@ -14,8 +14,8 @@ import {
   DeleteConfirmModal,
   useUsuarios,
   filterUsuarios,
-  Usuario
-} from '../../components/usuarios';
+  Usuario,
+} from "../../components/usuarios";
 
 export default function Usuarios() {
   return (
@@ -28,8 +28,8 @@ export default function Usuarios() {
 }
 
 function UsuariosContent() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState<string>("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editUser, setEditUser] = useState<Usuario | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -56,21 +56,24 @@ function UsuariosContent() {
     return <LoadingPage message="Carregando usuários..." />;
   }
 
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-indigo-500/20 rounded-lg">
-              <Users className="h-8 w-8 text-indigo-400" />
+            <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-200">
+              <Users className="h-8 w-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Gerenciar Usuários</h1>
-              <p className="text-slate-400">Administre os usuários do sistema</p>
+              <h1 className="text-3xl font-bold text-slate-800">
+                Gerenciar Usuários
+              </h1>
+              <p className="text-slate-600">
+                Administre os usuários do sistema
+              </p>
             </div>
           </div>
         </div>

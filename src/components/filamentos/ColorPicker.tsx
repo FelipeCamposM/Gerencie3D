@@ -44,24 +44,28 @@ export default function ColorPicker({
   return (
     <>
       <div>
-        <Label>Selecione uma cor pré-definida</Label>
+        <Label className="text-slate-700 font-semibold">
+          Selecione uma cor pré-definida
+        </Label>
         <div className="grid grid-cols-5 gap-2 mt-2">
           {CORES_PREDEFINIDAS.map((cor) => (
             <button
               key={cor.nome}
               type="button"
               onClick={() => onColorSelect(cor.nome, cor.hex)}
-              className={`flex flex-col items-center p-2 rounded border-2 hover:border-slate-500 transition-colors ${
+              className={`flex flex-col items-center p-3 rounded-lg border-2 hover:border-blue-400 transition-all hover:shadow-md ${
                 selectedColor === cor.hex
-                  ? "border-slate-600 bg-slate-50 ring-2 ring-slate-300"
-                  : "border-slate-200"
+                  ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200 shadow-md"
+                  : "border-slate-200 bg-white"
               }`}
             >
               <div
-                className="w-10 h-10 rounded-full border-2 border-gray-400"
+                className="w-10 h-10 rounded-full border-2 border-slate-300 shadow-sm"
                 style={{ backgroundColor: cor.hex }}
               />
-              <span className="text-xs mt-1 text-center">{cor.nome}</span>
+              <span className="text-xs mt-1 text-center text-slate-700 font-medium">
+                {cor.nome}
+              </span>
             </button>
           ))}
         </div>
@@ -69,48 +73,61 @@ export default function ColorPicker({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor={`${idPrefix}nomeCor`}>Nome da Cor</Label>
+          <Label
+            htmlFor={`${idPrefix}nomeCor`}
+            className="text-slate-700 font-semibold"
+          >
+            Nome da Cor
+          </Label>
           <Input
             id={`${idPrefix}nomeCor`}
             value={colorName}
             onChange={(e) => onColorNameChange(e.target.value)}
             placeholder="Ex: Vermelho Vivo"
+            className="bg-white border-slate-300 text-slate-800 mt-1"
             required
           />
         </div>
         <div>
-          <Label htmlFor={`${idPrefix}cor`}>Cor (Hexadecimal)</Label>
-          <div className="flex gap-2">
+          <Label
+            htmlFor={`${idPrefix}cor`}
+            className="text-slate-700 font-semibold"
+          >
+            Cor (Hexadecimal)
+          </Label>
+          <div className="flex gap-2 mt-1">
             <Input
               id={`${idPrefix}cor`}
               type="color"
               value={selectedColor}
               onChange={(e) => onColorChange(e.target.value)}
-              className="w-20 h-10"
+              className="w-20 h-10 cursor-pointer"
             />
             <Input
               type="text"
               value={selectedColor}
               onChange={(e) => onColorChange(e.target.value)}
               placeholder="#000000"
-              className="flex-1"
+              className="flex-1 bg-white border-slate-300 text-slate-800"
             />
           </div>
         </div>
       </div>
 
-      <div className="p-4 bg-slate-50 rounded-lg border-2 border-slate-200">
-        <Label>Prévia da Cor Selecionada</Label>
-        <div className="flex items-center gap-4 mt-2">
+      <div className="p-4 bg-gradient-to-br from-slate-50 to-white rounded-lg border-2 border-slate-200 shadow-sm">
+        <Label className="text-slate-700 font-semibold">
+          Prévia da Cor Selecionada
+        </Label>
+        <div className="flex items-center gap-4 mt-3">
           <div
-            className="w-24 h-24 rounded-lg border-4 border-slate-400 shadow-lg"
+            className="w-24 h-24 rounded-xl border-4 border-slate-300 shadow-lg"
             style={{ backgroundColor: selectedColor }}
           />
           <div>
-            <p className="font-semibold text-slate-800">
+            <p className="font-bold text-slate-800 text-lg">
               {colorName || "Sem nome"}
             </p>
-            <p className="text-sm text-slate-600">{selectedColor}</p>
+            <p className="text-sm text-slate-600 font-mono">{selectedColor}</p>
           </div>
         </div>
       </div>

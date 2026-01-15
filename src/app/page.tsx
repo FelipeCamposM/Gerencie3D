@@ -10,15 +10,9 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  ResponsiveContainer,
   PieChart,
   Pie,
-  Cell,
-  LineChart,
-  Line,
-  Area,
-  AreaChart,
+  Cell
 } from "recharts";
 import {
   Printer,
@@ -42,6 +36,7 @@ interface Impressora {
   [key: string]: unknown;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Filamento {
   [key: string]: unknown;
 }
@@ -338,14 +333,14 @@ function HomeContent() {
             </h3>
             {chartData.statusImpressoras.length > 0 ? (
               <div className="h-64 flex items-center justify-center">
-                <PieChart width={380} height={250}>
+                <PieChart width={450} height={250}>
                   <Pie
                     data={chartData.statusImpressoras}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
                     label={({ name, percent }) =>
-                      `${name}: ${(percent * 100).toFixed(0)}%`
+                      `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
                     }
                     outerRadius={80}
                     fill="#8884d8"
@@ -373,7 +368,7 @@ function HomeContent() {
             {chartData.impressoesPorDia.length > 0 ? (
               <div className="h-64 flex items-center justify-center">
                 <BarChart
-                  width={380}
+                  width={450}
                   height={250}
                   data={chartData.impressoesPorDia}
                 >
@@ -402,7 +397,7 @@ function HomeContent() {
             {chartData.filamentosPorTipo.length > 0 ? (
               <div className="h-64 flex items-center justify-center">
                 <BarChart
-                  width={380}
+                  width={450}
                   height={250}
                   data={chartData.filamentosPorTipo}
                 >

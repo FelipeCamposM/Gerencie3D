@@ -39,7 +39,15 @@ import {
   X,
 } from "lucide-react";
 
-const navLinks = [
+type NavLink = {
+  href: string;
+  label: string;
+  icon: React.ReactElement;
+  adminOnly?: boolean;
+  requiresCreatePermission?: boolean;
+};
+
+const navLinks: NavLink[] = [
   { href: "/", label: "Início", icon: <Home size={20} /> },
   {
     href: "/impressoras",

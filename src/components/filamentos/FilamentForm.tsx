@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import ColorPicker from "./ColorPicker";
 import { Usuario } from "@/types/filamento";
+import { useCurrencyInput } from "@/utils/currencyInput";
 
 const TIPOS_FILAMENTOS = [
   "PLA",
@@ -53,6 +54,14 @@ export default function FilamentForm({
   const handleCorPredefinidaSelect = (nome: string, hex: string) => {
     onChange({ ...formData, nomeCor: nome, cor: hex });
   };
+
+  // Hook para entrada monetária do preço de compra
+  const precoCompraInput = useCurrencyInput({
+    onChange: (valorEmReais) => {
+      onChange({ ...formData, precoCompra: valorEmReais });
+    },
+    initialValue: parseFloat(formData.precoCompra) || 0,
+  });
 
   const idPrefix = isEdit ? "edit-" : "";
 
@@ -116,17 +125,16 @@ export default function FilamentForm({
             htmlFor={`${idPrefix}precoCompra`}
             className="text-slate-700 font-semibold"
           >
-            Preço de Compra (R$)
+            Preço de Compra
           </Label>
           <Input
             id={`${idPrefix}precoCompra`}
-            type="number"
-            step="0.01"
-            value={formData.precoCompra}
-            onChange={(e) =>
-              onChange({ ...formData, precoCompra: e.target.value })
-            }
-            className="bg-white border-slate-300 text-slate-800 mt-1"
+            type="text"
+            value={precoCompraInput.valorFormatado}
+            onChange={precoCompraInput.handleChange}
+            onKeyDown={precoCompraInput.handleKeyDown}
+            className="bg-white border-slate-300 text-slate-800 mt-1 font-medium"
+            placeholder="R$ 0,00"
             required
           />
         </div>

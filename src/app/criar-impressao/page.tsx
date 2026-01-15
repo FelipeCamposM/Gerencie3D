@@ -21,6 +21,8 @@ import {
   FilamentoSimples as Filamento,
   FilamentoSelecionado,
 } from "@/types/filamento";
+import { useCurrencyInput } from "@/utils/currencyInput";
+import { toast } from "sonner";
 
 interface Impressora {
   id: number;
@@ -58,6 +60,14 @@ function CriarImpressaoContent() {
     custosAdicionais: "",
     markup: "4",
     custoPeca: "",
+  });
+
+  // Hook para entrada monetária dos custos adicionais
+  const custosAdicionaisInput = useCurrencyInput({
+    onChange: (valorEmReais) => {
+      setFormData((prev) => ({ ...prev, custosAdicionais: valorEmReais }));
+    },
+    initialValue: 0,
   });
 
   const [filamentosSelecionados, setFilamentosSelecionados] = useState<
@@ -213,12 +223,17 @@ function CriarImpressaoContent() {
     e.preventDefault();
 
     if (!validarFormulario()) {
-      alert("Por favor, preencha todos os campos obrigatórios corretamente.");
+      toast.error("Formulário incompleto", {
+        description:
+          "Por favor, preencha todos os campos obrigatórios corretamente.",
+      });
       return;
     }
 
     if (!user) {
-      alert("Usuário não autenticado.");
+      toast.error("Autenticação necessária", {
+        description: "Usuário não autenticado.",
+      });
       return;
     }
 
@@ -255,15 +270,21 @@ function CriarImpressaoContent() {
       });
 
       if (response.ok) {
-        alert("Impressão criada com sucesso!");
+        toast.success("Impressão criada com sucesso!", {
+          description: "A impressão foi iniciada e a impressora está em uso.",
+        });
         router.push("/impressoes");
       } else {
         const error = await response.json();
-        alert(`Erro ao criar impressão: ${error.error}`);
+        toast.error("Erro ao criar impressão", {
+          description: error.error || "Tente novamente.",
+        });
       }
     } catch (error) {
       console.error("Erro ao criar impressão:", error);
-      alert("Erro ao criar impressão. Tente novamente.");
+      toast.error("Erro ao criar impressão", {
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+      });
     } finally {
       setLoading(false);
     }
@@ -391,22 +412,16 @@ function CriarImpressaoContent() {
                     htmlFor="custosAdicionais"
                     className="text-slate-700 font-medium"
                   >
-                    Custos Adicionais (R$)
+                    Custos Adicionais
                   </Label>
                   <Input
                     id="custosAdicionais"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.custosAdicionais}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        custosAdicionais: e.target.value,
-                      })
-                    }
-                    className="bg-white border-slate-300 text-slate-800"
-                    placeholder="0.00"
+                    type="text"
+                    value={custosAdicionaisInput.valorFormatado}
+                    onChange={custosAdicionaisInput.handleChange}
+                    onKeyDown={custosAdicionaisInput.handleKeyDown}
+                    className="bg-white border-slate-300 text-slate-800 font-medium"
+                    placeholder="R$ 0,00"
                   />
                   <p className="text-slate-500 text-xs mt-1">
                     Embalagem, adesivos, etc.

@@ -19,6 +19,13 @@ import {
   Package,
   Edit,
   Eye,
+  MapPin,
+  Tag,
+  DollarSign,
+  Clock,
+  User,
+  Image as ImageIcon,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCurrencyInput } from "@/utils/currencyInput";
 
 interface Impressora {
   id: number;
@@ -93,6 +101,15 @@ function ImpressorasContent() {
     precoEnergiaKwh: "",
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Hook para entrada monetária do preço de energia
+  const precoEnergiaInput = useCurrencyInput({
+    onChange: (valorEmReais) => {
+      setFormData((prev) => ({ ...prev, precoEnergiaKwh: valorEmReais }));
+    },
+    initialValue: 0,
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -133,6 +150,8 @@ function ImpressorasContent() {
 
   const handleEditClick = (impressora: Impressora) => {
     setSelectedImpressora(impressora);
+    // Atualizar valor do preço de energia no hook
+    precoEnergiaInput.setValue(impressora.precoEnergiaKwh);
     setFormData({
       nome: impressora.nome,
       modelo: impressora.modelo,
@@ -160,6 +179,7 @@ function ImpressorasContent() {
   };
 
   const handleCreateClick = () => {
+    precoEnergiaInput.setValue(0);
     setFormData({
       nome: "",
       modelo: "",
@@ -529,7 +549,8 @@ function ImpressorasContent() {
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
         <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-slate-800">
+            <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
+              <Printer className="h-5 w-5 text-blue-600" />
               Nova Impressora
             </DialogTitle>
           </DialogHeader>
@@ -672,16 +693,12 @@ function ImpressorasContent() {
                 </Label>
                 <Input
                   id="precoEnergiaKwh-create"
-                  type="number"
-                  step="0.01"
-                  value={formData.precoEnergiaKwh}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      precoEnergiaKwh: e.target.value,
-                    })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
+                  type="text"
+                  value={precoEnergiaInput.valorFormatado}
+                  onChange={precoEnergiaInput.handleChange}
+                  onKeyDown={precoEnergiaInput.handleKeyDown}
+                  className="bg-white border-slate-300 text-slate-800 font-medium"
+                  placeholder="R$ 0,00"
                 />
               </div>
             </div>
@@ -707,18 +724,23 @@ function ImpressorasContent() {
 
       {/* Modal de Edição */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-slate-800">
+            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
+              <Edit className="h-6 w-6 text-blue-600" />
               Editar Impressora
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="imagemUrl" className="text-slate-700">
-                Imagem da Impressora
-              </Label>
+          <div className="space-y-6">
+            {/* Seção de Imagem */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
+              <div className="flex items-center gap-2 mb-4">
+                <ImageIcon className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-slate-700">
+                  Imagem da Impressora
+                </h4>
+              </div>
               <Input
                 id="imagemUrl"
                 type="file"
@@ -726,137 +748,184 @@ function ImpressorasContent() {
                 onChange={handleFileChange}
                 className="bg-white border-slate-300 text-slate-800"
               />
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 mt-2">
                 Formatos aceitos: JPEG, PNG, WEBP. Tamanho máximo: 5MB
               </p>
               {imagePreview && (
-                <div className="mt-2 relative w-full aspect-square bg-slate-100">
+                <div className="mt-4 relative w-full aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
                   <Image
                     src={imagePreview}
                     alt="Preview"
                     fill
-                    className="object-contain rounded-lg border border-slate-300"
+                    className="object-contain"
                     sizes="(max-width: 768px) 100vw, 50vw"
                     unoptimized
                   />
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="nome" className="text-slate-700">
-                  Nome
-                </Label>
-                <Input
-                  id="nome"
-                  value={formData.nome}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nome: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+
+            {/* Seção de Informações Básicas */}
+            <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Printer className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-slate-700">
+                  Informações Básicas
+                </h4>
               </div>
-              <div>
-                <Label htmlFor="modelo" className="text-slate-700">
-                  Modelo
-                </Label>
-                <Input
-                  id="modelo"
-                  value={formData.modelo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, modelo: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label
+                    htmlFor="nome"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Printer className="h-4 w-4 text-blue-600" />
+                    Nome
+                  </Label>
+                  <Input
+                    id="nome"
+                    value={formData.nome}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nome: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="modelo"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Tag className="h-4 w-4 text-purple-600" />
+                    Modelo
+                  </Label>
+                  <Input
+                    id="modelo"
+                    value={formData.modelo}
+                    onChange={(e) =>
+                      setFormData({ ...formData, modelo: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="marca"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Tag className="h-4 w-4 text-green-600" />
+                    Marca
+                  </Label>
+                  <Input
+                    id="marca"
+                    value={formData.marca}
+                    onChange={(e) =>
+                      setFormData({ ...formData, marca: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="localizacao"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <MapPin className="h-4 w-4 text-orange-600" />
+                    Localização
+                  </Label>
+                  <Input
+                    id="localizacao"
+                    value={formData.localizacao}
+                    onChange={(e) =>
+                      setFormData({ ...formData, localizacao: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="marca" className="text-slate-700">
-                  Marca
-                </Label>
-                <Input
-                  id="marca"
-                  value={formData.marca}
-                  onChange={(e) =>
-                    setFormData({ ...formData, marca: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+            {/* Seção de Status */}
+            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Activity className="h-5 w-5 text-cyan-600" />
+                <h4 className="font-semibold text-slate-700">Status</h4>
               </div>
               <div>
-                <Label htmlFor="localizacao" className="text-slate-700">
-                  Localização
+                <Label
+                  htmlFor="status"
+                  className="text-slate-700 flex items-center gap-2 mb-2"
+                >
+                  <Activity className="h-4 w-4 text-cyan-600" />
+                  Status da Impressora
                 </Label>
-                <Input
-                  id="localizacao"
-                  value={formData.localizacao}
-                  onChange={(e) =>
-                    setFormData({ ...formData, localizacao: e.target.value })
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, status: value })
                   }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+                >
+                  <SelectTrigger className="bg-white border-slate-300 text-slate-800">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-slate-200">
+                    <SelectItem value="disponivel">Disponível</SelectItem>
+                    <SelectItem value="em_uso">Em Uso</SelectItem>
+                    <SelectItem value="manutencao">Manutenção</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="status" className="text-slate-700">
-                Status
-              </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, status: value })
-                }
-              >
-                <SelectTrigger className="bg-white border-slate-300 text-slate-800">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-slate-200">
-                  <SelectItem value="disponivel">Disponível</SelectItem>
-                  <SelectItem value="em_uso">Em Uso</SelectItem>
-                  <SelectItem value="manutencao">Manutenção</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="gastoEnergiaKwh" className="text-slate-700">
-                  Gasto Energia (kWh)
-                </Label>
-                <Input
-                  id="gastoEnergiaKwh"
-                  type="number"
-                  step="0.01"
-                  value={formData.gastoEnergiaKwh}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      gastoEnergiaKwh: e.target.value,
-                    })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+            {/* Seção de Energia */}
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="h-5 w-5 text-yellow-600" />
+                <h4 className="font-semibold text-slate-700">
+                  Configurações de Energia
+                </h4>
               </div>
-              <div>
-                <Label htmlFor="precoEnergiaKwh" className="text-slate-700">
-                  Preço Energia (R$/kWh)
-                </Label>
-                <Input
-                  id="precoEnergiaKwh"
-                  type="number"
-                  step="0.01"
-                  value={formData.precoEnergiaKwh}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      precoEnergiaKwh: e.target.value,
-                    })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label
+                    htmlFor="gastoEnergiaKwh"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Zap className="h-4 w-4 text-yellow-600" />
+                    Gasto Energia (kWh)
+                  </Label>
+                  <Input
+                    id="gastoEnergiaKwh"
+                    type="number"
+                    step="0.01"
+                    value={formData.gastoEnergiaKwh}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        gastoEnergiaKwh: e.target.value,
+                      })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="precoEnergiaKwh"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <DollarSign className="h-4 w-4 text-green-600" />
+                    Preço Energia (R$/kWh)
+                  </Label>
+                  <Input
+                    id="precoEnergiaKwh"
+                    type="text"
+                    value={precoEnergiaInput.valorFormatado}
+                    onChange={precoEnergiaInput.handleChange}
+                    onKeyDown={precoEnergiaInput.handleKeyDown}
+                    className="bg-white border-slate-300 text-slate-800 font-medium"
+                    placeholder="R$ 0,00"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -881,9 +950,10 @@ function ImpressorasContent() {
 
       {/* Modal de Detalhes */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-slate-800 text-2xl">
+            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
+              <Printer className="h-6 w-6 text-blue-600" />
               Detalhes da Impressora
             </DialogTitle>
           </DialogHeader>
@@ -892,53 +962,84 @@ function ImpressorasContent() {
             <div className="space-y-6">
               {/* Imagem da Impressora */}
               {detailedImpressora.imagemImpressora && (
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <div className="relative w-full aspect-square bg-slate-100">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ImageIcon className="h-5 w-5 text-blue-600" />
+                    <h4 className="font-semibold text-slate-700">Imagem</h4>
+                  </div>
+                  <div className="relative w-full aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
                     <Image
                       src={detailedImpressora.imagemImpressora}
                       alt={detailedImpressora.nome}
                       fill
-                      className="object-contain rounded-lg"
+                      className="object-contain"
                       sizes="(max-width: 768px) 100vw, 50vw"
                       unoptimized
                     />
                   </div>
                 </div>
               )}
+
               {/* Informações Gerais */}
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">
-                  Informações Gerais
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-slate-600 text-sm">Nome</p>
-                    <p className="text-slate-800 font-medium">
+              <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <Printer className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Informações Gerais
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Printer className="h-4 w-4 text-blue-600" />
+                      <p className="text-slate-600 text-sm font-medium">Nome</p>
+                    </div>
+                    <p className="text-slate-900 font-semibold text-lg">
                       {detailedImpressora.nome}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-slate-600 text-sm">Modelo</p>
-                    <p className="text-slate-800 font-medium">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Tag className="h-4 w-4 text-purple-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Modelo
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-semibold">
                       {detailedImpressora.modelo}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-slate-600 text-sm">Marca</p>
-                    <p className="text-slate-800 font-medium">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Tag className="h-4 w-4 text-green-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Marca
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-semibold">
                       {detailedImpressora.marca || "N/A"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-slate-600 text-sm">Localização</p>
-                    <p className="text-slate-800 font-medium">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-4 w-4 text-orange-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Localização
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-semibold">
                       {detailedImpressora.localizacao}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-slate-600 text-sm">Status</p>
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm md:col-span-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Activity className="h-4 w-4 text-cyan-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Status
+                      </p>
+                    </div>
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(
+                      className={`inline-block px-4 py-2 rounded-lg text-sm font-semibold ${getStatusColor(
                         detailedImpressora.status
                       )}`}
                     >
@@ -949,33 +1050,48 @@ function ImpressorasContent() {
               </div>
 
               {/* Energia e Custos */}
-              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-800 mb-3">
-                  Energia e Custos
-                </h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-slate-600 text-sm">
-                      Gasto de Energia (kWh)
-                    </p>
-                    <p className="text-slate-800 font-medium">
-                      {detailedImpressora.gastoEnergiaKwh.toFixed(3)} kWh
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-100">
+                <div className="flex items-center gap-2 mb-4">
+                  <Zap className="h-5 w-5 text-yellow-600" />
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Energia e Custos
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-4 w-4 text-yellow-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Gasto de Energia
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-bold text-xl">
+                      {detailedImpressora.gastoEnergiaKwh.toFixed(3)}
+                      <span className="text-sm text-slate-600 ml-1">kWh</span>
                     </p>
                   </div>
-                  <div>
-                    <p className="text-slate-600 text-sm">
-                      Preço da Energia (R$/kWh)
-                    </p>
-                    <p className="text-slate-800 font-medium">
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Preço da Energia
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-bold text-xl">
                       R$ {detailedImpressora.precoEnergiaKwh.toFixed(2)}
+                      <span className="text-sm text-slate-600 ml-1">/kWh</span>
                     </p>
                   </div>
-                  <div>
-                    <p className="text-slate-600 text-sm">
-                      Filamento Total Usado
-                    </p>
-                    <p className="text-slate-800 font-medium">
-                      {detailedImpressora.filamentoTotalUsado.toFixed(0)}g
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Package className="h-4 w-4 text-purple-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Filamento Total Usado
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-bold text-xl">
+                      {detailedImpressora.filamentoTotalUsado.toFixed(0)}
+                      <span className="text-sm text-slate-600 ml-1">g</span>
                     </p>
                   </div>
                 </div>
@@ -983,22 +1099,35 @@ function ImpressorasContent() {
 
               {/* Último Uso */}
               {detailedImpressora.ultimoUsuario && (
-                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                  <h3 className="text-lg font-semibold text-slate-800 mb-3">
-                    Último Uso
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-slate-600 text-sm">Usuário</p>
-                      <p className="text-slate-800 font-medium">
+                <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Clock className="h-5 w-5 text-purple-600" />
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      Último Uso
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <User className="h-4 w-4 text-blue-600" />
+                        <p className="text-slate-600 text-sm font-medium">
+                          Usuário
+                        </p>
+                      </div>
+                      <p className="text-slate-900 font-semibold">
                         {detailedImpressora.ultimoUsuario.primeiroNome}{" "}
                         {detailedImpressora.ultimoUsuario.ultimoNome}
                       </p>
                     </div>
                     {detailedImpressora.ultimoUso && (
-                      <div>
-                        <p className="text-slate-600 text-sm">Data</p>
-                        <p className="text-slate-800 font-medium">
+                      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Clock className="h-4 w-4 text-purple-600" />
+                          <p className="text-slate-600 text-sm font-medium">
+                            Data
+                          </p>
+                        </div>
+                        <p className="text-slate-900 font-semibold">
                           {new Date(
                             detailedImpressora.ultimoUso
                           ).toLocaleString("pt-BR")}
@@ -1012,37 +1141,52 @@ function ImpressorasContent() {
               {/* Últimas Impressões */}
               {detailedImpressora.impressoes &&
                 detailedImpressora.impressoes.length > 0 && (
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-3">
-                      Últimas Impressões ({detailedImpressora.impressoes.length}
-                      )
-                    </h3>
-                    <div className="space-y-2">
+                  <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-100">
+                    <div className="flex items-center gap-2 mb-4">
+                      <BarChart3 className="h-5 w-5 text-cyan-600" />
+                      <h3 className="text-lg font-semibold text-slate-800">
+                        Últimas Impressões (
+                        {detailedImpressora.impressoes.length})
+                      </h3>
+                    </div>
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
                       {detailedImpressora.impressoes.map(
                         (impressao: Impressao) => (
                           <div
                             key={impressao.id}
-                            className="bg-white p-3 rounded border border-slate-300"
+                            className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
                           >
                             <div className="flex justify-between items-start">
-                              <div>
-                                <p className="text-slate-800 font-medium">
-                                  {impressao.nomeProjeto}
-                                </p>
-                                <p className="text-slate-600 text-sm">
-                                  Por: {impressao.usuario.primeiroNome}{" "}
-                                  {impressao.usuario.ultimoNome}
-                                </p>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Printer className="h-4 w-4 text-blue-600" />
+                                  <p className="text-slate-900 font-semibold">
+                                    {impressao.nomeProjeto}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm text-slate-600">
+                                  <User className="h-3 w-3" />
+                                  <span>
+                                    {impressao.usuario.primeiroNome}{" "}
+                                    {impressao.usuario.ultimoNome}
+                                  </span>
+                                </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-slate-600 text-sm">
-                                  {new Date(
-                                    impressao.dataInicio
-                                  ).toLocaleDateString("pt-BR")}
-                                </p>
-                                <p className="text-slate-800 text-sm">
-                                  {impressao.filamentoTotalUsado.toFixed(0)}g
-                                </p>
+                                <div className="flex items-center gap-1 justify-end mb-1">
+                                  <Clock className="h-3 w-3 text-slate-500" />
+                                  <p className="text-slate-600 text-xs">
+                                    {new Date(
+                                      impressao.dataInicio
+                                    ).toLocaleDateString("pt-BR")}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-1 justify-end">
+                                  <Package className="h-3 w-3 text-purple-600" />
+                                  <p className="text-slate-900 font-semibold text-sm">
+                                    {impressao.filamentoTotalUsado.toFixed(0)}g
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>

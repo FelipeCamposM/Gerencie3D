@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
               select: {
                 id: true,
                 tipo: true,
+                nomeCor: true,
                 cor: true,
               },
             },
@@ -91,11 +92,34 @@ export async function POST(request: NextRequest) {
           where: { id: filamentoData.filamentoId },
         });
 
-        if (filamento) {
-          const custoPorGrama = filamento.precoCompra / filamento.pesoInicial;
-          custoFilamento +=
-            custoPorGrama * parseFloat(filamentoData.quantidadeUsada);
+        if (!filamento) {
+          return NextResponse.json(
+            { error: `Filamento ${filamentoData.filamentoId} não encontrado` },
+            { status: 404 }
+          );
         }
+
+        const quantidadeSolicitada = parseFloat(filamentoData.quantidadeUsada);
+
+        // Validar se há filamento suficiente
+        if (quantidadeSolicitada > filamento.pesoAtual) {
+          return NextResponse.json(
+            {
+              error: `Filamento insuficiente`,
+              details: `O filamento ${filamento.tipo} - ${
+                filamento.nomeCor
+              } possui apenas ${filamento.pesoAtual.toFixed(
+                1
+              )}g disponível. Você solicitou ${quantidadeSolicitada.toFixed(
+                1
+              )}g.`,
+            },
+            { status: 400 }
+          );
+        }
+
+        const custoPorGrama = filamento.precoCompra / filamento.pesoInicial;
+        custoFilamento += custoPorGrama * quantidadeSolicitada;
       }
     }
 

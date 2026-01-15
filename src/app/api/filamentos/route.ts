@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
     const filamento = await db.filamento.create({
       data: {
         tipo: data.tipo,
+        nomeCor: data.nomeCor,
         cor: data.cor,
         pesoInicial: parseFloat(data.pesoInicial),
         pesoAtual: parseFloat(data.pesoAtual || data.pesoInicial),

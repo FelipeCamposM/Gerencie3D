@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, DollarSign, TrendingUp, Package } from "lucide-react";
 import {
   FilamentoSimples as Filamento,
   FilamentoSelecionado,
@@ -54,7 +54,9 @@ function CriarImpressaoContent() {
   const [formData, setFormData] = useState({
     nomeProjeto: "",
     impressoraId: "",
-    tempoImpressao: "", // em minutos
+    tempoImpressao: "", // em minutos (calculado automaticamente)
+    horas: "",
+    minutos: "",
     observacoes: "",
     precoVenda: "",
     custosAdicionais: "",
@@ -74,21 +76,21 @@ function CriarImpressaoContent() {
     FilamentoSelecionado[]
   >([{ filamentoId: "", quantidadeUsada: "" }]);
 
+  // Atualizar tempo total em minutos quando horas ou minutos mudam
+  useEffect(() => {
+    const horas = parseInt(formData.horas) || 0;
+    const minutos = parseInt(formData.minutos) || 0;
+    const totalMinutos = (horas * 60 + minutos).toString();
+
+    if (formData.tempoImpressao !== totalMinutos) {
+      setFormData((prev) => ({ ...prev, tempoImpressao: totalMinutos }));
+    }
+  }, [formData.horas, formData.minutos]);
+
   useEffect(() => {
     fetchImpressoras();
     fetchFilamentos();
   }, []);
-
-  // Calcular automaticamente o preço de venda
-  useEffect(() => {
-    calcularPrecoVenda();
-  }, [
-    formData.tempoImpressao,
-    formData.impressoraId,
-    formData.custosAdicionais,
-    formData.markup,
-    filamentosSelecionados,
-  ]);
 
   const fetchImpressoras = async () => {
     try {
@@ -203,6 +205,19 @@ function CriarImpressaoContent() {
     }));
   };
 
+  // Calcular automaticamente o preço de venda
+  useEffect(() => {
+    calcularPrecoVenda();
+  }, [
+    formData.tempoImpressao,
+    formData.impressoraId,
+    formData.custosAdicionais,
+    formData.markup,
+    filamentosSelecionados,
+    impressoras,
+    filamentos,
+  ]);
+
   const validarFormulario = () => {
     if (!formData.nomeProjeto.trim()) return false;
     if (!formData.impressoraId) return false;
@@ -293,52 +308,40 @@ function CriarImpressaoContent() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-800 mb-2">
-            Nova Impressão 3D
-          </h1>
-          <p className="text-slate-600">
-            Registre uma nova impressão no sistema
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Informações Básicas */}
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="w-8 h-8 bg-slate-600 text-white rounded-full flex items-center justify-center text-sm">
-                1
-              </span>
-              Informações Básicas
+        <form onSubmit={handleSubmit}>
+          {/* Card Único */}
+          <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b border-slate-200">
+              Nova Impressão 3D
             </h2>
 
-            <div className="space-y-4">
-              <div>
-                <Label
-                  htmlFor="nomeProjeto"
-                  className="text-slate-700 font-medium"
-                >
-                  Nome do Projeto *
-                </Label>
-                <Input
-                  id="nomeProjeto"
-                  value={formData.nomeProjeto}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nomeProjeto: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                  placeholder="Ex: Suporte para monitor"
-                  required
-                />
-              </div>
+            <div className="grid grid-cols-3 gap-8">
+              {/* Coluna 1: Informações Básicas */}
+              <div className="space-y-4">
+                <div>
+                  <Label
+                    htmlFor="nomeProjeto"
+                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
+                  >
+                    Nome do Projeto *
+                  </Label>
+                  <Input
+                    id="nomeProjeto"
+                    value={formData.nomeProjeto}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nomeProjeto: e.target.value })
+                    }
+                    className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
+                    placeholder="Ex: Suporte para monitor"
+                    required
+                  />
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label
                     htmlFor="impressoraId"
-                    className="text-slate-700 font-medium"
+                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
                   >
                     Impressora *
                   </Label>
@@ -348,8 +351,8 @@ function CriarImpressaoContent() {
                       setFormData({ ...formData, impressoraId: value })
                     }
                   >
-                    <SelectTrigger className="bg-white border-slate-300 text-slate-800">
-                      <SelectValue placeholder="Selecione a impressora" />
+                    <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors w-full">
+                      <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-slate-200">
                       {impressoras.length === 0 ? (
@@ -358,7 +361,7 @@ function CriarImpressaoContent() {
                           disabled
                           className="text-slate-600"
                         >
-                          Nenhuma impressora disponível
+                          Nenhuma disponível
                         </SelectItem>
                       ) : (
                         impressoras.map((impressora) => (
@@ -376,41 +379,50 @@ function CriarImpressaoContent() {
                 </div>
 
                 <div>
-                  <Label
-                    htmlFor="tempoImpressao"
-                    className="text-slate-700 font-medium"
-                  >
-                    Tempo de Impressão (minutos) *
+                  <Label className="text-slate-700 font-semibold text-sm mb-1.5 block">
+                    Tempo de Impressão *
                   </Label>
-                  <Input
-                    id="tempoImpressao"
-                    type="number"
-                    min="1"
-                    value={formData.tempoImpressao}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        tempoImpressao: e.target.value,
-                      })
-                    }
-                    className="bg-white border-slate-300 text-slate-800"
-                    placeholder="Ex: 180"
-                    required
-                  />
-                  {formData.tempoImpressao && (
-                    <p className="text-slate-600 text-xs mt-1">
-                      ≈ {Math.floor(parseFloat(formData.tempoImpressao) / 60)}h{" "}
-                      {parseFloat(formData.tempoImpressao) % 60}min
-                    </p>
-                  )}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Input
+                        id="horas"
+                        type="number"
+                        min="0"
+                        value={formData.horas}
+                        onChange={(e) =>
+                          setFormData({ ...formData, horas: e.target.value })
+                        }
+                        className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
+                        placeholder="Horas"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        id="minutos"
+                        type="number"
+                        min="0"
+                        max="59"
+                        value={formData.minutos}
+                        onChange={(e) =>
+                          setFormData({ ...formData, minutos: e.target.value })
+                        }
+                        className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
+                        placeholder="Minutos"
+                      />
+                    </div>
+                  </div>
+                  {formData.tempoImpressao &&
+                    parseInt(formData.tempoImpressao) > 0 && (
+                      <p className="text-blue-600 text-xs mt-1.5 font-medium">
+                        ⏱️ Total: {formData.tempoImpressao} minutos
+                      </p>
+                    )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label
                     htmlFor="custosAdicionais"
-                    className="text-slate-700 font-medium"
+                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
                   >
                     Custos Adicionais
                   </Label>
@@ -420,20 +432,17 @@ function CriarImpressaoContent() {
                     value={custosAdicionaisInput.valorFormatado}
                     onChange={custosAdicionaisInput.handleChange}
                     onKeyDown={custosAdicionaisInput.handleKeyDown}
-                    className="bg-white border-slate-300 text-slate-800 font-medium"
+                    className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
                     placeholder="R$ 0,00"
                   />
-                  <p className="text-slate-500 text-xs mt-1">
-                    Embalagem, adesivos, etc.
-                  </p>
                 </div>
 
                 <div>
                   <Label
                     htmlFor="markup"
-                    className="text-slate-700 font-medium"
+                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
                   >
-                    Markup (Multiplicador)
+                    Markup
                   </Label>
                   <Input
                     id="markup"
@@ -442,207 +451,382 @@ function CriarImpressaoContent() {
                     min="1"
                     value={formData.markup}
                     onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        markup: e.target.value,
-                      })
+                      setFormData({ ...formData, markup: e.target.value })
                     }
-                    className="bg-white border-slate-300 text-slate-800"
+                    className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
                     placeholder="4"
                   />
-                  <p className="text-slate-500 text-xs mt-1">
-                    Multiplicador do custo
-                  </p>
                 </div>
 
                 <div>
                   <Label
-                    htmlFor="custoPeca"
-                    className="text-slate-700 font-medium"
+                    htmlFor="observacoes"
+                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
                   >
-                    Custo da Peça
+                    Observações
                   </Label>
-                  <Input
-                    id="custoPeca"
-                    type="text"
-                    value={
-                      formData.custoPeca
-                        ? `R$ ${parseFloat(formData.custoPeca).toFixed(2)}`
-                        : "R$ 0,00"
+                  <Textarea
+                    id="observacoes"
+                    value={formData.observacoes}
+                    onChange={(e) =>
+                      setFormData({ ...formData, observacoes: e.target.value })
                     }
-                    className="bg-slate-50 border-slate-300 text-slate-800 font-semibold"
-                    disabled
+                    className="bg-slate-50 border-slate-300 text-slate-800 min-h-[100px] text-sm focus:bg-white transition-colors resize-none"
+                    placeholder="Observações..."
                   />
-                  <p className="text-slate-500 text-xs mt-1">
-                    Custo total calculado
-                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <Label
-                    htmlFor="precoVenda"
-                    className="text-slate-700 font-medium"
-                  >
-                    Preço de Venda (com Markup)
+              {/* Coluna 2: Filamentos */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <Label className="text-slate-700 font-semibold text-sm">
+                    Filamentos *
                   </Label>
-                  <div className="relative">
-                    <Input
-                      id="precoVenda"
-                      type="text"
-                      value={
-                        formData.precoVenda
+                  <Button
+                    type="button"
+                    onClick={adicionarFilamento}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-8 px-3 text-xs shadow-sm"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    Adicionar
+                  </Button>
+                </div>
+
+                <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+                  {filamentosSelecionados.map((filamentoSel, index) => {
+                    const filamentoAtual = filamentos.find(
+                      (f) => f.id === filamentoSel.filamentoId
+                    );
+                    const quantidadeUsada =
+                      parseFloat(filamentoSel.quantidadeUsada) || 0;
+                    const sobra = filamentoAtual
+                      ? filamentoAtual.pesoAtual - quantidadeUsada
+                      : 0;
+
+                    return (
+                      <div
+                        key={index}
+                        className="bg-gradient-to-br from-slate-50 to-blue-50 p-3 rounded-lg border border-slate-300 shadow-sm space-y-2.5"
+                      >
+                        <Select
+                          value={filamentoSel.filamentoId}
+                          onValueChange={(value) =>
+                            atualizarFilamento(index, "filamentoId", value)
+                          }
+                        >
+                          <SelectTrigger className="bg-white border-slate-300 text-slate-800 !h-12 text-sm">
+                            <SelectValue placeholder="Selecione o filamento" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white border-slate-200">
+                            {filamentos.map((filamento) => (
+                              <SelectItem
+                                key={filamento.id}
+                                value={filamento.id}
+                                className="text-slate-800 text-sm py-2"
+                              >
+                                <div className="flex flex-col gap-0.5">
+                                  <div className="flex items-center gap-1.5">
+                                    <div
+                                      className="w-3 h-3 rounded-full border border-slate-300"
+                                      style={{ backgroundColor: filamento.cor }}
+                                    />
+                                    <span className="font-medium">
+                                      {filamento.tipo}
+                                    </span>
+                                    <span>-</span>
+                                    <span>{filamento.nomeCor}</span>
+                                    <span className="text-slate-500 text-xs ml-auto">
+                                      ({filamento.pesoAtual.toFixed(0)}g)
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-slate-500 ml-4">
+                                    Comprador:{" "}
+                                    {filamento.comprador.primeiroNome}{" "}
+                                    {filamento.comprador.ultimoNome}
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <div className="flex gap-2">
+                          <div className="flex-1">
+                            <Input
+                              type="number"
+                              min="0.1"
+                              step="0.1"
+                              max={
+                                filamentoSel.filamentoId
+                                  ? filamentos.find(
+                                      (f) => f.id === filamentoSel.filamentoId
+                                    )?.pesoAtual
+                                  : undefined
+                              }
+                              value={filamentoSel.quantidadeUsada}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const filamentoSelecionado = filamentos.find(
+                                  (f) => f.id === filamentoSel.filamentoId
+                                );
+
+                                if (
+                                  filamentoSelecionado &&
+                                  parseFloat(value) >
+                                    filamentoSelecionado.pesoAtual
+                                ) {
+                                  toast.error("Quantidade inválida", {
+                                    description: `Disponível apenas ${filamentoSelecionado.pesoAtual.toFixed(
+                                      1
+                                    )}g.`,
+                                  });
+                                  return;
+                                }
+
+                                atualizarFilamento(
+                                  index,
+                                  "quantidadeUsada",
+                                  value
+                                );
+                              }}
+                              className="bg-white border-slate-300 text-slate-800 h-9 text-sm"
+                              placeholder="Gramas"
+                            />
+                          </div>
+
+                          {filamentosSelecionados.length > 1 && (
+                            <Button
+                              type="button"
+                              onClick={() => removerFilamento(index)}
+                              variant="destructive"
+                              size="sm"
+                              className="h-9 w-9 p-0"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Informação de sobra no carretel */}
+                        {filamentoAtual && quantidadeUsada > 0 && (
+                          <div className="bg-white p-2 rounded border border-slate-200">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-slate-600">
+                                Sobrará no carretel:
+                              </span>
+                              <span
+                                className={
+                                  sobra < 100
+                                    ? "font-bold text-amber-600"
+                                    : "font-bold text-green-600"
+                                }
+                              >
+                                {sobra.toFixed(1)}g
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-sm">
+                  <div className="flex justify-between text-white">
+                    <span className="font-semibold text-sm">
+                      Total de Filamento:
+                    </span>
+                    <span className="font-bold text-lg">
+                      {calcularFilamentoTotal().toFixed(1)}g
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna 3: Resumo Financeiro */}
+              <div className="space-y-4">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border-2 border-blue-300 shadow-md">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 text-white rounded-lg flex items-center justify-center shadow-sm">
+                      <DollarSign className="h-5 w-5" />
+                    </div>
+                    <h3 className="font-bold text-slate-800 text-base">
+                      Resumo Financeiro
+                    </h3>
+                  </div>
+
+                  <div className="space-y-3">
+                    {/* Custo Total */}
+                    <div className="bg-white p-4 rounded-lg border-2 border-orange-200 shadow-sm">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-bold text-orange-700 uppercase tracking-wide">
+                          Custo Total
+                        </p>
+                        <Package className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <p className="text-3xl font-black text-orange-600 mb-3">
+                        {formData.custoPeca
+                          ? `R$ ${parseFloat(formData.custoPeca).toFixed(2)}`
+                          : "R$ 0,00"}
+                      </p>
+                      <div className="space-y-2 pt-2 border-t-2 border-orange-100">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-600 font-medium">
+                            Filamento ({calcularFilamentoTotal().toFixed(1)}g)
+                          </span>
+                          <span className="font-bold text-slate-800">
+                            {(() => {
+                              let custoFilamento = 0;
+                              filamentosSelecionados.forEach((filSel) => {
+                                const filamento = filamentos.find(
+                                  (f) => f.id === filSel.filamentoId
+                                );
+                                if (
+                                  filamento &&
+                                  parseFloat(filSel.quantidadeUsada) > 0
+                                ) {
+                                  const custoGrama =
+                                    filamento.precoCompra /
+                                    filamento.pesoInicial;
+                                  custoFilamento +=
+                                    custoGrama *
+                                    parseFloat(filSel.quantidadeUsada);
+                                }
+                              });
+                              return `R$ ${custoFilamento.toFixed(2)}`;
+                            })()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-600 font-medium">
+                            Energia (
+                            {formData.tempoImpressao
+                              ? `${Math.floor(
+                                  parseInt(formData.tempoImpressao) / 60
+                                )}h ${
+                                  parseInt(formData.tempoImpressao) % 60
+                                }min`
+                              : "0h 0min"}
+                            )
+                          </span>
+                          <span className="font-bold text-slate-800">
+                            {(() => {
+                              if (
+                                !formData.tempoImpressao ||
+                                !formData.impressoraId
+                              )
+                                return "R$ 0,00";
+                              const impressora = impressoras.find(
+                                (imp) =>
+                                  imp.id.toString() === formData.impressoraId
+                              );
+                              if (!impressora) return "R$ 0,00";
+                              const horasImpressao =
+                                parseFloat(formData.tempoImpressao) / 60;
+                              const custoEnergia =
+                                impressora.gastoEnergiaKwh *
+                                horasImpressao *
+                                impressora.precoEnergiaKwh;
+                              return `R$ ${custoEnergia.toFixed(2)}`;
+                            })()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-slate-600 font-medium">
+                            Custos Adicionais
+                          </span>
+                          <span className="font-bold text-slate-800">
+                            R${" "}
+                            {(
+                              parseFloat(formData.custosAdicionais) || 0
+                            ).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-xs pt-1.5 border-t border-slate-200">
+                          <span className="text-slate-600 font-medium">
+                            Markup
+                          </span>
+                          <span className="font-bold text-blue-600">
+                            {formData.markup}x
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Preço de Venda */}
+                    <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-lg border-2 border-green-400 shadow-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-bold text-white uppercase tracking-wide">
+                          Preço de Venda
+                        </p>
+                        <TrendingUp className="h-5 w-5 text-white" />
+                      </div>
+                      <p className="text-4xl font-black text-white mb-3">
+                        {formData.precoVenda
                           ? `R$ ${parseFloat(formData.precoVenda).toFixed(2)}`
-                          : "R$ 0,00"
-                      }
-                      className="bg-green-50 border-green-300 text-green-700 font-bold text-lg"
-                      disabled
-                    />
+                          : "R$ 0,00"}
+                      </p>
+                      <div className="space-y-2 pt-2 border-t-2 border-green-400">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-green-50 font-semibold">
+                            Lucro Líquido
+                          </span>
+                          <span className="text-xl font-black text-white">
+                            {formData.precoVenda && formData.custoPeca
+                              ? `R$ ${(
+                                  parseFloat(formData.precoVenda) -
+                                  parseFloat(formData.custoPeca)
+                                ).toFixed(2)}`
+                              : "R$ 0,00"}
+                          </span>
+                        </div>
+                        <div className="bg-green-400/30 px-2 py-1 rounded">
+                          <p className="text-xs text-white font-bold text-center">
+                            {formData.precoVenda &&
+                            formData.custoPeca &&
+                            parseFloat(formData.custoPeca) > 0
+                              ? `🎯 ${(
+                                  ((parseFloat(formData.precoVenda) -
+                                    parseFloat(formData.custoPeca)) /
+                                    parseFloat(formData.custoPeca)) *
+                                  100
+                                ).toFixed(0)}% de margem de lucro`
+                              : "Configure para ver margem"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-slate-500 text-xs mt-1">
-                    Custo × {formData.markup || "4"}x markup
-                  </p>
                 </div>
-              </div>
 
-              <div>
-                <Label
-                  htmlFor="observacoes"
-                  className="text-slate-700 font-medium"
-                >
-                  Observações
-                </Label>
-                <Textarea
-                  id="observacoes"
-                  value={formData.observacoes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, observacoes: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800 min-h-[100px]"
-                  placeholder="Adicione observações sobre a impressão..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Filamentos */}
-          <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                <span className="w-8 h-8 bg-slate-600 text-white rounded-full flex items-center justify-center text-sm">
-                  2
-                </span>
-                Filamentos Utilizados *
-              </h2>
-              <Button
-                type="button"
-                onClick={adicionarFilamento}
-                className="bg-green-600 hover:bg-green-700 text-white"
-                size="sm"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Adicionar Filamento
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              {filamentosSelecionados.map((filamentoSel, index) => (
-                <div
-                  key={index}
-                  className="flex gap-4 items-end bg-slate-50 p-4 rounded-lg border border-slate-200"
-                >
-                  <div className="flex-1">
-                    <Label className="text-slate-700 font-medium">
-                      Filamento
-                    </Label>
-                    <Select
-                      value={filamentoSel.filamentoId}
-                      onValueChange={(value) =>
-                        atualizarFilamento(index, "filamentoId", value)
-                      }
-                    >
-                      <SelectTrigger className="bg-white border-slate-300 text-slate-800">
-                        <SelectValue placeholder="Selecione o filamento" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200">
-                        {filamentos.map((filamento) => (
-                          <SelectItem
-                            key={filamento.id}
-                            value={filamento.id}
-                            className="text-slate-800"
-                          >
-                            {filamento.tipo} - {filamento.cor} (
-                            {filamento.pesoAtual.toFixed(0)}g disponível)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex-1">
-                    <Label className="text-slate-700 font-medium">
-                      Quantidade (g)
-                    </Label>
-                    <Input
-                      type="number"
-                      min="0.1"
-                      step="0.1"
-                      value={filamentoSel.quantidadeUsada}
-                      onChange={(e) =>
-                        atualizarFilamento(
-                          index,
-                          "quantidadeUsada",
-                          e.target.value
-                        )
-                      }
-                      className="bg-white border-slate-300 text-slate-800"
-                      placeholder="0.0"
-                    />
-                  </div>
-
-                  {filamentosSelecionados.length > 1 && (
-                    <Button
-                      type="button"
-                      onClick={() => removerFilamento(index)}
-                      variant="destructive"
-                      size="sm"
-                      className="mb-0"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-
-              <div className="bg-slate-100 p-4 rounded-lg border border-slate-300">
-                <div className="flex justify-between text-slate-800">
-                  <span className="font-medium">Total de Filamento:</span>
-                  <span className="font-bold text-lg">
-                    {calcularFilamentoTotal().toFixed(1)}g
-                  </span>
+                {/* Botões */}
+                <div className="flex flex-col gap-3 pt-2">
+                  <Button
+                    type="submit"
+                    disabled={loading || !validarFormulario()}
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white h-12 font-bold text-base shadow-lg disabled:opacity-50 transition-all"
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Criando...
+                      </span>
+                    ) : (
+                      "Criar Impressão"
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push("/impressoes")}
+                    className="bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-100 h-11 font-semibold"
+                  >
+                    Cancelar
+                  </Button>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Botões */}
-          <div className="flex gap-4 justify-end pt-4 border-t border-slate-200">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/impressoes")}
-              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || !validarFormulario()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8"
-            >
-              {loading ? "Criando..." : "Criar Impressão"}
-            </Button>
           </div>
         </form>
       </div>

@@ -38,9 +38,8 @@ export default function FilamentCard({
           />
           <div>
             <h3 className="font-bold text-lg text-slate-800">
-              {filamento.tipo}
+              {filamento.tipo} - {filamento.nomeCor}
             </h3>
-            <p className="text-sm text-slate-600">{filamento.nomeCor}</p>
             <p className="text-xs text-slate-500">{filamento.cor}</p>
           </div>
         </div>
@@ -95,18 +94,19 @@ export default function FilamentCard({
         <Button
           variant="outline"
           size="sm"
-          className="flex-1"
+          className="flex-1 cursor-pointer"
           onClick={() => onViewDetails(filamento.id)}
         >
           <Eye className="h-4 w-4 mr-1" />
           Detalhes
         </Button>
-        <Button variant="outline" size="sm" onClick={() => onEdit(filamento)}>
+        <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => onEdit(filamento)}>
           <Edit className="h-4 w-4" />
         </Button>
         <Button
           variant="destructive"
           size="sm"
+          className="cursor-pointer"
           onClick={() => onDelete(filamento.id)}
         >
           <Trash2 className="h-4 w-4" />

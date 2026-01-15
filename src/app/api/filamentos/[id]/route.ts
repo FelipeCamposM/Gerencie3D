@@ -73,12 +73,14 @@ export async function PUT(
 
     const updateData: Partial<{
       tipo: string;
+      nomeCor: string;
       cor: string;
       pesoAtual: number;
       precoCompra: number;
       ultimaUtilizacao: Date;
     }> = {};
     if (data.tipo) updateData.tipo = data.tipo;
+    if (data.nomeCor) updateData.nomeCor = data.nomeCor;
     if (data.cor) updateData.cor = data.cor;
     if (data.pesoAtual !== undefined)
       updateData.pesoAtual = parseFloat(data.pesoAtual);

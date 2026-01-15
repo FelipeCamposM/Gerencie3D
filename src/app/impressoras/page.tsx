@@ -346,7 +346,7 @@ function ImpressorasContent() {
           </div>
           <button
             onClick={handleCreateClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer"
           >
             <Printer className="h-5 w-5" />
             Nova Impressora
@@ -449,95 +449,111 @@ function ImpressorasContent() {
             {impressoras.map((impressora) => (
               <div
                 key={impressora.id}
-                className="bg-white rounded-lg border border-slate-200 hover:shadow-lg transition-all shadow-sm overflow-hidden"
+                className="bg-white rounded-lg border border-slate-200 hover:shadow-lg transition-all shadow-sm overflow-hidden flex flex-col"
               >
-                {impressora.imagemImpressora && (
-                  <div className="relative w-full aspect-square bg-slate-100">
-                    <Image
-                      src={impressora.imagemImpressora}
-                      alt={impressora.nome}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      unoptimized
-                    />
-                  </div>
-                )}
+                <div className="flex p-4 gap-4">
+                  {/* Imagem à esquerda */}
+                  {impressora.imagemImpressora ? (
+                    <div className="relative w-32 h-32 flex-shrink-0 bg-slate-100 rounded-lg overflow-hidden">
+                      <Image
+                        src={impressora.imagemImpressora}
+                        alt={impressora.nome}
+                        fill
+                        className="object-contain"
+                        sizes="128px"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 flex-shrink-0 bg-slate-100 rounded-lg flex items-center justify-center">
+                      <Printer className="h-12 w-12 text-slate-400" />
+                    </div>
+                  )}
 
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-2">
-                      <Printer className="h-5 w-5 text-blue-600" />
-                      <h3 className="text-xl font-bold text-slate-800">
-                        {impressora.nome}
-                      </h3>
+                  {/* Informações à direita */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Printer className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                        <h3 className="text-lg font-bold text-slate-800 truncate">
+                          {impressora.nome}
+                        </h3>
+                      </div>
+                      <span
+                        className={`${getStatusColor(
+                          impressora.status
+                        )} text-white text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ml-2 flex-shrink-0`}
+                      >
+                        {getStatusText(impressora.status)}
+                      </span>
                     </div>
-                    <span
-                      className={`${getStatusColor(
-                        impressora.status
-                      )} text-white text-xs px-3 py-1 rounded-full font-medium`}
-                    >
-                      {getStatusText(impressora.status)}
-                    </span>
-                  </div>
 
-                  <div className="space-y-3 text-sm mb-6">
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <div className="h-1 w-1 bg-slate-400 rounded-full"></div>
-                      <span className="font-semibold">Modelo:</span>
-                      <span className="text-slate-800">
-                        {impressora.modelo}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <div className="h-1 w-1 bg-slate-400 rounded-full"></div>
-                      <span className="font-semibold">Localização:</span>
-                      <span className="text-slate-800">
-                        {impressora.localizacao}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Package className="h-4 w-4 text-purple-600" />
-                      <span className="font-semibold">Filamento usado:</span>
-                      <span className="text-slate-800">
-                        {impressora.filamentoTotalUsado.toFixed(0)}g
-                      </span>
-                    </div>
-                    {impressora.ultimoUsuario && (
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <Activity className="h-4 w-4 text-blue-600" />
-                        <span className="font-semibold">Último uso:</span>
-                        <span className="text-slate-800">
-                          {impressora.ultimoUsuario.primeiroNome}{" "}
-                          {impressora.ultimoUsuario.ultimoNome}
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <div className="h-1 w-1 bg-slate-400 rounded-full flex-shrink-0"></div>
+                        <span className="font-semibold">Modelo:</span>
+                        <span className="text-slate-800 truncate">
+                          {impressora.modelo}
                         </span>
                       </div>
-                    )}
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Zap className="h-4 w-4 text-yellow-600" />
-                      <span className="font-semibold">Energia:</span>
-                      <span className="text-slate-800">
-                        {impressora.gastoEnergiaKwh.toFixed(2)} kWh
-                      </span>
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <div className="h-1 w-1 bg-slate-400 rounded-full flex-shrink-0"></div>
+                        <span className="font-semibold">Marca:</span>
+                        <span className="text-slate-800 truncate">
+                          {impressora.marca}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <div className="h-1 w-1 bg-slate-400 rounded-full flex-shrink-0"></div>
+                        <span className="font-semibold">Localização:</span>
+                        <span className="text-slate-800 truncate">
+                          {impressora.localizacao}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <Package className="h-3 w-3 text-purple-600 flex-shrink-0" />
+                        <span className="font-semibold">Filamento Utilizado:</span>
+                        <span className="text-slate-800">
+                          {impressora.filamentoTotalUsado.toFixed(0)}g
+                        </span>
+                      </div>
+                      {impressora.ultimoUsuario && (
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                          <Activity className="h-3 w-3 text-blue-600 flex-shrink-0" />
+                          <span className="font-semibold">Último Usuário:</span>
+                          <span className="text-slate-800 truncate">
+                            {impressora.ultimoUsuario.primeiroNome}{" "}
+                            {impressora.ultimoUsuario.ultimoNome}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <Zap className="h-3 w-3 text-yellow-600 flex-shrink-0" />
+                        <span className="font-semibold">Energia Consumida:</span>
+                        <span className="text-slate-800">
+                          {impressora.gastoEnergiaKwh.toFixed(2)} kWh
+                        </span>
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleDetailsClick(impressora)}
-                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                    >
-                      <Eye className="h-4 w-4" />
-                      Detalhes
-                    </button>
-                    <button
-                      onClick={() => handleEditClick(impressora)}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                    >
-                      <Edit className="h-4 w-4" />
-                      Editar
-                    </button>
-                  </div>
+                {/* Botões embaixo */}
+                <div className="flex gap-2 px-4 pb-4">
+                  <button
+                    onClick={() => handleDetailsClick(impressora)}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Eye className="h-4 w-4" />
+                    Detalhes
+                  </button>
+                  <button
+                    onClick={() => handleEditClick(impressora)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Editar
+                  </button>
                 </div>
               </div>
             ))}
@@ -547,164 +563,219 @@ function ImpressorasContent() {
 
       {/* Modal de Criação */}
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
-              <Printer className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
+              <Printer className="h-6 w-6 text-blue-600" />
               Nova Impressora
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="imagemUrl-create" className="text-slate-700">
-                Imagem da Impressora
-              </Label>
-              <Input
-                id="imagemUrl-create"
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp"
-                onChange={handleFileChange}
-                className="bg-white border-slate-300 text-slate-800"
-              />
-              <p className="text-xs text-slate-500 mt-1">
+          <div className="space-y-6">
+            {/* Seção de Imagem */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
+              <div className="flex items-center gap-2 mb-4">
+                <ImageIcon className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-slate-700">
+                  Imagem da Impressora
+                </h4>
+              </div>
+              <div className="flex items-center gap-4">
+                <label
+                  htmlFor="imagemUrl-create"
+                  className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <ImageIcon className="h-4 w-4" />
+                  Escolher Imagem
+                </label>
+                <input
+                  id="imagemUrl-create"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <span className="text-sm text-slate-600">
+                  {selectedFile
+                    ? selectedFile.name
+                    : "Nenhuma imagem selecionada"}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-2">
                 Formatos aceitos: JPEG, PNG, WEBP. Tamanho máximo: 5MB
               </p>
               {imagePreview && (
-                <div className="mt-2 relative w-full aspect-square bg-slate-100">
+                <div className="mt-4 relative w-48 h-48 mx-auto bg-white rounded-lg overflow-hidden shadow-sm border border-slate-200">
                   <Image
                     src={imagePreview}
                     alt="Preview"
                     fill
-                    className="object-contain rounded-lg border border-slate-300"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain"
+                    sizes="192px"
                     unoptimized
                   />
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="nome-create" className="text-slate-700">
-                  Nome
-                </Label>
-                <Input
-                  id="nome-create"
-                  value={formData.nome}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nome: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+
+            {/* Seção de Informações Básicas */}
+            <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Printer className="h-5 w-5 text-blue-600" />
+                <h4 className="font-semibold text-slate-700">
+                  Informações Básicas
+                </h4>
               </div>
-              <div>
-                <Label htmlFor="modelo-create" className="text-slate-700">
-                  Modelo
-                </Label>
-                <Input
-                  id="modelo-create"
-                  value={formData.modelo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, modelo: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label
+                    htmlFor="nome-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Printer className="h-4 w-4 text-blue-600" />
+                    Nome
+                  </Label>
+                  <Input
+                    id="nome-create"
+                    value={formData.nome}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nome: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="modelo-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Tag className="h-4 w-4 text-purple-600" />
+                    Modelo
+                  </Label>
+                  <Input
+                    id="modelo-create"
+                    value={formData.modelo}
+                    onChange={(e) =>
+                      setFormData({ ...formData, modelo: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="marca-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Tag className="h-4 w-4 text-green-600" />
+                    Marca
+                  </Label>
+                  <Input
+                    id="marca-create"
+                    value={formData.marca}
+                    onChange={(e) =>
+                      setFormData({ ...formData, marca: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="localizacao-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <MapPin className="h-4 w-4 text-orange-600" />
+                    Localização
+                  </Label>
+                  <Input
+                    id="localizacao-create"
+                    value={formData.localizacao}
+                    onChange={(e) =>
+                      setFormData({ ...formData, localizacao: e.target.value })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="marca-create" className="text-slate-700">
-                  Marca
-                </Label>
-                <Input
-                  id="marca-create"
-                  value={formData.marca}
-                  onChange={(e) =>
-                    setFormData({ ...formData, marca: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
+            {/* Seção de Status e Energia */}
+            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-100">
+              <div className="flex items-center gap-2 mb-4">
+                <Zap className="h-5 w-5 text-yellow-600" />
+                <h4 className="font-semibold text-slate-700">
+                  Status e Configurações de Energia
+                </h4>
               </div>
-              <div>
-                <Label htmlFor="localizacao-create" className="text-slate-700">
-                  Localização
-                </Label>
-                <Input
-                  id="localizacao-create"
-                  value={formData.localizacao}
-                  onChange={(e) =>
-                    setFormData({ ...formData, localizacao: e.target.value })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="status-create" className="text-slate-700">
-                Status
-              </Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, status: value })
-                }
-              >
-                <SelectTrigger className="bg-white border-slate-300 text-slate-800">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-slate-200">
-                  <SelectItem value="disponivel">Disponível</SelectItem>
-                  <SelectItem value="em_uso">Em Uso</SelectItem>
-                  <SelectItem value="manutencao">Manutenção</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label
-                  htmlFor="gastoEnergiaKwh-create"
-                  className="text-slate-700"
-                >
-                  Gasto Energia (kWh)
-                </Label>
-                <Input
-                  id="gastoEnergiaKwh-create"
-                  type="number"
-                  step="0.01"
-                  value={formData.gastoEnergiaKwh}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      gastoEnergiaKwh: e.target.value,
-                    })
-                  }
-                  className="bg-white border-slate-300 text-slate-800"
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="precoEnergiaKwh-create"
-                  className="text-slate-700"
-                >
-                  Preço Energia (R$/kWh)
-                </Label>
-                <Input
-                  id="precoEnergiaKwh-create"
-                  type="text"
-                  value={precoEnergiaInput.valorFormatado}
-                  onChange={precoEnergiaInput.handleChange}
-                  onKeyDown={precoEnergiaInput.handleKeyDown}
-                  className="bg-white border-slate-300 text-slate-800 font-medium"
-                  placeholder="R$ 0,00"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label
+                    htmlFor="status-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Activity className="h-4 w-4 text-cyan-600" />
+                    Status
+                  </Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, status: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-white border-slate-300 text-slate-800 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-slate-200">
+                      <SelectItem value="disponivel">Disponível</SelectItem>
+                      <SelectItem value="em_uso">Em Uso</SelectItem>
+                      <SelectItem value="manutencao">Manutenção</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label
+                    htmlFor="gastoEnergiaKwh-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Zap className="h-4 w-4 text-yellow-600" />
+                    Gasto Energia (kWh)
+                  </Label>
+                  <Input
+                    id="gastoEnergiaKwh-create"
+                    type="number"
+                    step="0.01"
+                    value={formData.gastoEnergiaKwh}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        gastoEnergiaKwh: e.target.value,
+                      })
+                    }
+                    className="bg-white border-slate-300 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="precoEnergiaKwh-create"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <DollarSign className="h-4 w-4 text-green-600" />
+                    Preço Energia (R$/kWh)
+                  </Label>
+                  <Input
+                    id="precoEnergiaKwh-create"
+                    type="text"
+                    value={precoEnergiaInput.valorFormatado}
+                    onChange={precoEnergiaInput.handleChange}
+                    onKeyDown={precoEnergiaInput.handleKeyDown}
+                    className="bg-white border-slate-300 text-slate-800 font-medium"
+                    placeholder="R$ 0,00"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex justify-center gap-3">
             <Button
               variant="outline"
               onClick={() => setCreateModalOpen(false)}
@@ -741,24 +812,38 @@ function ImpressorasContent() {
                   Imagem da Impressora
                 </h4>
               </div>
-              <Input
-                id="imagemUrl"
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp"
-                onChange={handleFileChange}
-                className="bg-white border-slate-300 text-slate-800"
-              />
+              <div className="flex items-center gap-4">
+                <label
+                  htmlFor="imagemUrl"
+                  className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <ImageIcon className="h-4 w-4" />
+                  Escolher Imagem
+                </label>
+                <input
+                  id="imagemUrl"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <span className="text-sm text-slate-600">
+                  {selectedFile
+                    ? selectedFile.name
+                    : "Nenhuma imagem selecionada"}
+                </span>
+              </div>
               <p className="text-xs text-slate-500 mt-2">
                 Formatos aceitos: JPEG, PNG, WEBP. Tamanho máximo: 5MB
               </p>
               {imagePreview && (
-                <div className="mt-4 relative w-full aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
+                <div className="mt-4 relative w-48 h-48 mx-auto bg-white rounded-lg overflow-hidden shadow-sm border border-slate-200">
                   <Image
                     src={imagePreview}
                     alt="Preview"
                     fill
                     className="object-contain"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="192px"
                     unoptimized
                   />
                 </div>
@@ -845,47 +930,39 @@ function ImpressorasContent() {
               </div>
             </div>
 
-            {/* Seção de Status */}
-            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-100">
-              <div className="flex items-center gap-2 mb-4">
-                <Activity className="h-5 w-5 text-cyan-600" />
-                <h4 className="font-semibold text-slate-700">Status</h4>
-              </div>
-              <div>
-                <Label
-                  htmlFor="status"
-                  className="text-slate-700 flex items-center gap-2 mb-2"
-                >
-                  <Activity className="h-4 w-4 text-cyan-600" />
-                  Status da Impressora
-                </Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, status: value })
-                  }
-                >
-                  <SelectTrigger className="bg-white border-slate-300 text-slate-800">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200">
-                    <SelectItem value="disponivel">Disponível</SelectItem>
-                    <SelectItem value="em_uso">Em Uso</SelectItem>
-                    <SelectItem value="manutencao">Manutenção</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Seção de Energia */}
+            {/* Seção de Status e Energia */}
             <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-100">
               <div className="flex items-center gap-2 mb-4">
                 <Zap className="h-5 w-5 text-yellow-600" />
                 <h4 className="font-semibold text-slate-700">
-                  Configurações de Energia
+                  Status e Configurações de Energia
                 </h4>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label
+                    htmlFor="status"
+                    className="text-slate-700 flex items-center gap-2 mb-2"
+                  >
+                    <Activity className="h-4 w-4 text-cyan-600" />
+                    Status
+                  </Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, status: value })
+                    }
+                  >
+                    <SelectTrigger className="bg-white border-slate-300 text-slate-800 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-slate-200">
+                      <SelectItem value="disponivel">Disponível</SelectItem>
+                      <SelectItem value="em_uso">Em Uso</SelectItem>
+                      <SelectItem value="manutencao">Manutenção</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div>
                   <Label
                     htmlFor="gastoEnergiaKwh"
@@ -930,7 +1007,7 @@ function ImpressorasContent() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex justify-center gap-3">
             <Button
               variant="outline"
               onClick={() => setEditModalOpen(false)}
@@ -960,84 +1037,20 @@ function ImpressorasContent() {
 
           {detailedImpressora && (
             <div className="space-y-6">
-              {/* Imagem da Impressora */}
-              {detailedImpressora.imagemImpressora && (
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
-                  <div className="flex items-center gap-2 mb-4">
-                    <ImageIcon className="h-5 w-5 text-blue-600" />
-                    <h4 className="font-semibold text-slate-700">Imagem</h4>
-                  </div>
-                  <div className="relative w-full aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
-                    <Image
-                      src={detailedImpressora.imagemImpressora}
-                      alt={detailedImpressora.nome}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Informações Gerais */}
+              {/* Informações Gerais com Imagem */}
               <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <Printer className="h-5 w-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-slate-800">
-                    Informações Gerais
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Printer className="h-4 w-4 text-blue-600" />
-                      <p className="text-slate-600 text-sm font-medium">Nome</p>
-                    </div>
-                    <p className="text-slate-900 font-semibold text-lg">
-                      {detailedImpressora.nome}
-                    </p>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Printer className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      Informações Gerais
+                    </h3>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Tag className="h-4 w-4 text-purple-600" />
-                      <p className="text-slate-600 text-sm font-medium">
-                        Modelo
-                      </p>
-                    </div>
-                    <p className="text-slate-900 font-semibold">
-                      {detailedImpressora.modelo}
-                    </p>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Tag className="h-4 w-4 text-green-600" />
-                      <p className="text-slate-600 text-sm font-medium">
-                        Marca
-                      </p>
-                    </div>
-                    <p className="text-slate-900 font-semibold">
-                      {detailedImpressora.marca || "N/A"}
-                    </p>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-4 w-4 text-orange-600" />
-                      <p className="text-slate-600 text-sm font-medium">
-                        Localização
-                      </p>
-                    </div>
-                    <p className="text-slate-900 font-semibold">
-                      {detailedImpressora.localizacao}
-                    </p>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm md:col-span-2">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Activity className="h-4 w-4 text-cyan-600" />
-                      <p className="text-slate-600 text-sm font-medium">
-                        Status
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-cyan-600" />
+                    <span className="text-sm font-medium text-slate-600">
+                      Status:
+                    </span>
                     <span
                       className={`inline-block px-4 py-2 rounded-lg text-sm font-semibold ${getStatusColor(
                         detailedImpressora.status
@@ -1045,6 +1058,74 @@ function ImpressorasContent() {
                     >
                       {getStatusText(detailedImpressora.status)}
                     </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-6">
+                  {/* Imagem à esquerda */}
+                  {detailedImpressora.imagemImpressora ? (
+                    <div className="relative w-48 h-48 flex-shrink-0 bg-white rounded-lg overflow-hidden shadow-sm border border-slate-200">
+                      <Image
+                        src={detailedImpressora.imagemImpressora}
+                        alt={detailedImpressora.nome}
+                        fill
+                        className="object-contain"
+                        sizes="192px"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-48 h-48 flex-shrink-0 bg-white rounded-lg flex items-center justify-center border border-slate-200">
+                      <Printer className="h-24 w-24 text-slate-300" />
+                    </div>
+                  )}
+
+                  {/* Informações à direita */}
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Printer className="h-4 w-4 text-blue-600" />
+                        <p className="text-slate-600 text-sm font-medium">
+                          Nome
+                        </p>
+                      </div>
+                      <p className="text-slate-900 font-semibold text-lg">
+                        {detailedImpressora.nome}
+                      </p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Tag className="h-4 w-4 text-purple-600" />
+                        <p className="text-slate-600 text-sm font-medium">
+                          Modelo
+                        </p>
+                      </div>
+                      <p className="text-slate-900 font-semibold">
+                        {detailedImpressora.modelo}
+                      </p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Tag className="h-4 w-4 text-green-600" />
+                        <p className="text-slate-600 text-sm font-medium">
+                          Marca
+                        </p>
+                      </div>
+                      <p className="text-slate-900 font-semibold">
+                        {detailedImpressora.marca || "N/A"}
+                      </p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-4 w-4 text-orange-600" />
+                        <p className="text-slate-600 text-sm font-medium">
+                          Localização
+                        </p>
+                      </div>
+                      <p className="text-slate-900 font-semibold">
+                        {detailedImpressora.localizacao}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -26,6 +26,9 @@ import {
   Eye,
   FileText,
   Activity,
+  Search,
+  Edit,
+  Trash2,
 } from "lucide-react";
 
 interface Impressao {
@@ -57,6 +60,7 @@ interface Impressao {
     filamento: {
       id: string;
       tipo: string;
+      nomeCor: string;
       cor: string;
     };
   }[];
@@ -82,6 +86,19 @@ function ImpressoesContent() {
     null
   );
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [timers, setTimers] = useState<Record<string, number>>({});
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [impressaoToDelete, setImpressaoToDelete] = useState<string | null>(
+    null
+  );
+  const [deletingInProgress, setDeletingInProgress] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState<{
+    nomeProjeto: string;
+    precoVenda: string;
+    observacoes: string;
+  }>({ nomeProjeto: "", precoVenda: "", observacoes: "" });
   const router = useRouter();
 
   useEffect(() => {
@@ -94,6 +111,41 @@ function ImpressoesContent() {
 
     return () => clearInterval(interval);
   }, [filterStatus]);
+
+  // Atualizar timers a cada segundo
+  useEffect(() => {
+    const updateTimers = () => {
+      const newTimers: Record<string, number> = {};
+
+      impressoes.forEach((impressao) => {
+        if (impressao.status === "em_andamento") {
+          const dataInicio = new Date(impressao.dataInicio).getTime();
+          const agora = new Date().getTime();
+          const tempoDecorridoSegundos = Math.floor(
+            (agora - dataInicio) / 1000
+          ); // em segundos
+          const tempoTotalSegundos = impressao.tempoImpressao * 60; // converter minutos para segundos
+          const tempoRestanteSegundos =
+            tempoTotalSegundos - tempoDecorridoSegundos;
+
+          if (tempoRestanteSegundos <= 0) {
+            // Tempo acabou, finalizar automaticamente
+            finalizarAutomaticamente(impressao.id);
+            newTimers[impressao.id] = 0;
+          } else {
+            newTimers[impressao.id] = tempoRestanteSegundos;
+          }
+        }
+      });
+
+      setTimers(newTimers);
+    };
+
+    updateTimers();
+    const interval = setInterval(updateTimers, 1000);
+
+    return () => clearInterval(interval);
+  }, [impressoes]);
 
   const fetchImpressoes = async () => {
     try {
@@ -108,6 +160,24 @@ function ImpressoesContent() {
       console.error("Erro ao buscar impressões:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const finalizarAutomaticamente = async (impressaoId: string) => {
+    try {
+      const response = await fetch(`/api/impressoes/${impressaoId}/finalizar`, {
+        method: "PATCH",
+      });
+
+      if (response.ok) {
+        toast.success("Impressão finalizada automaticamente!", {
+          description:
+            "O tempo de impressão acabou. A impressora está disponível novamente.",
+        });
+        fetchImpressoes();
+      }
+    } catch (error) {
+      console.error("Erro ao finalizar impressão automaticamente:", error);
     }
   };
 
@@ -166,6 +236,88 @@ function ImpressoesContent() {
     }
   };
 
+  const handleDeleteClick = (impressaoId: string) => {
+    setImpressaoToDelete(impressaoId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!impressaoToDelete) return;
+
+    setDeletingInProgress(true);
+    try {
+      const response = await fetch(`/api/impressoes/${impressaoToDelete}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast.success("Impressão deletada com sucesso!", {
+          description: "Os filamentos foram devolvidos ao estoque.",
+        });
+        setDeleteModalOpen(false);
+        setDetailsModalOpen(false);
+        setImpressaoToDelete(null);
+        fetchImpressoes();
+      } else {
+        const error = await response.json();
+        toast.error("Erro ao deletar impressão", {
+          description: error.error || "Tente novamente.",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao deletar impressão:", error);
+      toast.error("Erro ao deletar impressão", {
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+      });
+    } finally {
+      setDeletingInProgress(false);
+    }
+  };
+
+  const handleEditClick = (impressao: Impressao) => {
+    setEditFormData({
+      nomeProjeto: impressao.nomeProjeto,
+      precoVenda: impressao.precoVenda?.toString() || "",
+      observacoes: impressao.observacoes || "",
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleConfirmEdit = async () => {
+    if (!selectedImpressao) return;
+
+    try {
+      const response = await fetch(`/api/impressoes/${selectedImpressao.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nomeProjeto: editFormData.nomeProjeto,
+          precoVenda: editFormData.precoVenda
+            ? parseFloat(editFormData.precoVenda)
+            : null,
+          observacoes: editFormData.observacoes || null,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success("Impressão atualizada com sucesso!");
+        setEditModalOpen(false);
+        setDetailsModalOpen(false);
+        fetchImpressoes();
+      } else {
+        const error = await response.json();
+        toast.error("Erro ao atualizar impressão", {
+          description: error.error || "Tente novamente.",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar impressão:", error);
+      toast.error("Erro ao atualizar impressão", {
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "concluida":
@@ -201,6 +353,37 @@ function ImpressoesContent() {
     const mins = minutes % 60;
     return `${hours}h ${mins}min`;
   };
+
+  const formatTimeRemaining = (seconds: number) => {
+    if (seconds <= 0) return "Finalizando...";
+
+    const hours = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${mins}min ${secs}s restantes`;
+    } else if (mins > 0) {
+      return `${mins}min ${secs}s restantes`;
+    } else {
+      return `${secs}s restantes`;
+    }
+  };
+
+  // Filtrar impressões por pesquisa
+  const impressoesFiltradas = impressoes.filter((impressao) => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      impressao.nomeProjeto.toLowerCase().includes(searchLower) ||
+      impressao.impressora.nome.toLowerCase().includes(searchLower) ||
+      impressao.impressora.modelo.toLowerCase().includes(searchLower) ||
+      `${impressao.usuario.primeiroNome} ${impressao.usuario.ultimoNome}`
+        .toLowerCase()
+        .includes(searchLower)
+    );
+  });
 
   const totalImpressoes = impressoes.length;
   const concluidasCount = impressoes.filter(
@@ -318,6 +501,40 @@ function ImpressoesContent() {
           </div>
         )}
 
+        {/* Barra de Pesquisa */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Pesquisar por projeto, impressora ou usuário..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Filtros */}
         <div className="mb-6 flex gap-2">
           <button
@@ -364,13 +581,22 @@ function ImpressoesContent() {
 
         {loading ? (
           <div className="text-slate-700 text-center py-12">Carregando...</div>
-        ) : impressoes.length === 0 ? (
+        ) : impressoesFiltradas.length === 0 ? (
           <div className="text-slate-700 text-center py-12">
-            Nenhuma impressão encontrada
+            {searchTerm ? (
+              <>
+                <p className="text-lg font-medium mb-2">
+                  Nenhuma impressão encontrada
+                </p>
+                <p className="text-slate-500">Tente outro termo de pesquisa</p>
+              </>
+            ) : (
+              "Nenhuma impressão encontrada"
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {impressoes.map((impressao) => (
+            {impressoesFiltradas.map((impressao) => (
               <div
                 key={impressao.id}
                 className="bg-white rounded-lg border border-slate-200 hover:shadow-lg transition-all shadow-sm overflow-hidden"
@@ -392,6 +618,38 @@ function ImpressoesContent() {
                     </span>
                   </div>
 
+                  {/* Timer Destacado - Apenas para impressões em andamento */}
+                  {impressao.status === "em_andamento" &&
+                    timers[impressao.id] !== undefined && (
+                      <div className="mb-4 bg-gradient-to-br from-blue-600 to-cyan-600 px-4 py-2 rounded-xl shadow-lg border-2 border-blue-400">
+                        <div className="text-center">
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <Clock className="h-5 w-5 text-white animate-pulse" />
+                            <span className="text-white font-semibold text-sm uppercase tracking-wider">
+                              Tempo Restante
+                            </span>
+                          </div>
+                          <div
+                            className={`font-mono font-bold text-3xl transition-all duration-300 ${
+                              timers[impressao.id] <= 300
+                                ? "text-red-300 animate-pulse"
+                                : "text-white"
+                            }`}
+                          >
+                            {formatTimeRemaining(timers[impressao.id])}
+                          </div>
+                          {timers[impressao.id] <= 300 && (
+                            <div className="mt-2 flex items-center justify-center gap-1">
+                              <Activity className="h-3 w-3 text-red-300 animate-pulse" />
+                              <span className="text-red-200 text-xs font-medium">
+                                Finalizando em breve
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                   <div className="space-y-3 text-sm mb-6">
                     <div className="flex items-center gap-2 text-slate-600">
                       <Printer className="h-4 w-4 text-blue-600" />
@@ -410,17 +668,33 @@ function ImpressoesContent() {
                     </div>
                     <div className="flex items-center gap-2 text-slate-600">
                       <Clock className="h-4 w-4 text-orange-600" />
-                      <span className="font-semibold">Duração:</span>
+                      <span className="font-semibold">Duração Total:</span>
                       <span className="text-slate-800">
                         {formatDuration(impressao.tempoImpressao)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Package className="h-4 w-4 text-green-600" />
-                      <span className="font-semibold">Filamento:</span>
-                      <span className="text-slate-800">
-                        {impressao.filamentoTotalUsado.toFixed(0)}g
-                      </span>
+                    <div className="text-slate-600">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Package className="h-4 w-4 text-green-600" />
+                        <span className="font-semibold">Filamento:</span>
+                        <span className="text-slate-800">
+                          {impressao.filamentoTotalUsado.toFixed(0)}g total
+                        </span>
+                      </div>
+                      <div className="space-y-1 pl-6">
+                        {impressao.filamentos.map((fil, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full border border-slate-300 flex-shrink-0"
+                              style={{ backgroundColor: fil.filamento.cor }}
+                            />
+                            <span className="text-slate-700 text-xs">
+                              {fil.filamento.tipo} - {fil.filamento.nomeCor} (
+                              {fil.quantidadeUsada.toFixed(0)}g)
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 text-slate-600">
                       <DollarSign className="h-4 w-4 text-red-600" />
@@ -455,23 +729,41 @@ function ImpressoesContent() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleDetailsClick(impressao)}
-                      className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                    >
-                      <Eye className="h-4 w-4" />
-                      Detalhes
-                    </button>
-                    {impressao.status === "em_andamento" && (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => handleFinalizarClick(impressao.id)}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                        onClick={() => handleDetailsClick(impressao)}
+                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
                       >
-                        <CheckCircle className="h-4 w-4" />
-                        Finalizar
+                        <Eye className="h-4 w-4" />
+                        Detalhes
                       </button>
-                    )}
+                      {impressao.status === "em_andamento" && (
+                        <button
+                          onClick={() => handleFinalizarClick(impressao.id)}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Finalizar
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditClick(impressao)}
+                        className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 border border-blue-200"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(impressao.id)}
+                        className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 border border-red-200"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Deletar
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -566,6 +858,26 @@ function ImpressoesContent() {
                       {formatDuration(selectedImpressao.tempoImpressao)}
                     </p>
                   </div>
+                  {selectedImpressao.status === "em_andamento" &&
+                    timers[selectedImpressao.id] !== undefined && (
+                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-lg border-2 border-blue-300 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Activity className="h-4 w-4 text-blue-600 animate-pulse" />
+                          <p className="text-blue-700 text-sm font-semibold">
+                            Tempo Restante
+                          </p>
+                        </div>
+                        <p
+                          className={`font-bold text-2xl ${
+                            timers[selectedImpressao.id] <= 5
+                              ? "text-red-600 animate-pulse"
+                              : "text-blue-600"
+                          }`}
+                        >
+                          {formatTimeRemaining(timers[selectedImpressao.id])}
+                        </p>
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -633,9 +945,15 @@ function ImpressoesContent() {
                         key={index}
                         className="flex justify-between items-center pl-4"
                       >
-                        <span className="text-slate-600 text-sm">
-                          {fil.filamento.tipo} - {fil.filamento.cor}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-4 h-4 rounded-full border border-slate-300 flex-shrink-0"
+                            style={{ backgroundColor: fil.filamento.cor }}
+                          />
+                          <span className="text-slate-600 text-sm">
+                            {fil.filamento.tipo} - {fil.filamento.nomeCor}
+                          </span>
+                        </div>
                         <span className="text-slate-800 font-medium text-sm">
                           {fil.quantidadeUsada.toFixed(0)}g
                         </span>
@@ -743,12 +1061,36 @@ function ImpressoesContent() {
           )}
 
           <DialogFooter>
-            <Button
-              onClick={() => setDetailsModalOpen(false)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Fechar
-            </Button>
+            <div className="flex justify-between w-full gap-2">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    selectedImpressao && handleEditClick(selectedImpressao)
+                  }
+                  className="bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    selectedImpressao && handleDeleteClick(selectedImpressao.id)
+                  }
+                  className="bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Deletar
+                </Button>
+              </div>
+              <Button
+                onClick={() => setDetailsModalOpen(false)}
+                className="bg-slate-600 hover:bg-slate-700"
+              >
+                Fechar
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -790,6 +1132,141 @@ function ImpressoesContent() {
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Finalizar Impressão
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent className="bg-white border-slate-200 text-slate-800">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
+              <Trash2 className="h-6 w-6 text-red-600" />
+              Confirmar Exclusão
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {deletingInProgress ? (
+              <div className="flex flex-col items-center justify-center py-8 gap-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+                <p className="text-slate-700 font-medium">
+                  Deletando impressão...
+                </p>
+              </div>
+            ) : (
+              <>
+                <p className="text-slate-700 font-semibold mb-2">
+                  Tem certeza que deseja deletar esta impressão?
+                </p>
+                <p className="text-slate-600 text-sm">
+                  Esta ação não pode ser desfeita. Os filamentos usados serão
+                  devolvidos ao estoque.
+                </p>
+              </>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setImpressaoToDelete(null);
+              }}
+              disabled={deletingInProgress}
+              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmDelete}
+              disabled={deletingInProgress}
+              className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Deletar Impressão
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Edição */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
+              <Edit className="h-6 w-6 text-blue-600" />
+              Editar Impressão
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Nome do Projeto
+              </label>
+              <input
+                type="text"
+                value={editFormData.nomeProjeto}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    nomeProjeto: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Nome do projeto"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Preço de Venda (Opcional)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={editFormData.precoVenda}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    precoVenda: e.target.value,
+                  })
+                }
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="R$ 0,00"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Observações
+              </label>
+              <textarea
+                value={editFormData.observacoes}
+                onChange={(e) =>
+                  setEditFormData({
+                    ...editFormData,
+                    observacoes: e.target.value,
+                  })
+                }
+                rows={4}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Observações sobre a impressão..."
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setEditModalOpen(false)}
+              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmEdit}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Salvar Alterações
             </Button>
           </DialogFooter>
         </DialogContent>

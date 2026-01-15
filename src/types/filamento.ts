@@ -43,8 +43,10 @@ export interface FilamentoSelecionado {
 export interface FilamentoSimples {
   id: string;
   tipo: string;
+  nomeCor: string;
   cor: string;
   pesoAtual: number;
   precoCompra: number;
   pesoInicial: number;
+  comprador: Usuario;
 }

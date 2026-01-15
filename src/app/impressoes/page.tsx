@@ -108,6 +108,30 @@ function ImpressoesContent() {
     setDetailsModalOpen(true);
   };
 
+  const handleFinalizarImpressao = async (impressaoId: string) => {
+    if (!confirm("Deseja finalizar esta impressão e liberar a impressora?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/impressoes/${impressaoId}/finalizar`, {
+        method: "PATCH",
+      });
+
+      if (response.ok) {
+        alert("Impressão finalizada com sucesso!");
+        setDetailsModalOpen(false);
+        fetchImpressoes();
+      } else {
+        const error = await response.json();
+        alert(`Erro ao finalizar impressão: ${error.error}`);
+      }
+    } catch (error) {
+      console.error("Erro ao finalizar impressão:", error);
+      alert("Erro ao finalizar impressão. Tente novamente.");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "concluida":
@@ -145,20 +169,20 @@ function ImpressoesContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white">Impressões 3D</h1>
-            <p className="text-gray-400 mt-2">
+            <h1 className="text-4xl font-bold text-slate-800">Impressões 3D</h1>
+            <p className="text-slate-600 mt-2">
               Histórico de todas as impressões realizadas
             </p>
           </div>
           <button
             onClick={() => router.push("/criar-impressao")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
+            className="bg-slate-600 hover:bg-slate-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
           >
             + Nova Impressão
           </button>
@@ -171,7 +195,7 @@ function ImpressoesContent() {
             className={`px-4 py-2 rounded-lg transition-colors ${
               filterStatus === "all"
                 ? "bg-blue-600 text-white"
-                : "bg-slate-700 text-gray-300 hover:bg-slate-600"
+                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
             }`}
           >
             Todas
@@ -181,7 +205,7 @@ function ImpressoesContent() {
             className={`px-4 py-2 rounded-lg transition-colors ${
               filterStatus === "em_andamento"
                 ? "bg-blue-600 text-white"
-                : "bg-slate-700 text-gray-300 hover:bg-slate-600"
+                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
             }`}
           >
             Em Andamento
@@ -191,7 +215,7 @@ function ImpressoesContent() {
             className={`px-4 py-2 rounded-lg transition-colors ${
               filterStatus === "concluida"
                 ? "bg-blue-600 text-white"
-                : "bg-slate-700 text-gray-300 hover:bg-slate-600"
+                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
             }`}
           >
             Concluídas
@@ -201,7 +225,7 @@ function ImpressoesContent() {
             className={`px-4 py-2 rounded-lg transition-colors ${
               filterStatus === "cancelada"
                 ? "bg-blue-600 text-white"
-                : "bg-slate-700 text-gray-300 hover:bg-slate-600"
+                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
             }`}
           >
             Canceladas
@@ -209,9 +233,9 @@ function ImpressoesContent() {
         </div>
 
         {loading ? (
-          <div className="text-white text-center py-12">Carregando...</div>
+          <div className="text-slate-700 text-center py-12">Carregando...</div>
         ) : impressoes.length === 0 ? (
-          <div className="text-white text-center py-12">
+          <div className="text-slate-700 text-center py-12">
             Nenhuma impressão encontrada
           </div>
         ) : (
@@ -219,16 +243,16 @@ function ImpressoesContent() {
             {impressoes.map((impressao) => (
               <div
                 key={impressao.id}
-                className="bg-slate-800 p-6 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
+                className="bg-white p-6 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-lg transition-all shadow-sm"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-xl font-bold text-slate-800">
                     {impressao.nomeProjeto}
                   </h3>
                   <span
                     className={`${getStatusColor(
                       impressao.status
-                    )} text-white text-xs px-3 py-1 rounded-full`}
+                    )} text-xs px-3 py-1 rounded-full`}
                   >
                     {getStatusText(impressao.status)}
                   </span>
@@ -236,39 +260,39 @@ function ImpressoesContent() {
 
                 <div className="space-y-2 text-sm mb-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Impressora:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Impressora:</span>
+                    <span className="text-slate-800 font-medium">
                       {impressao.impressora.nome}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Usuário:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Usuário:</span>
+                    <span className="text-slate-800 font-medium">
                       {impressao.usuario.primeiroNome}{" "}
                       {impressao.usuario.ultimoNome}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Duração:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Duração:</span>
+                    <span className="text-slate-800 font-medium">
                       {formatDuration(impressao.tempoImpressao)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Filamento:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Filamento:</span>
+                    <span className="text-slate-800 font-medium">
                       {impressao.filamentoTotalUsado.toFixed(0)}g
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Custo Total:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Custo Total:</span>
+                    <span className="text-slate-800 font-medium">
                       R$ {impressao.custoTotal.toFixed(2)}
                     </span>
                   </div>
                   {impressao.precoVenda && (
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Lucro:</span>
+                      <span className="text-slate-600">Lucro:</span>
                       <span
                         className={`font-medium ${
                           impressao.lucro && impressao.lucro > 0
@@ -281,8 +305,8 @@ function ImpressoesContent() {
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Data:</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Data:</span>
+                    <span className="text-slate-800 font-medium">
                       {new Date(impressao.dataInicio).toLocaleDateString(
                         "pt-BR"
                       )}
@@ -290,12 +314,22 @@ function ImpressoesContent() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleDetailsClick(impressao)}
-                  className="w-full bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded transition-colors text-sm"
-                >
-                  Ver Detalhes
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleDetailsClick(impressao)}
+                    className="flex-1 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded transition-colors text-sm"
+                  >
+                    Ver Detalhes
+                  </button>
+                  {impressao.status === "em_andamento" && (
+                    <button
+                      onClick={() => handleFinalizarImpressao(impressao.id)}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors text-sm font-medium"
+                    >
+                      Finalizar
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -304,9 +338,9 @@ function ImpressoesContent() {
 
       {/* Modal de Detalhes */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white text-2xl">
+            <DialogTitle className="text-slate-800 text-2xl">
               Detalhes da Impressão
             </DialogTitle>
           </DialogHeader>
@@ -314,30 +348,30 @@ function ImpressoesContent() {
           {selectedImpressao && (
             <div className="space-y-6">
               {/* Informações do Projeto */}
-              <div className="bg-slate-700/50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-white mb-3">
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">
                   Informações do Projeto
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-slate-400 text-sm">Nome do Projeto</p>
-                    <p className="text-white font-medium">
+                    <p className="text-slate-600 text-sm">Nome do Projeto</p>
+                    <p className="text-slate-800 font-medium">
                       {selectedImpressao.nomeProjeto}
                     </p>
                   </div>
                   <div>
-                    <p className="text-slate-400 text-sm">Status</p>
+                    <p className="text-slate-600 text-sm">Status</p>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusColor(
                         selectedImpressao.status
-                      )} text-white`}
+                      )}`}
                     >
                       {getStatusText(selectedImpressao.status)}
                     </span>
                   </div>
                   <div>
-                    <p className="text-slate-400 text-sm">Data de Início</p>
-                    <p className="text-white font-medium">
+                    <p className="text-slate-600 text-sm">Data de Início</p>
+                    <p className="text-slate-800 font-medium">
                       {new Date(selectedImpressao.dataInicio).toLocaleString(
                         "pt-BR"
                       )}
@@ -345,10 +379,10 @@ function ImpressoesContent() {
                   </div>
                   {selectedImpressao.dataConclusao && (
                     <div>
-                      <p className="text-slate-400 text-sm">
+                      <p className="text-slate-600 text-sm">
                         Data de Conclusão
                       </p>
-                      <p className="text-white font-medium">
+                      <p className="text-slate-800 font-medium">
                         {new Date(
                           selectedImpressao.dataConclusao
                         ).toLocaleString("pt-BR")}
@@ -356,8 +390,8 @@ function ImpressoesContent() {
                     </div>
                   )}
                   <div>
-                    <p className="text-slate-400 text-sm">Tempo de Impressão</p>
-                    <p className="text-white font-medium">
+                    <p className="text-slate-600 text-sm">Tempo de Impressão</p>
+                    <p className="text-slate-800 font-medium">
                       {formatDuration(selectedImpressao.tempoImpressao)}
                     </p>
                   </div>
@@ -365,23 +399,23 @@ function ImpressoesContent() {
               </div>
 
               {/* Equipamento e Usuário */}
-              <div className="bg-slate-700/50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-white mb-3">
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">
                   Equipamento e Usuário
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-slate-400 text-sm">Impressora</p>
-                    <p className="text-white font-medium">
+                    <p className="text-slate-600 text-sm">Impressora</p>
+                    <p className="text-slate-800 font-medium">
                       {selectedImpressao.impressora.nome}
                     </p>
-                    <p className="text-slate-400 text-xs">
+                    <p className="text-slate-600 text-xs">
                       {selectedImpressao.impressora.modelo}
                     </p>
                   </div>
                   <div>
-                    <p className="text-slate-400 text-sm">Usuário</p>
-                    <p className="text-white font-medium">
+                    <p className="text-slate-600 text-sm">Usuário</p>
+                    <p className="text-slate-800 font-medium">
                       {selectedImpressao.usuario.primeiroNome}{" "}
                       {selectedImpressao.usuario.ultimoNome}
                     </p>
@@ -390,23 +424,23 @@ function ImpressoesContent() {
               </div>
 
               {/* Materiais */}
-              <div className="bg-slate-700/50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-white mb-3">
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">
                   Materiais Utilizados
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Filamento Total</span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-600">Filamento Total</span>
+                    <span className="text-slate-800 font-medium">
                       {selectedImpressao.filamentoTotalUsado.toFixed(0)}g
                     </span>
                   </div>
                   {selectedImpressao.filamentos.map((fil, index) => (
                     <div key={index} className="flex justify-between pl-4">
-                      <span className="text-slate-400 text-sm">
+                      <span className="text-slate-600 text-sm">
                         {fil.filamento.tipo} - {fil.filamento.cor}
                       </span>
-                      <span className="text-white text-sm">
+                      <span className="text-slate-800 text-sm">
                         {fil.quantidadeUsada.toFixed(0)}g
                       </span>
                     </div>
@@ -415,49 +449,49 @@ function ImpressoesContent() {
               </div>
 
               {/* Custos e Lucro */}
-              <div className="bg-slate-700/50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold text-white mb-3">
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-800 mb-3">
                   Custos e Lucro
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Custo de Energia</span>
-                    <span className="text-white">
+                    <span className="text-slate-600">Custo de Energia</span>
+                    <span className="text-slate-800">
                       R$ {selectedImpressao.custoEnergia.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Custo de Filamento</span>
-                    <span className="text-white">
+                    <span className="text-slate-600">Custo de Filamento</span>
+                    <span className="text-slate-800">
                       R$ {selectedImpressao.custoFilamento.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between border-t border-slate-600 pt-2">
-                    <span className="text-slate-400 font-medium">
+                  <div className="flex justify-between border-t border-slate-300 pt-2">
+                    <span className="text-slate-600 font-medium">
                       Custo Total
                     </span>
-                    <span className="text-white font-medium">
+                    <span className="text-slate-800 font-medium">
                       R$ {selectedImpressao.custoTotal.toFixed(2)}
                     </span>
                   </div>
                   {selectedImpressao.precoVenda && (
                     <>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Preço de Venda</span>
-                        <span className="text-white">
+                        <span className="text-slate-600">Preço de Venda</span>
+                        <span className="text-slate-800">
                           R$ {selectedImpressao.precoVenda.toFixed(2)}
                         </span>
                       </div>
-                      <div className="flex justify-between border-t border-slate-600 pt-2">
-                        <span className="text-slate-400 font-medium">
+                      <div className="flex justify-between border-t border-slate-300 pt-2">
+                        <span className="text-slate-600 font-medium">
                           Lucro
                         </span>
                         <span
                           className={`font-medium ${
                             selectedImpressao.lucro &&
                             selectedImpressao.lucro > 0
-                              ? "text-green-400"
-                              : "text-red-400"
+                              ? "text-green-600"
+                              : "text-red-600"
                           }`}
                         >
                           R$ {selectedImpressao.lucro?.toFixed(2)}
@@ -470,11 +504,11 @@ function ImpressoesContent() {
 
               {/* Observações */}
               {selectedImpressao.observacoes && (
-                <div className="bg-slate-700/50 p-4 rounded-lg">
-                  <h3 className="text-lg font-semibold text-white mb-3">
+                <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-3">
                     Observações
                   </h3>
-                  <p className="text-slate-300">
+                  <p className="text-slate-700">
                     {selectedImpressao.observacoes}
                   </p>
                 </div>

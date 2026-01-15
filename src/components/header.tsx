@@ -27,8 +27,6 @@ import ChangePasswordModal from "@/components/ChangePasswordModal";
 // Ícones Lucide
 import {
   Home,
-  FileText,
-  Plus,
   Users,
   Power,
   User,
@@ -36,6 +34,7 @@ import {
   ChevronDown,
   Printer,
   ClipboardList,
+  Package,
 } from "lucide-react";
 
 const navLinks = [
@@ -51,17 +50,10 @@ const navLinks = [
     icon: <ClipboardList size={20} />,
   },
   {
-    href: "/solicitacoes",
-    label: "Solicitações",
-    icon: <FileText size={20} />,
+    href: "/filamentos",
+    label: "Filamentos",
+    icon: <Package size={20} />,
   },
-  {
-    href: "/criar-solicitacao",
-    label: "Criar Solicitação",
-    icon: <Plus size={20} />,
-    requiresCreatePermission: true,
-  },
-  // { href: "/criar-codcobranca", label: "Códigos Cobrança", icon: <Receipt size={20} /> },
   {
     href: "/usuarios",
     label: "Usuários",
@@ -125,7 +117,7 @@ export default function Header() {
       </Dialog>
 
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-slate-800 text-white shadow-md w-full">
+      <header className="flex items-center justify-between px-6 py-4 bg-slate-700 text-white shadow-lg w-full border-b border-slate-600">
         {/* Logo e Nome (clickável) */}
         <Link
           href="/"
@@ -139,7 +131,7 @@ export default function Header() {
             className="w-10 h-10"
           />
           <div className="flex flex-col">
-            <span className="text-xl font-bold">Devoluções R3</span>
+            <span className="text-xl font-bold">Gerencie 3D</span>
             {user && (
               <span className="text-sm text-gray-300">
                 Olá,{" "}
@@ -161,8 +153,8 @@ export default function Header() {
                 flex items-center gap-2 px-3 py-2 rounded-md transition
                 ${
                   pathname === link.href
-                    ? "bg-green-600 text-white"
-                    : "hover:bg-gray-600"
+                    ? "bg-slate-600 text-white font-semibold"
+                    : "hover:bg-slate-600/50"
                 }
               `}
             >
@@ -174,25 +166,25 @@ export default function Header() {
           {/* Menu do Usuário */}
           <Popover open={userMenuOpen} onOpenChange={setUserMenuOpen}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-md transition cursor-pointer">
+              <button className="flex items-center gap-2 bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-md transition cursor-pointer">
                 <User size={20} />
-                <span>{user?.first_name}</span>
+                <span>{user?.primeiroNome}</span>
                 <ChevronDown size={16} />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 bg-slate-800 border-slate-700 text-white p-1">
+            <PopoverContent className="w-48 bg-white border-slate-200 text-slate-900 p-1 shadow-lg">
               <div className="flex flex-col">
                 <button
                   onClick={() => {
                     setShowChangePassword(true);
                     setUserMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 hover:bg-slate-700 rounded-md transition w-full text-left"
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-md transition w-full text-left"
                 >
                   <Lock size={16} />
                   <span>Alterar Senha</span>
                 </button>
-                <div className="h-px bg-slate-700 my-1" />
+                <div className="h-px bg-slate-200 my-1" />
                 <button
                   onClick={() => {
                     setOpen(true);

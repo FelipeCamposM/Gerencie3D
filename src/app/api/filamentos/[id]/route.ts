@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import db from "@/lib/db";
 
 // GET - Buscar filamento por ID
 export async function GET(
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const filamento = await prisma.filamento.findUnique({
+    const filamento = await db.filamento.findUnique({
       where: { id },
       include: {
         comprador: {
@@ -71,7 +71,13 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
 
-    const updateData: any = {};
+    const updateData: Partial<{
+      tipo: string;
+      cor: string;
+      pesoAtual: number;
+      precoCompra: number;
+      ultimaUtilizacao: Date;
+    }> = {};
     if (data.tipo) updateData.tipo = data.tipo;
     if (data.cor) updateData.cor = data.cor;
     if (data.pesoAtual !== undefined)
@@ -81,7 +87,7 @@ export async function PUT(
     if (data.ultimaUtilizacao)
       updateData.ultimaUtilizacao = new Date(data.ultimaUtilizacao);
 
-    const filamento = await prisma.filamento.update({
+    const filamento = await db.filamento.update({
       where: { id },
       data: updateData,
     });
@@ -103,7 +109,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.filamento.delete({
+    await db.filamento.delete({
       where: { id },
     });
 

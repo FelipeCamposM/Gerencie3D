@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Configuração de imagens para aceitar URLs externas
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
+  },
+
   // Configurações para upload de arquivos
   experimental: {
     // Optimize package imports to shrink client bundles
@@ -13,7 +27,7 @@ const nextConfig: NextConfig = {
   // Configurações de tamanho de request
   serverRuntimeConfig: {
     // Configurações do servidor
-    maxFileSize: '10mb',
+    maxFileSize: "10mb",
   },
 
   webpack: (config, { isServer }) => {

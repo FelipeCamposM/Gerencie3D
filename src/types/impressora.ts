@@ -3,6 +3,7 @@ export interface Impressora {
   nome: string;
   modelo: string;
   localizacao: string;
+  imagemImpressora?: string | null;
   gastoEnergiaKwh: number;
   precoEnergiaKwh: number;
   filamentoTotalUsado: number;

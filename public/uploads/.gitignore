@@ -1,0 +1,9 @@
+# Ignorar todas as imagens
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.gif
+
+# Manter a estrutura do diretório
+!.gitkeep

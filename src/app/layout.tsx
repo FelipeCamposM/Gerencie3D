@@ -16,10 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-br" className="h-full w-full">
-      <body className="flex flex-col h-full w-full min-h-screen min-w-0 scrollbar-dark">
+      <body className="flex flex-col h-full w-full min-h-screen min-w-0 scrollbar-dark bg-white">
         <AuthProvider>
           {/* <Header /> */}
-          <main className="flex-1 h-full w-full min-h-0 min-w-0 overflow-auto bg-gray-900">
+          <main className="flex-1 h-full w-full min-h-0 min-w-0 overflow-auto bg-white">
             {children}
           </main>
           <Toaster />

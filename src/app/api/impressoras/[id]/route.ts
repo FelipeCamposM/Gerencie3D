@@ -45,7 +45,17 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(impressora);
+    // Converter Bytes para base64
+    const impressoraComImagem = {
+      ...impressora,
+      imagemImpressora: impressora.imagemImpressora
+        ? `data:image/jpeg;base64,${Buffer.from(
+            impressora.imagemImpressora
+          ).toString("base64")}`
+        : null,
+    };
+
+    return NextResponse.json(impressoraComImagem);
   } catch (error) {
     console.error("Erro ao buscar impressora:", error);
     return NextResponse.json(
@@ -64,12 +74,28 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
 
+    // Converter base64 para Buffer se houver imagem
+    let imagemBuffer = undefined;
+    if (data.imagemImpressora !== undefined) {
+      if (data.imagemImpressora === null) {
+        imagemBuffer = null;
+      } else if (data.imagemImpressora) {
+        // Remover o prefixo data:image/...;base64,
+        const base64Data = data.imagemImpressora.replace(
+          /^data:image\/\w+;base64,/,
+          ""
+        );
+        imagemBuffer = Buffer.from(base64Data, "base64");
+      }
+    }
+
     const impressora = await db.impressora.update({
       where: { id: parseInt(id) },
       data: {
         nome: data.nome,
         modelo: data.modelo,
         localizacao: data.localizacao,
+        imagemImpressora: imagemBuffer,
         gastoEnergiaKwh: data.gastoEnergiaKwh
           ? parseFloat(data.gastoEnergiaKwh)
           : undefined,

@@ -35,6 +35,8 @@ import {
   Printer,
   ClipboardList,
   Package,
+  Menu,
+  X,
 } from "lucide-react";
 
 const navLinks = [
@@ -67,6 +69,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const isAdmin = isUserAdmin(user);
   const canCreate = canCreateSolicitacao(user);
@@ -133,7 +136,7 @@ export default function Header() {
           <div className="flex flex-col">
             <span className="text-xl font-bold">Gerencie 3D</span>
             {user && (
-              <span className="text-sm text-gray-300">
+              <span className="text-sm text-gray-300 hidden sm:block">
                 Olá,{" "}
                 <strong className="text-green-400">
                   {getUserDisplayName(user)}
@@ -143,8 +146,8 @@ export default function Header() {
           </div>
         </Link>
 
-        {/* Navegação */}
-        <nav className="flex items-center gap-6">
+        {/* Navegação Desktop */}
+        <nav className="hidden lg:flex items-center gap-6">
           {filteredNavLinks.map((link) => (
             <Link
               key={link.href}
@@ -163,7 +166,7 @@ export default function Header() {
             </Link>
           ))}
 
-          {/* Menu do Usuário */}
+          {/* Menu do Usuário Desktop */}
           <Popover open={userMenuOpen} onOpenChange={setUserMenuOpen}>
             <PopoverTrigger asChild>
               <button className="flex items-center gap-2 bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-md transition cursor-pointer">
@@ -199,7 +202,76 @@ export default function Header() {
             </PopoverContent>
           </Popover>
         </nav>
+
+        {/* Menu Hamburguer Mobile */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden flex items-center justify-center p-2 rounded-md bg-slate-600 hover:bg-slate-500 transition"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
       </header>
+
+      {/* Menu Mobile Dropdown */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-slate-700 border-b border-slate-600 shadow-lg">
+          <nav className="flex flex-col p-4 space-y-2">
+            {filteredNavLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-md transition
+                  ${
+                    pathname === link.href
+                      ? "bg-slate-600 text-white font-semibold"
+                      : "hover:bg-slate-600/50 text-white"
+                  }
+                `}
+              >
+                {link.icon}
+                <span>{link.label}</span>
+              </Link>
+            ))}
+
+            {/* Divider */}
+            <div className="h-px bg-slate-600 my-2" />
+
+            {/* User Info Mobile */}
+            {user && (
+              <div className="px-4 py-2 text-sm text-gray-300">
+                Olá,{" "}
+                <strong className="text-green-400">
+                  {getUserDisplayName(user)}
+                </strong>
+              </div>
+            )}
+
+            {/* Menu do Usuário Mobile */}
+            <button
+              onClick={() => {
+                setShowChangePassword(true);
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-slate-600/50 rounded-md transition w-full text-left text-white"
+            >
+              <Lock size={20} />
+              <span>Alterar Senha</span>
+            </button>
+            <button
+              onClick={() => {
+                setOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 py-3 bg-[#e94a4a] hover:bg-[#e94a4ae3] rounded-md transition w-full text-left text-white"
+            >
+              <Power size={20} />
+              <span>Sair</span>
+            </button>
+          </nav>
+        </div>
+      )}
 
       {/* Modal de Alterar Senha */}
       <ChangePasswordModal

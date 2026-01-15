@@ -100,14 +100,14 @@ export default function Login() {
         <Card className="shadow-2xl bg-slate-800 border border-slate-700/50 backdrop-blur-sm">
           <CardHeader className="space-y-1 pb-6 px-8 pt-8">
             <div className="flex justify-center mb-4">
-                <Image
-                  src="/Gerencie3d-Logo.svg"
-                  alt="Gerencie3D Logo"
-                  width={200}
-                  height={200}
-                  className="w-[200px] h-[200px] object-contain rounded-lg"
-                  priority
-                />
+              <Image
+                src="/Gerencie3d-Logo.svg"
+                alt="Gerencie3D Logo"
+                width={200}
+                height={200}
+                className="w-[200px] h-[200px] object-contain rounded-lg"
+                priority
+              />
             </div>
             <CardTitle className="text-center text-white text-xl font-bold tracking-tight">
               Gerencie suas Impressões 3D

@@ -190,7 +190,8 @@ export default function FilamentosPage() {
     return (
       <ProtectedRoute>
         <Header />
-        <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-white gap-4">
+          <div className="w-12 h-12 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
           <div className="text-xl text-slate-700">Carregando filamentos...</div>
         </div>
       </ProtectedRoute>
@@ -255,7 +256,7 @@ export default function FilamentosPage() {
                   <Plus className="h-5 w-5" /> Novo Filamento
                 </button>
               </DialogTrigger>
-              <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
                     <Package className="h-5 w-5 text-blue-600" />
@@ -460,7 +461,7 @@ export default function FilamentosPage() {
                   Gastos por Usuário
                 </h2>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {usuarios.map((usuario) => {
                   const filamentosUsuario = filamentos.filter(
                     (f) => f.comprador.id === usuario.id
@@ -719,7 +720,7 @@ export default function FilamentosPage() {
 
           {/* Modal de Edição */}
           <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-            <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
                   <Package className="h-5 w-5 text-blue-600" />
@@ -746,7 +747,7 @@ export default function FilamentosPage() {
 
           {/* Modal de Confirmação de Exclusão */}
           <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-            <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-md">
+            <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-md">
               <DialogHeader>
                 <DialogTitle className="text-slate-800 text-xl font-bold">
                   Confirmar Exclusão

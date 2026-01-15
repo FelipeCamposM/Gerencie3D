@@ -524,7 +524,12 @@ function ImpressorasContent() {
         )}
 
         {loading ? (
-          <div className="text-slate-700 text-center py-12">Carregando...</div>
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="w-12 h-12 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
+            <div className="text-xl text-slate-700">
+              Carregando impressoras...
+            </div>
+          </div>
         ) : impressoras.length === 0 ? (
           <div className="text-slate-700 text-center py-12">
             Nenhuma impressora cadastrada
@@ -885,7 +890,7 @@ function ImpressorasContent() {
 
       {/* Modal de Edição */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
               <Edit className="h-6 w-6 text-blue-600" />
@@ -1118,7 +1123,7 @@ function ImpressorasContent() {
 
       {/* Modal de Detalhes */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
               <Printer className="h-6 w-6 text-blue-600" />

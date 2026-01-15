@@ -68,6 +68,10 @@ interface Impressao {
       tipo: string;
       nomeCor: string;
       cor: string;
+      usuario?: {
+        primeiroNome: string;
+        ultimoNome: string;
+      };
     };
   }[];
 }
@@ -799,7 +803,12 @@ function ImpressoesContent() {
         </div>
 
         {loading ? (
-          <div className="text-slate-700 text-center py-12">Carregando...</div>
+          <div className="flex flex-col items-center justify-center py-12 gap-4">
+            <div className="w-12 h-12 border-4 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
+            <div className="text-xl text-slate-700">
+              Carregando impressões...
+            </div>
+          </div>
         ) : impressoesFiltradas.length === 0 ? (
           <div className="text-slate-700 text-center py-12">
             {searchTerm ? (
@@ -1018,10 +1027,10 @@ function ImpressoesContent() {
 
       {/* Modal de Detalhes */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
-              <FileText className="h-6 w-6 text-blue-600" />
+            <DialogTitle className="text-slate-800 text-xl md:text-2xl flex items-center gap-2">
+              <FileText className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
               Detalhes da Impressão
             </DialogTitle>
           </DialogHeader>
@@ -1029,28 +1038,28 @@ function ImpressoesContent() {
           {selectedImpressao && (
             <div className="space-y-6">
               {/* Informações do Projeto */}
-              <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <FileText className="h-5 w-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-slate-800">
+              <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-4 md:p-6 rounded-xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <FileText className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
+                  <h3 className="text-base md:text-lg font-semibold text-slate-800">
                     Informações do Projeto
                   </h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <FileText className="h-4 w-4 text-blue-600" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="bg-white p-3 md:p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1 md:mb-2">
+                      <FileText className="h-3.5 w-3.5 md:h-4 md:w-4 text-blue-600" />
                       <p className="text-slate-600 text-sm font-medium">
                         Nome do Projeto
                       </p>
                     </div>
-                    <p className="text-slate-900 font-semibold text-lg">
+                    <p className="text-slate-900 font-semibold text-base md:text-lg">
                       {selectedImpressao.nomeProjeto}
                     </p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Activity className="h-4 w-4 text-cyan-600" />
+                  <div className="bg-white p-3 md:p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-1 md:mb-2">
+                      <Activity className="h-3.5 w-3.5 md:h-4 md:w-4 text-cyan-600" />
                       <p className="text-slate-600 text-sm font-medium">
                         Status
                       </p>
@@ -1126,10 +1135,10 @@ function ImpressoesContent() {
               </div>
 
               {/* Equipamento e Usuário */}
-              <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <Printer className="h-5 w-5 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-slate-800">
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-4 md:p-6 rounded-xl border border-purple-100">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <Printer className="h-4 w-4 md:h-5 md:w-5 text-purple-600" />
+                  <h3 className="text-base md:text-lg font-semibold text-slate-800">
                     Equipamento e Usuário
                   </h3>
                 </div>
@@ -1164,10 +1173,10 @@ function ImpressoesContent() {
               </div>
 
               {/* Materiais */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <Package className="h-5 w-5 text-green-600" />
-                  <h3 className="text-lg font-semibold text-slate-800">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 md:p-6 rounded-xl border border-green-100">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <Package className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+                  <h3 className="text-base md:text-lg font-semibold text-slate-800">
                     Materiais Utilizados
                   </h3>
                 </div>
@@ -1222,10 +1231,10 @@ function ImpressoesContent() {
               </div>
 
               {/* Custos e Lucro */}
-              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <DollarSign className="h-5 w-5 text-yellow-600" />
-                  <h3 className="text-lg font-semibold text-slate-800">
+              <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 md:p-6 rounded-xl border border-yellow-100">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <DollarSign className="h-4 w-4 md:h-5 md:w-5 text-yellow-600" />
+                  <h3 className="text-base md:text-lg font-semibold text-slate-800">
                     Custos e Lucro
                   </h3>
                 </div>
@@ -1301,10 +1310,10 @@ function ImpressoesContent() {
 
               {/* Observações */}
               {selectedImpressao.observacoes && (
-                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <FileText className="h-5 w-5 text-slate-600" />
-                    <h3 className="text-lg font-semibold text-slate-800">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6 rounded-xl border border-slate-200">
+                  <div className="flex items-center gap-2 mb-2 md:mb-3">
+                    <FileText className="h-4 w-4 md:h-5 md:w-5 text-slate-600" />
+                    <h3 className="text-base md:text-lg font-semibold text-slate-800">
                       Observações
                     </h3>
                   </div>
@@ -1319,8 +1328,8 @@ function ImpressoesContent() {
           )}
 
           <DialogFooter>
-            <div className="flex justify-between w-full gap-2">
-              <div className="flex gap-2">
+            <div className="flex flex-col md:flex-row justify-between w-full gap-2">
+              <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
                 <Button
                   variant="outline"
                   onClick={() =>
@@ -1414,7 +1423,7 @@ function ImpressoesContent() {
 
       {/* Dialog de Confirmação de Falha */}
       <Dialog open={confirmFalhouOpen} onOpenChange={setConfirmFalhouOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
               <Activity className="h-6 w-6 text-orange-600" />
@@ -1425,6 +1434,58 @@ function ImpressoesContent() {
             <p className="text-slate-700">
               Esta impressão falhou durante o processo?
             </p>
+
+            {/* Informação sobre o total previsto */}
+            {selectedImpressao && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Package className="h-5 w-5 text-blue-800" />
+                  <p className="font-semibold text-sm text-blue-800">
+                    Filamento Previsto:
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 border border-blue-100">
+                    <p className="text-lg font-bold text-blue-900 mb-2">
+                      Total: {selectedImpressao.filamentoTotalUsado.toFixed(2)}g
+                    </p>
+
+                    <div className="space-y-2 mt-3 pt-3 border-t border-blue-100">
+                      {selectedImpressao.filamentos.map((fil, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between text-sm bg-slate-50 rounded p-2"
+                        >
+                          <div className="flex items-center gap-2 flex-1">
+                            <div
+                              className="w-4 h-4 rounded-full border-2 border-slate-300 flex-shrink-0"
+                              style={{ backgroundColor: fil.filamento.cor }}
+                            />
+                            <div className="flex-1">
+                              <p className="font-medium text-slate-800">
+                                {fil.filamento.tipo} - {fil.filamento.nomeCor}
+                              </p>
+                              {fil.filamento.usuario && (
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                  Comprador:{" "}
+                                  {fil.filamento.usuario.primeiroNome}{" "}
+                                  {fil.filamento.usuario.ultimoNome}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <p className="font-semibold text-slate-700 ml-2">
+                            {fil.quantidadeUsada.toFixed(2)}g
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 Filamento Realmente Usado (gramas)
@@ -1473,7 +1534,7 @@ function ImpressoesContent() {
 
       {/* Dialog de Confirmação de Exclusão */}
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
               <Trash2 className="h-6 w-6 text-red-600" />
@@ -1526,7 +1587,7 @@ function ImpressoesContent() {
 
       {/* Dialog de Edição */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-2xl">
+        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
               <Edit className="h-6 w-6 text-blue-600" />

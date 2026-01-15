@@ -97,13 +97,13 @@ export default function Header() {
     <>
       {/* Modal de Logout */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-slate-800 border-none">
+        <DialogContent className="bg-slate-800 border-none max-w-[calc(100vw-2rem)] md:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-white">
               Deseja realmente sair?
             </DialogTitle>
           </DialogHeader>
-          <DialogFooter className="flex flex-row gap-2 justify-end">
+          <DialogFooter className="flex flex-row gap-2 justify-center">
             <Button
               variant="secondary"
               className="bg-gray-500 hover:bg-gray-600 text-white border-none cursor-pointer"

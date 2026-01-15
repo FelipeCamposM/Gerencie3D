@@ -43,11 +43,11 @@ export default function ColorPicker({
 }: ColorPickerProps) {
   return (
     <>
-      <div>
+      <div className="mb-4">
         <Label className="text-slate-700 font-semibold">
           Selecione uma cor pré-definida
         </Label>
-        <div className="grid grid-cols-5 gap-2 mt-2">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mt-2">
           {CORES_PREDEFINIDAS.map((cor) => (
             <button
               key={cor.nome}
@@ -71,7 +71,7 @@ export default function ColorPicker({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div>
           <Label
             htmlFor={`${idPrefix}nomeCor`}

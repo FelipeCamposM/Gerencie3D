@@ -24,13 +24,18 @@ interface ChangePasswordForm {
   confirmPassword: string;
 }
 
-export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswordModalProps) {
+export default function ChangePasswordModal({
+  open,
+  onOpenChange,
+}: ChangePasswordModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success"
+  );
 
   const form = useForm<ChangePasswordForm>({
     defaultValues: {
@@ -47,7 +52,7 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
     // Validar se as senhas coincidem
     if (data.newPassword !== data.confirmPassword) {
       setMessage("A nova senha e a confirmação não coincidem");
-      setMessageType('error');
+      setMessageType("error");
       setIsLoading(false);
       return;
     }
@@ -69,11 +74,11 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
 
       if (response.ok) {
         setMessage("Senha alterada com sucesso!");
-        setMessageType('success');
-        
+        setMessageType("success");
+
         // Limpar formulário
         form.reset();
-        
+
         // Fechar modal após 2 segundos
         setTimeout(() => {
           onOpenChange(false);
@@ -81,12 +86,12 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
         }, 2000);
       } else {
         setMessage(result.error || "Erro ao alterar senha");
-        setMessageType('error');
+        setMessageType("error");
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
       setMessage("Erro de conexão. Tente novamente.");
-      setMessageType('error');
+      setMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +105,7 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-md">
+      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-[calc(100vw-2rem)] md:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Lock className="h-5 w-5" />
@@ -111,9 +116,9 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
         {message && (
           <div
             className={`p-3 rounded-lg text-sm ${
-              messageType === 'success'
-                ? 'bg-green-900/20 border border-green-700/30 text-green-400'
-                : 'bg-red-900/20 border border-red-700/30 text-red-400'
+              messageType === "success"
+                ? "bg-green-900/20 border border-green-700/30 text-green-400"
+                : "bg-red-900/20 border border-red-700/30 text-red-400"
             }`}
           >
             {message}
@@ -161,12 +166,12 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
               <Controller
                 name="newPassword"
                 control={form.control}
-                rules={{ 
+                rules={{
                   required: "Nova senha é obrigatória",
                   minLength: {
                     value: 6,
-                    message: "A senha deve ter pelo menos 6 caracteres"
-                  }
+                    message: "A senha deve ter pelo menos 6 caracteres",
+                  },
                 }}
                 render={({ field }) => (
                   <Input
@@ -218,10 +223,12 @@ export default function ChangePasswordModal({ open, onOpenChange }: ChangePasswo
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <span className="ml-1 text-sm text-slate-300">A senha deve ter pelo menos 6 caracteres</span>
+            <span className="ml-1 text-sm text-slate-300">
+              A senha deve ter pelo menos 6 caracteres
+            </span>
           </div>
 
-          <DialogFooter className="flex flex-row gap-2 justify-end pt-4">
+          <DialogFooter className="flex flex-row gap-2 justify-center pt-4">
             <Button
               type="button"
               variant="secondary"

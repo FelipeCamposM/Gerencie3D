@@ -80,21 +80,22 @@ model Filamento {
 }
 
 model Impressao3D {
-  id                  String    @id @default(cuid())
-  nomeProjeto         String
-  tempoImpressao      Int // Tempo em minutos
-  filamentoTotalUsado Float // Total de filamento usado em gramas
-  custoTotal          Float // Custo total da impressão (filamento + energia)
-  custoEnergia        Float // Custo de energia calculado
-  custoFilamento      Float // Custo de filamento calculado
-  precoVenda          Float? // Preço de venda (opcional)
-  lucro               Float? // Lucro calculado (precoVenda - custoTotal)
-  status              String    @default("concluida") // concluida, em_andamento, cancelada, falhou
-  observacoes         String?
-  dataInicio          DateTime  @default(now())
-  dataConclusao       DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                     String    @id @default(cuid())
+  nomeProjeto            String
+  tempoImpressao         Int // Tempo em minutos
+  filamentoTotalUsado    Float // Total de filamento usado em gramas
+  custoTotal             Float // Custo total da impressão (filamento + energia)
+  custoEnergia           Float // Custo de energia calculado
+  custoFilamento         Float // Custo de filamento calculado
+  precoVenda             Float? // Preço de venda (opcional)
+  lucro                  Float? // Lucro calculado (precoVenda - custoTotal)
+  status                 String    @default("concluida") // concluida, em_andamento, cancelada, falhou
+  filamentoDesperdiciado Float? // Filamento desperdiçado em caso de falha (gramas)
+  observacoes            String?
+  dataInicio             DateTime  @default(now())
+  dataConclusao          DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   // Relações
   usuarioId Int

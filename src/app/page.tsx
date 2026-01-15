@@ -12,7 +12,7 @@ import {
   Tooltip,
   PieChart,
   Pie,
-  Cell
+  Cell,
 } from "recharts";
 import {
   Printer,
@@ -227,8 +227,101 @@ function HomeContent() {
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Stats Cards - Mobile: Single Card | Desktop: Grid */}
+        {/* Mobile View - Single Card */}
+        <div className="md:hidden mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Estatísticas
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Printer className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">
+                    Total de Impressoras
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-slate-900">
+                  {stats.totalImpressoras}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">
+                    Disponíveis
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-green-600">
+                  {stats.impressorasDisponiveis}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">Em Uso</p>
+                </div>
+                <p className="text-xl font-bold text-blue-600">
+                  {stats.impressorasEmUso}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Package className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">
+                    Total de Filamentos
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-slate-900">
+                  {stats.totalFilamentos}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">
+                    Impressões Hoje
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-slate-900">
+                  {stats.impressoesHoje}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                    <ClipboardList className="h-5 w-5 text-cyan-600" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">
+                    Impressões Este Mês
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-slate-900">
+                  {stats.impressoesMes}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop View - Grid */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>

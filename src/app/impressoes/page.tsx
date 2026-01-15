@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/header";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuth } from "@/contexts/AuthContext";
+import { isUserAdmin } from "@/lib/auth";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +31,9 @@ import {
   Search,
   Edit,
   Trash2,
+  List,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
 
 interface Impressao {
@@ -36,6 +41,7 @@ interface Impressao {
   nomeProjeto: string;
   tempoImpressao: number;
   filamentoTotalUsado: number;
+  filamentoDesperdiciado: number | null;
   custoTotal: number;
   custoEnergia: number;
   custoFilamento: number;
@@ -75,6 +81,8 @@ export default function ImpressoesPage() {
 }
 
 function ImpressoesContent() {
+  const { user } = useAuth();
+  const isAdmin = isUserAdmin(user);
   const [impressoes, setImpressoes] = useState<Impressao[]>([]);
   const [loading, setLoading] = useState(true);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -99,6 +107,10 @@ function ImpressoesContent() {
     precoVenda: string;
     observacoes: string;
   }>({ nomeProjeto: "", precoVenda: "", observacoes: "" });
+  const [confirmFalhouOpen, setConfirmFalhouOpen] = useState(false);
+  const [impressaoToFail, setImpressaoToFail] = useState<string | null>(null);
+  const [filamentoDesperdiciado, setFilamentoDesperdiciado] =
+    useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
@@ -203,6 +215,12 @@ function ImpressoesContent() {
     setConfirmFinalizarOpen(true);
   };
 
+  const handleFalhouClick = (impressaoId: string) => {
+    setImpressaoToFail(impressaoId);
+    setFilamentoDesperdiciado("");
+    setConfirmFalhouOpen(true);
+  };
+
   const handleConfirmFinalizar = async () => {
     if (!impressaoToFinalize) return;
 
@@ -231,6 +249,45 @@ function ImpressoesContent() {
     } catch (error) {
       console.error("Erro ao finalizar impressão:", error);
       toast.error("Erro ao finalizar impressão", {
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+      });
+    }
+  };
+
+  const handleConfirmFalhou = async () => {
+    if (!impressaoToFail) return;
+
+    const filamentoDesperdice = parseFloat(filamentoDesperdiciado) || 0;
+
+    try {
+      const response = await fetch(
+        `/api/impressoes/${impressaoToFail}/falhou`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filamentoDesperdiciado: filamentoDesperdice }),
+        }
+      );
+
+      if (response.ok) {
+        toast.success("Impressão marcada como falhou!", {
+          description:
+            "A impressora foi liberada e o filamento foi registrado.",
+        });
+        setDetailsModalOpen(false);
+        setConfirmFalhouOpen(false);
+        setImpressaoToFail(null);
+        setFilamentoDesperdiciado("");
+        fetchImpressoes();
+      } else {
+        const error = await response.json();
+        toast.error("Erro ao marcar impressão como falhou", {
+          description: error.error || "Tente novamente.",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao marcar impressão como falhou:", error);
+      toast.error("Erro ao marcar impressão como falhou", {
         description: "Ocorreu um erro inesperado. Tente novamente.",
       });
     }
@@ -400,7 +457,7 @@ function ImpressoesContent() {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-slate-800">Impressões 3D</h1>
             <p className="text-slate-600 mt-2">
@@ -409,96 +466,179 @@ function ImpressoesContent() {
           </div>
           <button
             onClick={() => router.push("/criar-impressao")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Printer className="h-5 w-5" />
             Nova Impressão
           </button>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Mobile: Single Card | Desktop: Grid */}
         {!loading && impressoes.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Total de Impressões
-                  </p>
-                  <p className="text-2xl font-bold text-slate-900 mt-2">
-                    {totalImpressoes}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Printer className="h-6 w-6 text-blue-600" />
+          <>
+            {/* Mobile View - Single Card */}
+            <div className="md:hidden mb-8">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Estatísticas
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Printer className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Total de Impressões
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-slate-900">
+                      {totalImpressoes}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Concluídas
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-green-600">
+                      {concluidasCount}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <PlayCircle className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Em Andamento
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-blue-600">
+                      {emAndamentoCount}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <DollarSign className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Custo Total
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-orange-600">
+                      R$ {custoTotal.toFixed(0)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Lucro Total
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-green-600">
+                      R$ {lucroTotal.toFixed(0)}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Concluídas
-                  </p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">
-                    {concluidasCount}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+            {/* Desktop View - Grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Total de Impressões
+                    </p>
+                    <p className="text-2xl font-bold text-slate-900 mt-2">
+                      {totalImpressoes}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Printer className="h-6 w-6 text-blue-600" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Em Andamento
-                  </p>
-                  <p className="text-2xl font-bold text-blue-600 mt-2">
-                    {emAndamentoCount}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <PlayCircle className="h-6 w-6 text-blue-600" />
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Concluídas
+                    </p>
+                    <p className="text-2xl font-bold text-green-600 mt-2">
+                      {concluidasCount}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Custo Total
-                  </p>
-                  <p className="text-2xl font-bold text-orange-600 mt-2">
-                    R$ {custoTotal.toFixed(0)}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-orange-600" />
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Em Andamento
+                    </p>
+                    <p className="text-2xl font-bold text-blue-600 mt-2">
+                      {emAndamentoCount}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <PlayCircle className="h-6 w-6 text-blue-600" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Lucro Total
-                  </p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">
-                    R$ {lucroTotal.toFixed(0)}
-                  </p>
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Custo Total
+                    </p>
+                    <p className="text-2xl font-bold text-orange-600 mt-2">
+                      R$ {custoTotal.toFixed(0)}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-orange-600" />
+                  </div>
                 </div>
-                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Lucro Total
+                    </p>
+                    <p className="text-2xl font-bold text-green-600 mt-2">
+                      R$ {lucroTotal.toFixed(0)}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Barra de Pesquisa */}
@@ -535,48 +675,125 @@ function ImpressoesContent() {
           </div>
         </div>
 
-        {/* Filtros */}
-        <div className="mb-6 flex gap-2">
-          <button
-            onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filterStatus === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-            }`}
-          >
-            Todas
-          </button>
-          <button
-            onClick={() => setFilterStatus("em_andamento")}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filterStatus === "em_andamento"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-            }`}
-          >
-            Em Andamento
-          </button>
-          <button
-            onClick={() => setFilterStatus("concluida")}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filterStatus === "concluida"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-            }`}
-          >
-            Concluídas
-          </button>
-          <button
-            onClick={() => setFilterStatus("cancelada")}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filterStatus === "cancelada"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-            }`}
-          >
-            Canceladas
-          </button>
+        {/* Filtros - Mobile: Vertical sem gap | Desktop: Horizontal */}
+        <div className="mb-6">
+          {/* Mobile View - Botões verticais sem gap */}
+          <div className="md:hidden flex flex-col rounded-lg overflow-hidden border border-slate-300 bg-white shadow-sm">
+            <button
+              onClick={() => setFilterStatus("all")}
+              className={`px-4 py-3 transition-colors cursor-pointer flex items-center gap-2 border-b border-slate-200 last:border-b-0 ${
+                filterStatus === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+              }`}
+            >
+              <List className="h-4 w-4" />
+              <span className="font-medium">Todas</span>
+            </button>
+            <button
+              onClick={() => setFilterStatus("em_andamento")}
+              className={`px-4 py-3 transition-colors cursor-pointer flex items-center gap-2 border-b border-slate-200 last:border-b-0 ${
+                filterStatus === "em_andamento"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+              }`}
+            >
+              <PlayCircle className="h-4 w-4" />
+              <span className="font-medium">Em Andamento</span>
+            </button>
+            <button
+              onClick={() => setFilterStatus("concluida")}
+              className={`px-4 py-3 transition-colors cursor-pointer flex items-center gap-2 border-b border-slate-200 last:border-b-0 ${
+                filterStatus === "concluida"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+              }`}
+            >
+              <CheckCircle className="h-4 w-4" />
+              <span className="font-medium">Concluídas</span>
+            </button>
+            <button
+              onClick={() => setFilterStatus("cancelada")}
+              className={`px-4 py-3 transition-colors cursor-pointer flex items-center gap-2 border-b border-slate-200 last:border-b-0 ${
+                filterStatus === "cancelada"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+              }`}
+            >
+              <XCircle className="h-4 w-4" />
+              <span className="font-medium">Canceladas</span>
+            </button>
+            <button
+              onClick={() => setFilterStatus("falhou")}
+              className={`px-4 py-3 transition-colors cursor-pointer flex items-center gap-2 ${
+                filterStatus === "falhou"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100"
+              }`}
+            >
+              <AlertCircle className="h-4 w-4" />
+              <span className="font-medium">Falhadas</span>
+            </button>
+          </div>
+
+          {/* Desktop View - Botões horizontais */}
+          <div className="hidden md:flex gap-2">
+            <button
+              onClick={() => setFilterStatus("all")}
+              className={`px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+                filterStatus === "all"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300"
+              }`}
+            >
+              <List className="h-4 w-4" />
+              Todas
+            </button>
+            <button
+              onClick={() => setFilterStatus("em_andamento")}
+              className={`px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+                filterStatus === "em_andamento"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300"
+              }`}
+            >
+              <PlayCircle className="h-4 w-4" />
+              Em Andamento
+            </button>
+            <button
+              onClick={() => setFilterStatus("concluida")}
+              className={`px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+                filterStatus === "concluida"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300"
+              }`}
+            >
+              <CheckCircle className="h-4 w-4" />
+              Concluídas
+            </button>
+            <button
+              onClick={() => setFilterStatus("cancelada")}
+              className={`px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+                filterStatus === "cancelada"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300"
+              }`}
+            >
+              <XCircle className="h-4 w-4" />
+              Canceladas
+            </button>
+            <button
+              onClick={() => setFilterStatus("falhou")}
+              className={`px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+                filterStatus === "falhou"
+                  ? "bg-blue-600 text-white shadow-md"
+                  : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-300"
+              }`}
+            >
+              <AlertCircle className="h-4 w-4" />
+              Falhadas
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -676,11 +893,25 @@ function ImpressoesContent() {
                     <div className="text-slate-600">
                       <div className="flex items-center gap-2 mb-2">
                         <Package className="h-4 w-4 text-green-600" />
-                        <span className="font-semibold">Filamento:</span>
+                        <span className="font-semibold">
+                          Filamento Estimado:
+                        </span>
                         <span className="text-slate-800">
-                          {impressao.filamentoTotalUsado.toFixed(0)}g total
+                          {impressao.filamentoTotalUsado.toFixed(0)}g
                         </span>
                       </div>
+                      {impressao.status === "falhou" &&
+                        impressao.filamentoDesperdiciado !== null && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Package className="h-4 w-4 text-orange-600" />
+                            <span className="font-semibold">
+                              Filamento Real Usado:
+                            </span>
+                            <span className="text-orange-600 font-bold">
+                              {impressao.filamentoDesperdiciado.toFixed(0)}g
+                            </span>
+                          </div>
+                        )}
                       <div className="space-y-1 pl-6">
                         {impressao.filamentos.map((fil, index) => (
                           <div key={index} className="flex items-center gap-2">
@@ -733,36 +964,47 @@ function ImpressoesContent() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleDetailsClick(impressao)}
-                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                        className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <Eye className="h-4 w-4" />
                         Detalhes
                       </button>
                       {impressao.status === "em_andamento" && (
-                        <button
-                          onClick={() => handleFinalizarClick(impressao.id)}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          Finalizar
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleFalhouClick(impressao.id)}
+                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <Activity className="h-4 w-4" />
+                            Falhou
+                          </button>
+                          <button
+                            onClick={() => handleFinalizarClick(impressao.id)}
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                            Finalizar
+                          </button>
+                        </>
                       )}
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEditClick(impressao)}
-                        className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 border border-blue-200"
+                        className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 border border-blue-200 cursor-pointer"
                       >
                         <Edit className="h-4 w-4" />
                         Editar
                       </button>
-                      <button
-                        onClick={() => handleDeleteClick(impressao.id)}
-                        className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 border border-red-200"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Deletar
-                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeleteClick(impressao.id)}
+                          className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 border border-red-200 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Deletar
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -932,13 +1174,27 @@ function ImpressoesContent() {
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-green-600" />
                       <span className="text-slate-700 font-semibold">
-                        Filamento Total
+                        Filamento Estimado
                       </span>
                     </div>
                     <span className="text-slate-900 font-bold text-lg">
                       {selectedImpressao.filamentoTotalUsado.toFixed(0)}g
                     </span>
                   </div>
+                  {selectedImpressao.status === "falhou" &&
+                    selectedImpressao.filamentoDesperdiciado !== null && (
+                      <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-200 bg-orange-50 -mx-4 px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Package className="h-4 w-4 text-orange-600" />
+                          <span className="text-orange-700 font-semibold">
+                            Filamento Real Usado (Falha)
+                          </span>
+                        </div>
+                        <span className="text-orange-600 font-bold text-lg">
+                          {selectedImpressao.filamentoDesperdiciado.toFixed(0)}g
+                        </span>
+                      </div>
+                    )}
                   <div className="space-y-2">
                     {selectedImpressao.filamentos.map((fil, index) => (
                       <div
@@ -1073,16 +1329,33 @@ function ImpressoesContent() {
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    selectedImpressao && handleDeleteClick(selectedImpressao.id)
-                  }
-                  className="bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Deletar
-                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      selectedImpressao &&
+                      handleDeleteClick(selectedImpressao.id)
+                    }
+                    className="bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Deletar
+                  </Button>
+                )}
+                {selectedImpressao &&
+                  selectedImpressao.status === "concluida" && (
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        selectedImpressao &&
+                        handleFalhouClick(selectedImpressao.id)
+                      }
+                      className="bg-orange-50 border-orange-300 text-orange-700 hover:bg-orange-100"
+                    >
+                      <Activity className="h-4 w-4 mr-2" />
+                      Marcar como Falhou
+                    </Button>
+                  )}
               </div>
               <Button
                 onClick={() => setDetailsModalOpen(false)}
@@ -1132,6 +1405,65 @@ function ImpressoesContent() {
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Finalizar Impressão
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de Confirmação de Falha */}
+      <Dialog open={confirmFalhouOpen} onOpenChange={setConfirmFalhouOpen}>
+        <DialogContent className="bg-white border-slate-200 text-slate-800">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
+              <Activity className="h-6 w-6 text-orange-600" />
+              Marcar Impressão como Falhou
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <p className="text-slate-700">
+              Esta impressão falhou durante o processo?
+            </p>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Filamento Realmente Usado (gramas)
+              </label>
+              <input
+                type="number"
+                inputMode="decimal"
+                step="0.1"
+                value={filamentoDesperdiciado}
+                onChange={(e) => setFilamentoDesperdiciado(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="0.0"
+              />
+              <p className="text-slate-500 text-xs mt-1">
+                Informe a quantidade real de filamento que foi utilizado antes
+                da falha. O resto será devolvido ao estoque.
+              </p>
+            </div>
+            <p className="text-slate-600 text-sm">
+              A impressora será liberada, o filamento não utilizado será
+              devolvido ao estoque e a quantidade real usada será registrada.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmFalhouOpen(false);
+                setImpressaoToFail(null);
+                setFilamentoDesperdiciado("");
+              }}
+              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleConfirmFalhou}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              <Activity className="h-4 w-4 mr-2" />
+              Confirmar Falha
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1223,6 +1555,7 @@ function ImpressoesContent() {
               </label>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 value={editFormData.precoVenda}
                 onChange={(e) =>

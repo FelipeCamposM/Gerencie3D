@@ -125,12 +125,34 @@ export async function PUT(
   }
 }
 
-// DELETE - Deletar impressão
+// DELETE - Deletar impressão (apenas admin)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verificar se o usuário é admin
+    const token = request.cookies.get("auth-token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const jwt = require("jsonwebtoken");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
+      role: string;
+    };
+
+    if (decoded.role !== "admin") {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso negado. Apenas administradores podem deletar impressões.",
+        },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
 
     // Buscar impressão antes de deletar para reverter atualizações
@@ -169,6 +191,16 @@ export async function DELETE(
         },
       },
     });
+
+    // Se a impressão não estava finalizada, liberar a impressora
+    if (impressao.status !== "Finalizada") {
+      await db.impressora.update({
+        where: { id: impressao.impressoraId },
+        data: {
+          status: "disponivel",
+        },
+      });
+    }
 
     // Deletar impressão (filamentos serão deletados em cascata)
     await db.impressao3D.delete({

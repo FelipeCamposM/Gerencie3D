@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 // GET - Buscar usuário por ID
 export async function GET(
@@ -156,12 +157,39 @@ export async function PUT(
   }
 }
 
-// DELETE - Deletar usuário
+// DELETE - Deletar usuário (apenas admin)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verificar se o usuário é admin
+    const token = request.cookies.get("auth-token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return NextResponse.json(
+        { error: "Configuração de servidor inválida" },
+        { status: 500 }
+      );
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as unknown as {
+      role: string;
+    };
+
+    if (decoded.role !== "admin") {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso negado. Apenas administradores podem deletar usuários.",
+        },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const userId = parseInt(id);
 

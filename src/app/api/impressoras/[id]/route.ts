@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
+import jwt from "jsonwebtoken";
 
 // GET - Buscar impressora por ID
 export async function GET(
@@ -117,12 +118,39 @@ export async function PUT(
   }
 }
 
-// DELETE - Deletar impressora
+// DELETE - Deletar impressora (apenas admin)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verificar se o usuário é admin
+    const token = request.cookies.get("auth-token")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return NextResponse.json(
+        { error: "Configuração do servidor inválida" },
+        { status: 500 }
+      );
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as unknown as {
+      role: string;
+    };
+
+    if (decoded.role !== "admin") {
+      return NextResponse.json(
+        {
+          error:
+            "Acesso negado. Apenas administradores podem deletar impressoras.",
+        },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     await db.impressora.delete({
       where: { id: parseInt(id) },

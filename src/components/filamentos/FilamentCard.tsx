@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { Filamento } from "@/types/filamento";
+import { useAuth } from "@/contexts/AuthContext";
+import { isUserAdmin } from "@/lib/auth";
 
 interface FilamentCardProps {
   filamento: Filamento;
@@ -15,6 +17,9 @@ export default function FilamentCard({
   onEdit,
   onDelete,
 }: FilamentCardProps) {
+  const { user } = useAuth();
+  const isAdmin = isUserAdmin(user);
+
   const getStatusColor = (porcentagem: number) => {
     if (porcentagem > 50) return "text-green-600";
     if (porcentagem > 20) return "text-yellow-600";
@@ -100,17 +105,24 @@ export default function FilamentCard({
           <Eye className="h-4 w-4 mr-1" />
           Detalhes
         </Button>
-        <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => onEdit(filamento)}>
-          <Edit className="h-4 w-4" />
-        </Button>
         <Button
-          variant="destructive"
+          variant="outline"
           size="sm"
           className="cursor-pointer"
-          onClick={() => onDelete(filamento.id)}
+          onClick={() => onEdit(filamento)}
         >
-          <Trash2 className="h-4 w-4" />
+          <Edit className="h-4 w-4" />
         </Button>
+        {isAdmin && (
+          <Button
+            variant="destructive"
+            size="sm"
+            className="cursor-pointer"
+            onClick={() => onDelete(filamento.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );

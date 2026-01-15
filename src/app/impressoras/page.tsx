@@ -335,7 +335,7 @@ function ImpressorasContent() {
       <Header />
 
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-4xl font-bold text-slate-800">
               Impressoras 3D
@@ -346,96 +346,181 @@ function ImpressorasContent() {
           </div>
           <button
             onClick={handleCreateClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer"
+            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <Printer className="h-5 w-5" />
             Nova Impressora
           </button>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Mobile: Single Card | Desktop: Grid */}
         {!loading && impressoras.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Total de Impressoras
-                  </p>
-                  <p className="text-2xl font-bold text-slate-900 mt-2">
-                    {impressoras.length}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Printer className="h-6 w-6 text-blue-600" />
+          <>
+            {/* Mobile View - Single Card */}
+            <div className="md:hidden mb-8">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                  Estatísticas
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Printer className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Total de Impressoras
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-slate-900">
+                      {impressoras.length}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-green-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Disponíveis
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-green-600">
+                      {disponiveisCount}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Activity className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Em Uso
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-blue-600">
+                      {emUsoCount}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 {manutencaoCount > 0 ? 'border-b border-slate-100' : ''}">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Package className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <p className="text-sm font-medium text-slate-600">
+                        Filamento Total Usado
+                      </p>
+                    </div>
+                    <p className="text-xl font-bold text-purple-600">
+                      {(totalFilamento / 1000).toFixed(1)}kg
+                    </p>
+                  </div>
+
+                  {manutencaoCount > 0 && (
+                    <div className="flex items-center justify-between py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <p className="text-sm font-medium text-slate-600">
+                          Em Manutenção
+                        </p>
+                      </div>
+                      <p className="text-xl font-bold text-orange-600">
+                        {manutencaoCount}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Disponíveis
-                  </p>
-                  <p className="text-2xl font-bold text-green-600 mt-2">
-                    {disponiveisCount}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Em Uso</p>
-                  <p className="text-2xl font-bold text-blue-600 mt-2">
-                    {emUsoCount}
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">
-                    Filamento Total Usado
-                  </p>
-                  <p className="text-2xl font-bold text-purple-600 mt-2">
-                    {(totalFilamento / 1000).toFixed(1)}kg
-                  </p>
-                </div>
-                <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Package className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-            </div>
-
-            {manutencaoCount > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-orange-200 hover:shadow-md transition-shadow">
+            {/* Desktop View - Grid */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-500">
-                      Em Manutenção
+                      Total de Impressoras
                     </p>
-                    <p className="text-2xl font-bold text-orange-600 mt-2">
-                      {manutencaoCount}
+                    <p className="text-2xl font-bold text-slate-900 mt-2">
+                      {impressoras.length}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <AlertTriangle className="h-6 w-6 text-orange-600" />
+                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Printer className="h-6 w-6 text-blue-600" />
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Disponíveis
+                    </p>
+                    <p className="text-2xl font-bold text-green-600 mt-2">
+                      {disponiveisCount}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">Em Uso</p>
+                    <p className="text-2xl font-bold text-blue-600 mt-2">
+                      {emUsoCount}
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500">
+                      Filamento Total Usado
+                    </p>
+                    <p className="text-2xl font-bold text-purple-600 mt-2">
+                      {(totalFilamento / 1000).toFixed(1)}kg
+                    </p>
+                  </div>
+                  <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Package className="h-6 w-6 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+
+              {manutencaoCount > 0 && (
+                <div className="bg-white rounded-lg shadow-sm p-6 border border-orange-200 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-500">
+                        Em Manutenção
+                      </p>
+                      <p className="text-2xl font-bold text-orange-600 mt-2">
+                        {manutencaoCount}
+                      </p>
+                    </div>
+                    <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <AlertTriangle className="h-6 w-6 text-orange-600" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         {loading ? (
@@ -512,7 +597,9 @@ function ImpressorasContent() {
                       </div>
                       <div className="flex items-center gap-1.5 text-slate-600">
                         <Package className="h-3 w-3 text-purple-600 flex-shrink-0" />
-                        <span className="font-semibold">Filamento Utilizado:</span>
+                        <span className="font-semibold">
+                          Filamento Utilizado:
+                        </span>
                         <span className="text-slate-800">
                           {impressora.filamentoTotalUsado.toFixed(0)}g
                         </span>
@@ -529,7 +616,9 @@ function ImpressorasContent() {
                       )}
                       <div className="flex items-center gap-1.5 text-slate-600">
                         <Zap className="h-3 w-3 text-yellow-600 flex-shrink-0" />
-                        <span className="font-semibold">Energia Consumida:</span>
+                        <span className="font-semibold">
+                          Energia Consumida:
+                        </span>
                         <span className="text-slate-800">
                           {impressora.gastoEnergiaKwh.toFixed(2)} kWh
                         </span>
@@ -742,6 +831,7 @@ function ImpressorasContent() {
                   <Input
                     id="gastoEnergiaKwh-create"
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     value={formData.gastoEnergiaKwh}
                     onChange={(e) =>
@@ -974,6 +1064,7 @@ function ImpressorasContent() {
                   <Input
                     id="gastoEnergiaKwh"
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     value={formData.gastoEnergiaKwh}
                     onChange={(e) =>

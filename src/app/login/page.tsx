@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
 } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -15,7 +14,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
-import { UserPlus } from "lucide-react";
+import { UserPlus, LogIn, Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
 
 interface LoginForm {
   email: string;
@@ -95,45 +94,55 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card className="shadow-2xl bg-slate-800 border border-slate-700/50 backdrop-blur-sm">
-          <CardHeader className="space-y-1 pb-6 px-8 pt-8">
-            <div className="flex justify-center mb-4">
-              <Image
-                src="/Gerencie3d-Logo.svg"
-                alt="Gerencie3D Logo"
-                width={200}
-                height={200}
-                className="w-[200px] h-[200px] object-contain rounded-lg"
-                priority
-              />
+        <Card className="shadow-lg bg-white border border-slate-200">
+          <CardHeader className="space-y-1 px-8 pt-8">
+            <div className="flex justify-center">
+              <div className="relative">
+                <Image
+                  src="/gerencie3d_logo_com_escrita.png"
+                  alt="Gerencie 3D Logo"
+                  width={200}
+                  height={80}
+                  className="object-contain"
+                  priority
+                />
+              </div>
             </div>
-            <CardTitle className="text-center text-white text-xl font-bold tracking-tight">
-              Gerencie suas Impressões 3D
-            </CardTitle>
-            <p className="text-center text-slate-400 text-sm">
-              Faça login para acessar o sistema
-            </p>
           </CardHeader>
           <CardContent className="space-y-6 px-8 pb-8">
             {!showForgot ? (
               <div>
                 {loginError && (
-                  <div className="mb-4 p-3 text-center text-sm text-red-400 bg-red-900/20 border border-red-700/30 rounded-lg">
-                    {loginError}
+                  <div className="mb-4 p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <svg
+                        className="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+                    <span>{loginError}</span>
                   </div>
                 )}
 
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-6"
+                  className="space-y-5"
                 >
                   <div className="space-y-2">
                     <Label
                       htmlFor="email"
-                      className="text-white text-sm font-medium"
+                      className="text-slate-700 text-sm font-medium flex items-center gap-2"
                     >
+                      <Mail className="h-4 w-4 text-slate-500" />
                       Email
                     </Label>
                     <Controller
@@ -146,7 +155,7 @@ export default function Login() {
                           placeholder="seu@email.com"
                           {...field}
                           required
-                          className="h-11 bg-slate-700/50 text-white border-slate-600 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200"
+                          className="h-11 bg-white text-slate-800 border-slate-300 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                           autoComplete="username"
                         />
                       )}
@@ -156,8 +165,9 @@ export default function Login() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="password"
-                      className="text-white text-sm font-medium"
+                      className="text-slate-700 text-sm font-medium flex items-center gap-2"
                     >
+                      <Lock className="h-4 w-4 text-slate-500" />
                       Senha
                     </Label>
                     <Controller
@@ -170,7 +180,7 @@ export default function Login() {
                           placeholder="••••••••"
                           {...field}
                           required
-                          className="h-11 bg-slate-700/50 text-white border-slate-600 placeholder:text-slate-400 focus:border-green-500 focus:ring-green-500/20 transition-all duration-200"
+                          className="h-11 bg-white text-slate-800 border-slate-300 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                           autoComplete="current-password"
                         />
                       )}
@@ -180,15 +190,18 @@ export default function Login() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-11 bg-green-600 hover:bg-green-700 text-white font-semibold transition-all duration-200 disabled:bg-slate-600 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full h-12 bg-gradient-to-r from-blue-900 to-cyan-500 hover:brightness-110 text-white font-semibold transition-all duration-300 ease-out disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-2xl"
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <Loader2 className="h-5 w-5 animate-spin" />
                         Entrando...
                       </div>
                     ) : (
-                      "Entrar"
+                      <div className="flex items-center gap-2">
+                        <LogIn className="h-5 w-5" />
+                        Entrar
+                      </div>
                     )}
                   </Button>
                 </form>
@@ -196,20 +209,21 @@ export default function Login() {
             ) : (
               <div>
                 <div className="mb-6 text-center">
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-lg font-semibold text-slate-800 mb-2">
                     Redefinir Senha
                   </h3>
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-600">
                     Digite seu email para receber as instruções
                   </p>
                 </div>
 
-                <form onSubmit={handleForgotPassword} className="space-y-6">
+                <form onSubmit={handleForgotPassword} className="space-y-5">
                   <div className="space-y-2">
                     <Label
                       htmlFor="forgot_email"
-                      className="text-white text-sm font-medium"
+                      className="text-slate-700 text-sm font-medium flex items-center gap-2"
                     >
+                      <Mail className="h-4 w-4 text-slate-500" />
                       E-mail
                     </Label>
                     <Input
@@ -221,13 +235,13 @@ export default function Login() {
                         setForgotEmail(e.target.value);
                       }}
                       required
-                      className="h-11 bg-slate-700/50 text-white border-slate-600 placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      className="h-11 bg-white text-slate-800 border-slate-300 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
                       autoComplete="username"
                     />
                   </div>
 
                   {forgotStatus && (
-                    <div className="p-3 text-center text-sm text-green-400 bg-green-900/20 border border-green-700/30 rounded-lg">
+                    <div className="p-3 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg">
                       {forgotStatus}
                     </div>
                   )}
@@ -236,13 +250,14 @@ export default function Login() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="flex-1 h-11 bg-slate-700/50 hover:bg-slate-600 text-white border-slate-600 transition-all duration-200"
+                      className="flex-1 h-11 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 transition-all duration-200"
                       onClick={() => {
                         setShowForgot(false);
                         setForgotEmail("");
                         setForgotStatus(null);
                       }}
                     >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
                       Voltar
                     </Button>
                     <Button
@@ -258,16 +273,16 @@ export default function Login() {
 
             {/* Link para Cadastro */}
             {!showForgot && (
-              <div className="pt-4 border-t border-slate-700">
-                <p className="text-center text-slate-400 text-sm mb-3">
+              <div className="pt-6 border-t border-slate-200">
+                <p className="text-center text-slate-600 text-sm mb-3">
                   Não tem uma conta?
                 </p>
                 <Link href="/cadastro">
                   <Button
                     variant="outline"
-                    className="w-full h-11 bg-slate-700/50 hover:bg-slate-600 text-white border-slate-600 font-medium transition-all duration-200"
+                    className="w-full h-11 bg-white hover:bg-slate-50 text-slate-700 border-slate-300 font-medium transition-all duration-200"
                   >
-                    <UserPlus className="h-4 w-4 mr-2" />
+                    <UserPlus className="h-5 w-5 mr-2" />
                     Criar Conta
                   </Button>
                 </Link>

@@ -316,7 +316,7 @@ function CriarImpressaoContent() {
               Nova Impressão 3D
             </h2>
 
-            <div className="grid grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Coluna 1: Informações Básicas */}
               <div className="space-y-4">
                 <div>
@@ -387,6 +387,7 @@ function CriarImpressaoContent() {
                       <Input
                         id="horas"
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         value={formData.horas}
                         onChange={(e) =>
@@ -400,6 +401,7 @@ function CriarImpressaoContent() {
                       <Input
                         id="minutos"
                         type="number"
+                        inputMode="numeric"
                         min="0"
                         max="59"
                         value={formData.minutos}
@@ -447,6 +449,7 @@ function CriarImpressaoContent() {
                   <Input
                     id="markup"
                     type="number"
+                    inputMode="decimal"
                     step="0.1"
                     min="1"
                     value={formData.markup}
@@ -515,7 +518,7 @@ function CriarImpressaoContent() {
                             atualizarFilamento(index, "filamentoId", value)
                           }
                         >
-                          <SelectTrigger className="bg-white border-slate-300 text-slate-800 !h-12 text-sm">
+                          <SelectTrigger className="bg-white border-slate-300 text-slate-800 !h-12 text-sm w-full">
                             <SelectValue placeholder="Selecione o filamento" />
                           </SelectTrigger>
                           <SelectContent className="bg-white border-slate-200">
@@ -555,6 +558,7 @@ function CriarImpressaoContent() {
                           <div className="flex-1">
                             <Input
                               type="number"
+                              inputMode="decimal"
                               min="0.1"
                               step="0.1"
                               max={
@@ -660,7 +664,7 @@ function CriarImpressaoContent() {
                     {/* Custo Total */}
                     <div className="bg-white p-4 rounded-lg border-2 border-orange-200 shadow-sm">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-bold text-orange-700 uppercase tracking-wide">
+                        <p className="text-sm lg:text-xs font-bold text-orange-700 uppercase tracking-wide">
                           Custo Total
                         </p>
                         <Package className="h-5 w-5 text-orange-600" />
@@ -671,7 +675,7 @@ function CriarImpressaoContent() {
                           : "R$ 0,00"}
                       </p>
                       <div className="space-y-2 pt-2 border-t-2 border-orange-100">
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm lg:text-xs">
                           <span className="text-slate-600 font-medium">
                             Filamento ({calcularFilamentoTotal().toFixed(1)}g)
                           </span>
@@ -698,7 +702,7 @@ function CriarImpressaoContent() {
                             })()}
                           </span>
                         </div>
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm lg:text-xs">
                           <span className="text-slate-600 font-medium">
                             Energia (
                             {formData.tempoImpressao
@@ -732,7 +736,7 @@ function CriarImpressaoContent() {
                             })()}
                           </span>
                         </div>
-                        <div className="flex justify-between text-xs">
+                        <div className="flex justify-between text-sm lg:text-xs">
                           <span className="text-slate-600 font-medium">
                             Custos Adicionais
                           </span>
@@ -743,7 +747,7 @@ function CriarImpressaoContent() {
                             ).toFixed(2)}
                           </span>
                         </div>
-                        <div className="flex justify-between text-xs pt-1.5 border-t border-slate-200">
+                        <div className="flex justify-between text-sm lg:text-xs pt-1.5 border-t border-slate-200">
                           <span className="text-slate-600 font-medium">
                             Markup
                           </span>
@@ -757,7 +761,7 @@ function CriarImpressaoContent() {
                     {/* Preço de Venda */}
                     <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-lg border-2 border-green-400 shadow-md">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-bold text-white uppercase tracking-wide">
+                        <p className="text-sm lg:text-xs font-bold text-white uppercase tracking-wide">
                           Preço de Venda
                         </p>
                         <TrendingUp className="h-5 w-5 text-white" />
@@ -769,7 +773,7 @@ function CriarImpressaoContent() {
                       </p>
                       <div className="space-y-2 pt-2 border-t-2 border-green-400">
                         <div className="flex justify-between items-center">
-                          <span className="text-xs text-green-50 font-semibold">
+                          <span className="text-sm lg:text-xs text-green-50 font-semibold">
                             Lucro Líquido
                           </span>
                           <span className="text-xl font-black text-white">
@@ -782,7 +786,7 @@ function CriarImpressaoContent() {
                           </span>
                         </div>
                         <div className="bg-green-400/30 px-2 py-1 rounded">
-                          <p className="text-xs text-white font-bold text-center">
+                          <p className="text-sm lg:text-xs text-white font-bold text-center">
                             {formData.precoVenda &&
                             formData.custoPeca &&
                             parseFloat(formData.custoPeca) > 0

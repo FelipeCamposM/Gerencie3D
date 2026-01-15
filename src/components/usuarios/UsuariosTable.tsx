@@ -36,6 +36,8 @@ import {
   getLevelBadgeConfig,
 } from "./utils";
 import { UserPermissionsBadge } from "./UserPermissionsBadge";
+import { useAuth } from "@/contexts/AuthContext";
+import { isUserAdmin } from "@/lib/auth";
 
 interface UsuariosTableProps {
   usuarios: Usuario[];
@@ -69,6 +71,9 @@ export function UsuariosTable({
   onDeleteUser,
   onCreateUser,
 }: UsuariosTableProps) {
+  const { user } = useAuth();
+  const isAdmin = isUserAdmin(user);
+
   return (
     <Card className="bg-white border-slate-200 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -169,14 +174,16 @@ export function UsuariosTable({
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onDeleteUser(String(usuario.id))}
-                        className="bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isAdmin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDeleteUser(String(usuario.id))}
+                          className="bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

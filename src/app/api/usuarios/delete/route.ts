@@ -40,7 +40,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
-    const deletedUser = await db.user_profiles.delete({
+    const deletedUser = await db.usuario.delete({
       where: { id: Number(id) },
     });
 

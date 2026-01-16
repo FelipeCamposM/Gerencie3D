@@ -1,11 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "../../components/ui/card";
+import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Label } from "../../components/ui/label";
@@ -14,7 +10,16 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
-import { UserPlus, LogIn, Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
+import {
+  UserPlus,
+  LogIn,
+  Mail,
+  Lock,
+  Loader2,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 interface LoginForm {
   email: string;
@@ -35,6 +40,7 @@ export default function Login() {
   const [forgotStatus, setForgotStatus] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Redirecionar se já estiver autenticado
   useEffect(() => {
@@ -174,15 +180,28 @@ export default function Login() {
                       name="password"
                       control={form.control}
                       render={({ field }) => (
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                          required
-                          className="h-11 bg-white text-slate-800 border-slate-300 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
-                          autoComplete="current-password"
-                        />
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                            required
+                            className="h-11 bg-white text-slate-800 border-slate-300 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 pr-10"
+                            autoComplete="current-password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors cursor-pointer"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-5 w-5" />
+                            ) : (
+                              <Eye className="h-5 w-5" />
+                            )}
+                          </button>
+                        </div>
                       )}
                     />
                   </div>

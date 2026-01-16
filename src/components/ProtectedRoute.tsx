@@ -3,7 +3,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { DashboardLoading } from "./home";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -26,11 +25,11 @@ export default function ProtectedRoute({
   }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
-    return <DashboardLoading />;
+    return <div>Loading...</div>;
   }
 
   if (!isAuthenticated) {
-    return <DashboardLoading />;
+    return <div>Loading...</div>;
   }
 
   // Verificar permissões se especificadas

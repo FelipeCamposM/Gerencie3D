@@ -5,7 +5,6 @@ export { CreateUserModal } from './CreateUserModal';
 export { EditUserModal } from './EditUserModal';
 export { DeleteConfirmModal } from './DeleteConfirmModal';
 export { PermissionsSelect } from './PermissionsSelect';
-export { UserPermissionsBadge } from './UserPermissionsBadge';
 export { useUsuarios } from './useUsuarios';
 export { filterUsuarios } from './utils';
 export type { Usuario, CreateUserForm, EditUserForm, Permission, UserPermission } from './types';

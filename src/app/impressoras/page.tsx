@@ -50,6 +50,7 @@ interface Impressora {
   gastoEnergiaKwh: number;
   precoEnergiaKwh: number;
   filamentoTotalUsado: number;
+  impressoesRealizadas?: number;
   ultimoUso: string | null;
   ultimoUsuario?: {
     primeiroNome: string;
@@ -609,6 +610,13 @@ function ImpressorasContent() {
                           {impressora.filamentoTotalUsado.toFixed(0)}g
                         </span>
                       </div>
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <TrendingUp className="h-3 w-3 text-green-600 flex-shrink-0" />
+                        <span className="font-semibold">Impressões:</span>
+                        <span className="text-slate-800">
+                          {impressora.impressoesRealizadas || 0}
+                        </span>
+                      </div>
                       {impressora.ultimoUsuario && (
                         <div className="flex items-center gap-1.5 text-slate-600">
                           <Activity className="h-3 w-3 text-blue-600 flex-shrink-0" />
@@ -859,6 +867,7 @@ function ImpressorasContent() {
                   <Input
                     id="precoEnergiaKwh-create"
                     type="text"
+                    inputMode="numeric"
                     value={precoEnergiaInput.valorFormatado}
                     onChange={precoEnergiaInput.handleChange}
                     onKeyDown={precoEnergiaInput.handleKeyDown}
@@ -1092,6 +1101,7 @@ function ImpressorasContent() {
                   <Input
                     id="precoEnergiaKwh"
                     type="text"
+                    inputMode="numeric"
                     value={precoEnergiaInput.valorFormatado}
                     onChange={precoEnergiaInput.handleChange}
                     onKeyDown={precoEnergiaInput.handleKeyDown}
@@ -1132,7 +1142,7 @@ function ImpressorasContent() {
           </DialogHeader>
 
           {detailedImpressora && (
-            <div className="space-y-6">
+            <div className="space-y-6 overflow-x-hidden">
               {/* Informações Gerais com Imagem */}
               <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-6 rounded-xl border border-blue-100">
                 <div className="flex items-center justify-between mb-4">
@@ -1157,26 +1167,26 @@ function ImpressorasContent() {
                   </div>
                 </div>
 
-                <div className="flex gap-6">
-                  {/* Imagem à esquerda */}
+                <div className="flex flex-col md:flex-row gap-6">
+                  {/* Imagem */}
                   {detailedImpressora.imagemImpressora ? (
-                    <div className="relative w-48 h-48 flex-shrink-0 bg-white rounded-lg overflow-hidden shadow-sm border border-slate-200">
+                    <div className="relative w-full md:w-48 h-48 md:flex-shrink-0 bg-white rounded-lg overflow-hidden shadow-sm border border-slate-200">
                       <Image
                         src={detailedImpressora.imagemImpressora}
                         alt={detailedImpressora.nome}
                         fill
                         className="object-contain"
-                        sizes="192px"
+                        sizes="(max-width: 768px) 100vw, 192px"
                         unoptimized
                       />
                     </div>
                   ) : (
-                    <div className="w-48 h-48 flex-shrink-0 bg-white rounded-lg flex items-center justify-center border border-slate-200">
+                    <div className="w-full md:w-48 h-48 md:flex-shrink-0 bg-white rounded-lg flex items-center justify-center border border-slate-200">
                       <Printer className="h-24 w-24 text-slate-300" />
                     </div>
                   )}
 
-                  {/* Informações à direita */}
+                  {/* Informações */}
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                       <div className="flex items-center gap-2 mb-2">
@@ -1234,7 +1244,7 @@ function ImpressorasContent() {
                     Energia e Custos
                   </h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
                     <div className="flex items-center gap-2 mb-2">
                       <Zap className="h-4 w-4 text-yellow-600" />
@@ -1269,6 +1279,17 @@ function ImpressorasContent() {
                     <p className="text-slate-900 font-bold text-xl">
                       {detailedImpressora.filamentoTotalUsado.toFixed(0)}
                       <span className="text-sm text-slate-600 ml-1">g</span>
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="h-4 w-4 text-blue-600" />
+                      <p className="text-slate-600 text-sm font-medium">
+                        Impressões Realizadas
+                      </p>
+                    </div>
+                    <p className="text-slate-900 font-bold text-xl">
+                      {detailedImpressora.impressoesRealizadas || 0}
                     </p>
                   </div>
                 </div>

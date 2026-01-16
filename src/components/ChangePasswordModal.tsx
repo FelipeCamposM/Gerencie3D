@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface ChangePasswordModalProps {
   open: boolean;
@@ -32,10 +33,6 @@ export default function ChangePasswordModal({
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [messageType, setMessageType] = useState<"success" | "error">(
-    "success"
-  );
 
   const form = useForm<ChangePasswordForm>({
     defaultValues: {
@@ -46,13 +43,14 @@ export default function ChangePasswordModal({
   });
 
   const onSubmit = async (data: ChangePasswordForm) => {
+    console.log("Form submitted with data:", data);
     setIsLoading(true);
-    setMessage(null);
 
     // Validar se as senhas coincidem
     if (data.newPassword !== data.confirmPassword) {
-      setMessage("A nova senha e a confirmação não coincidem");
-      setMessageType("error");
+      toast.error("Senhas não coincidem", {
+        description: "A nova senha e a confirmação devem ser iguais",
+      });
       setIsLoading(false);
       return;
     }
@@ -73,25 +71,27 @@ export default function ChangePasswordModal({
       const result = await response.json();
 
       if (response.ok) {
-        setMessage("Senha alterada com sucesso!");
-        setMessageType("success");
+        toast.success("Senha alterada com sucesso!", {
+          description: "Sua senha foi atualizada",
+        });
 
         // Limpar formulário
         form.reset();
 
-        // Fechar modal após 2 segundos
+        // Fechar modal após 1 segundo
         setTimeout(() => {
           onOpenChange(false);
-          setMessage(null);
-        }, 2000);
+        }, 1000);
       } else {
-        setMessage(result.error || "Erro ao alterar senha");
-        setMessageType("error");
+        toast.error("Erro ao alterar senha", {
+          description: result.error || "Verifique os dados e tente novamente",
+        });
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
-      setMessage("Erro de conexão. Tente novamente.");
-      setMessageType("error");
+      toast.error("Erro de conexão", {
+        description: "Não foi possível conectar ao servidor",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -99,36 +99,34 @@ export default function ChangePasswordModal({
 
   const handleClose = () => {
     form.reset();
-    setMessage(null);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="bg-slate-800 border-slate-700 text-white max-w-[calc(100vw-2rem)] md:max-w-md">
+      <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Lock className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-xl text-slate-800">
+            <Lock className="h-5 w-5 text-blue-600" />
             Alterar Senha
           </DialogTitle>
         </DialogHeader>
 
-        {message && (
-          <div
-            className={`p-3 rounded-lg text-sm ${
-              messageType === "success"
-                ? "bg-green-900/20 border border-green-700/30 text-green-400"
-                : "bg-red-900/20 border border-red-700/30 text-red-400"
-            }`}
-          >
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={(e) => {
+            console.log("Form onSubmit disparado!");
+            e.preventDefault();
+            form.handleSubmit(onSubmit)(e);
+          }}
+          className="space-y-4 mt-4"
+        >
           {/* Senha Atual */}
           <div className="space-y-2">
-            <Label htmlFor="currentPassword" className="text-white">
+            <Label
+              htmlFor="currentPassword"
+              className="text-slate-700 flex items-center gap-2"
+            >
+              <Lock className="h-4 w-4 text-blue-600" />
               Senha Atual
             </Label>
             <div className="relative">
@@ -136,30 +134,41 @@ export default function ChangePasswordModal({
                 name="currentPassword"
                 control={form.control}
                 rules={{ required: "Senha atual é obrigatória" }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="currentPassword"
-                    type={showCurrentPassword ? "text" : "password"}
-                    placeholder="Digite sua senha atual"
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 pr-10"
-                    required
-                  />
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Input
+                      {...field}
+                      id="currentPassword"
+                      type={showCurrentPassword ? "text" : "password"}
+                      placeholder="Digite sua senha atual"
+                      className="bg-white border-slate-300 text-slate-800 placeholder:text-slate-400 pr-10"
+                    />
+                    {error && (
+                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {error.message}
+                      </p>
+                    )}
+                  </>
                 )}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
               >
-                {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
           {/* Nova Senha */}
           <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-white">
+            <Label
+              htmlFor="newPassword"
+              className="text-slate-700 flex items-center gap-2"
+            >
+              <Lock className="h-4 w-4 text-green-600" />
               Nova Senha
             </Label>
             <div className="relative">
@@ -173,30 +182,45 @@ export default function ChangePasswordModal({
                     message: "A senha deve ter pelo menos 6 caracteres",
                   },
                 }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="newPassword"
-                    type={showNewPassword ? "text" : "password"}
-                    placeholder="Digite sua nova senha"
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 pr-10"
-                    required
-                  />
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Input
+                      {...field}
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      placeholder="Digite sua nova senha"
+                      className="bg-white border-slate-300 text-slate-800 placeholder:text-slate-400 pr-10"
+                    />
+                    {error && (
+                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {error.message}
+                      </p>
+                    )}
+                  </>
                 )}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
-                {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            <p className="text-xs text-slate-500 flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" />
+              Mínimo de 6 caracteres
+            </p>
           </div>
 
           {/* Confirmar Nova Senha */}
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-white">
+            <Label
+              htmlFor="confirmPassword"
+              className="text-slate-700 flex items-center gap-2"
+            >
+              <CheckCircle className="h-4 w-4 text-green-600" />
               Confirmar Nova Senha
             </Label>
             <div className="relative">
@@ -204,35 +228,39 @@ export default function ChangePasswordModal({
                 name="confirmPassword"
                 control={form.control}
                 rules={{ required: "Confirmação de senha é obrigatória" }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirme sua nova senha"
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 pr-10"
-                    required
-                  />
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Input
+                      {...field}
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirme sua nova senha"
+                      className="bg-white border-slate-300 text-slate-800 placeholder:text-slate-400 pr-10"
+                    />
+                    {error && (
+                      <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {error.message}
+                      </p>
+                    )}
+                  </>
                 )}
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            <span className="ml-1 text-sm text-slate-300">
-              A senha deve ter pelo menos 6 caracteres
-            </span>
           </div>
 
           <DialogFooter className="flex flex-row gap-2 justify-center pt-4">
             <Button
               type="button"
-              variant="secondary"
-              className="bg-slate-600 hover:bg-slate-700 text-white"
+              variant="outline"
+              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
               onClick={handleClose}
               disabled={isLoading}
             >
@@ -240,7 +268,7 @@ export default function ChangePasswordModal({
             </Button>
             <Button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -249,7 +277,10 @@ export default function ChangePasswordModal({
                   Alterando...
                 </div>
               ) : (
-                "Alterar Senha"
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4" />
+                  Alterar Senha
+                </div>
               )}
             </Button>
           </DialogFooter>

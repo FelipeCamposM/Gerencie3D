@@ -115,6 +115,7 @@ function ImpressoesContent() {
   const [impressaoToFail, setImpressaoToFail] = useState<string | null>(null);
   const [filamentoDesperdiciado, setFilamentoDesperdiciado] =
     useState<string>("");
+  const [confirmingFalhou, setConfirmingFalhou] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -222,6 +223,10 @@ function ImpressoesContent() {
   };
 
   const handleFalhouClick = (impressaoId: string) => {
+    const impressao = impressoes.find((i) => i.id === impressaoId);
+    if (impressao) {
+      setSelectedImpressao(impressao);
+    }
     setImpressaoToFail(impressaoId);
     setFilamentoDesperdiciado("");
     setConfirmFalhouOpen(true);
@@ -265,6 +270,7 @@ function ImpressoesContent() {
 
     const filamentoDesperdice = parseFloat(filamentoDesperdiciado) || 0;
 
+    setConfirmingFalhou(true);
     try {
       const response = await fetch(
         `/api/impressoes/${impressaoToFail}/falhou`,
@@ -296,6 +302,8 @@ function ImpressoesContent() {
       toast.error("Erro ao marcar impressão como falhou", {
         description: "Ocorreu um erro inesperado. Tente novamente.",
       });
+    } finally {
+      setConfirmingFalhou(false);
     }
   };
 
@@ -338,6 +346,7 @@ function ImpressoesContent() {
   };
 
   const handleEditClick = (impressao: Impressao) => {
+    setSelectedImpressao(impressao);
     setEditFormData({
       nomeProjeto: impressao.nomeProjeto,
       precoVenda: impressao.precoVenda?.toString() || "",
@@ -645,6 +654,79 @@ function ImpressoesContent() {
               </div>
             </div>
           </>
+        )}
+
+        {/* Card de Estatísticas por Usuário */}
+        {!loading && impressoes.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow mb-8">
+            <div className="flex items-center gap-2 mb-6">
+              <User className="h-6 w-6 text-cyan-600" />
+              <h2 className="text-xl font-bold text-slate-800">
+                Estatísticas por Usuário
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {(() => {
+                // Agrupar dados por usuário
+                const usuariosMap = new Map();
+                impressoes.forEach((impressao) => {
+                  const userId = impressao.usuario.id;
+                  if (!usuariosMap.has(userId)) {
+                    usuariosMap.set(userId, {
+                      id: userId,
+                      nome: `${impressao.usuario.primeiroNome} ${impressao.usuario.ultimoNome}`,
+                      impressoes: 0,
+                      filamentoUsado: 0,
+                    });
+                  }
+                  const userData = usuariosMap.get(userId);
+                  userData.impressoes += 1;
+                  userData.filamentoUsado += impressao.filamentoTotalUsado;
+                });
+
+                return Array.from(usuariosMap.values()).map((usuario) => (
+                  <div
+                    key={usuario.id}
+                    className="bg-gradient-to-br from-cyan-50 to-blue-50 p-4 rounded-lg border border-cyan-200"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="h-10 w-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                        <User className="h-5 w-5 text-cyan-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-800">
+                          {usuario.nome}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {usuario.impressoes} impressão(ões)
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-slate-600 flex items-center gap-1">
+                          <Printer className="h-4 w-4 text-blue-600" />
+                          Impressões:
+                        </span>
+                        <span className="font-bold text-blue-600">
+                          {usuario.impressoes}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-slate-600 flex items-center gap-1">
+                          <Package className="h-4 w-4 text-green-600" />
+                          Filamento:
+                        </span>
+                        <span className="font-bold text-green-600">
+                          {(usuario.filamentoUsado / 1000).toFixed(2)} kg
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
         )}
 
         {/* Barra de Pesquisa */}
@@ -1517,16 +1599,27 @@ function ImpressoesContent() {
                 setImpressaoToFail(null);
                 setFilamentoDesperdiciado("");
               }}
-              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+              disabled={confirmingFalhou}
+              className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleConfirmFalhou}
-              className="bg-orange-600 hover:bg-orange-700 text-white"
+              disabled={confirmingFalhou}
+              className="bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Activity className="h-4 w-4 mr-2" />
-              Confirmar Falha
+              {confirmingFalhou ? (
+                <>
+                  <div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <Activity className="h-4 w-4 mr-2" />
+                  Confirmar Falha
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

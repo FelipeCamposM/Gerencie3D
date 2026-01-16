@@ -433,6 +433,7 @@ function CriarImpressaoContent() {
                   <Input
                     id="custosAdicionais"
                     type="text"
+                    inputMode="numeric"
                     value={custosAdicionaisInput.valorFormatado}
                     onChange={custosAdicionaisInput.handleChange}
                     onKeyDown={custosAdicionaisInput.handleKeyDown}

@@ -182,12 +182,25 @@ export async function DELETE(
       });
     }
 
-    // Reverter filamento total usado da impressora
+    // Reverter filamento total usado da impressora e decrementar contador de impressões
     await db.impressora.update({
       where: { id: impressao.impressoraId },
       data: {
         filamentoTotalUsado: {
           decrement: impressao.filamentoTotalUsado,
+        },
+        impressoesRealizadas: {
+          decrement: 1,
+        },
+      },
+    });
+
+    // Decrementar contador de impressões do usuário
+    await db.usuario.update({
+      where: { id: impressao.usuarioId },
+      data: {
+        impressoesRealizadas: {
+          decrement: 1,
         },
       },
     });

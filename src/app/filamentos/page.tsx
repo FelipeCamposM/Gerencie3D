@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import Header from "@/components/header";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ export default function FilamentosPage() {
   const [filamentoToDelete, setFilamentoToDelete] = useState<string | null>(
     null
   );
+  const [deletingFilamento, setDeletingFilamento] = useState(false);
   const [selectedFilamento, setSelectedFilamento] = useState<Filamento | null>(
     null
   );
@@ -111,9 +113,19 @@ export default function FilamentosPage() {
         setCreateModalOpen(false);
         fetchFilamentos();
         resetForm();
+        toast.success("Filamento criado com sucesso!", {
+          description: `${formData.tipo} - ${formData.nomeCor}`,
+        });
+      } else {
+        toast.error("Erro ao criar filamento", {
+          description: "Tente novamente mais tarde.",
+        });
       }
     } catch (error) {
       console.error("Erro ao criar filamento:", error);
+      toast.error("Erro ao criar filamento", {
+        description: "Ocorreu um erro inesperado.",
+      });
     }
   };
 
@@ -146,6 +158,7 @@ export default function FilamentosPage() {
   const confirmDelete = async () => {
     if (!filamentoToDelete) return;
 
+    setDeletingFilamento(true);
     try {
       const response = await fetch(`/api/filamentos/${filamentoToDelete}`, {
         method: "DELETE",
@@ -155,9 +168,24 @@ export default function FilamentosPage() {
         fetchFilamentos();
         setDeleteModalOpen(false);
         setFilamentoToDelete(null);
+        toast.success("Filamento excluído com sucesso!", {
+          description: "O filamento foi removido do sistema.",
+        });
+      } else {
+        const error = await response.json();
+        toast.error("Erro ao excluir filamento", {
+          description:
+            error.details || error.error || "Tente novamente mais tarde.",
+          duration: 6000,
+        });
       }
     } catch (error) {
       console.error("Erro ao deletar filamento:", error);
+      toast.error("Erro ao excluir filamento", {
+        description: "Ocorreu um erro inesperado.",
+      });
+    } finally {
+      setDeletingFilamento(false);
     }
   };
 
@@ -754,24 +782,42 @@ export default function FilamentosPage() {
                 </DialogTitle>
               </DialogHeader>
               <div className="py-4">
-                <p className="text-slate-700">
-                  Tem certeza que deseja excluir este filamento? Esta ação não
-                  pode ser desfeita.
-                </p>
+                {deletingFilamento ? (
+                  <div className="flex flex-col items-center justify-center py-8 gap-4">
+                    <div className="w-12 h-12 border-4 border-slate-300 border-t-red-600 rounded-full animate-spin"></div>
+                    <p className="text-slate-700 font-medium">
+                      Excluindo filamento...
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-slate-700">
+                    Tem certeza que deseja excluir este filamento? Esta ação não
+                    pode ser desfeita.
+                  </p>
+                )}
               </div>
               <div className="flex justify-end gap-3">
                 <Button
                   variant="outline"
                   onClick={() => setDeleteModalOpen(false)}
-                  className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+                  disabled={deletingFilamento}
+                  className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </Button>
                 <Button
                   onClick={confirmDelete}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  disabled={deletingFilamento}
+                  className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Excluir
+                  {deletingFilamento ? (
+                    <>
+                      <div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Excluindo...
+                    </>
+                  ) : (
+                    "Excluir"
+                  )}
                 </Button>
               </div>
             </DialogContent>

@@ -15,17 +15,9 @@ import {
 } from "../ui/table";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
-import {
-  Edit2,
-  Trash2,
-  Mail,
-  UserPlus,
-} from "lucide-react";
+import { Edit2, Trash2, Mail, UserPlus } from "lucide-react";
 import { Usuario } from "./types";
-import {
-  getInitials,
-} from "./utils";
-import { UserPermissionsBadge } from "./UserPermissionsBadge";
+import { getInitials } from "./utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { isUserAdmin } from "@/lib/auth";
 
@@ -71,14 +63,11 @@ export function UsuariosTable({
               <TableHead className="text-slate-700 font-semibold pl-15">
                 Usuário
               </TableHead>
-              <TableHead className="text-slate-700 font-semibold">
+              <TableHead className="text-slate-700 font-semibold hidden md:table-cell">
                 Contato
               </TableHead>
               <TableHead className="text-slate-700 font-semibold">
                 Cargo
-              </TableHead>
-              <TableHead className="text-slate-700 font-semibold">
-                Permissões
               </TableHead>
               <TableHead className="text-slate-700 font-semibold text-right pr-12">
                 Ações
@@ -121,7 +110,7 @@ export function UsuariosTable({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     <div className="flex items-center gap-2">
                       <Mail className="h-4 w-4 text-slate-400" />
                       <span className="text-slate-700">{usuario.email}</span>
@@ -129,11 +118,6 @@ export function UsuariosTable({
                   </TableCell>
                   <TableCell>
                     <p className="text-slate-700 font-medium">{usuario.role}</p>
-                  </TableCell>
-                  <TableCell>
-                    <UserPermissionsBadge
-                      permissions={usuario.permissions || []}
-                    />
                   </TableCell>
                   <TableCell className="text-right pr-6">
                     <div className="flex items-center justify-end gap-2">

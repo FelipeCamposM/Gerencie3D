@@ -198,8 +198,21 @@ export async function POST(request: NextRequest) {
         filamentoTotalUsado: {
           increment: parseFloat(data.filamentoTotalUsado || 0),
         },
+        impressoesRealizadas: {
+          increment: 1,
+        },
         // Impressora fica "em_uso" quando a impressão é criada
         status: data.status === "concluida" ? "disponivel" : "em_uso",
+      },
+    });
+
+    // Atualizar contador de impressões do usuário
+    await db.usuario.update({
+      where: { id: parseInt(data.usuarioId) },
+      data: {
+        impressoesRealizadas: {
+          increment: 1,
+        },
       },
     });
 

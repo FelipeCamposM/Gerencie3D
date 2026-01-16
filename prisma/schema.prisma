@@ -8,15 +8,16 @@ datasource db {
 }
 
 model Usuario {
-  id            Int      @id @default(autoincrement())
-  primeiroNome  String
-  ultimoNome    String
-  imagemUsuario Bytes?
-  email         String   @unique
-  senhaHash     String
-  role          String   @default("user") // user, admin
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  primeiroNome         String
+  ultimoNome           String
+  imagemUsuario        Bytes?
+  email                String   @unique
+  senhaHash            String
+  role                 String   @default("user") // user, admin
+  impressoesRealizadas Int?     @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   // Relações
   impressorasUsadas    Impressora[]  @relation("UltimoUsuario")
@@ -28,19 +29,20 @@ model Usuario {
 }
 
 model Impressora {
-  id                  Int       @id @default(autoincrement())
-  nome                String
-  modelo              String
-  marca               String
-  localizacao         String
-  imagemImpressora    Bytes?
-  gastoEnergiaKwh     Float // Gasto de energia por hora em kWh
-  precoEnergiaKwh     Float // Preço da energia na cidade em R$ por kWh
-  filamentoTotalUsado Float     @default(0) // Total de filamento usado em gramas
-  ultimoUso           DateTime?
-  status              String    @default("disponivel") // disponivel, em_uso, manutencao
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                   Int       @id @default(autoincrement())
+  nome                 String
+  modelo               String
+  marca                String
+  localizacao          String
+  imagemImpressora     Bytes?
+  gastoEnergiaKwh      Float // Gasto de energia por hora em kWh
+  precoEnergiaKwh      Float // Preço da energia na cidade em R$ por kWh
+  filamentoTotalUsado  Float     @default(0) // Total de filamento usado em gramas
+  impressoesRealizadas Int?      @default(0)
+  ultimoUso            DateTime?
+  status               String    @default("disponivel") // disponivel, em_uso, manutencao
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   // Relações
   ultimoUsuarioId Int?

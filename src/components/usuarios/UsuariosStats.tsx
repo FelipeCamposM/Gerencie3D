@@ -41,33 +41,71 @@ export function UsuariosStats({ usuarios }: UsuariosStatsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-      {statsConfig.map((stat, index) => (
-        <Card
-          key={index}
-          className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow"
-        >
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
+    <>
+      {/* Mobile View - Single Card */}
+      <div className="md:hidden mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            Estatísticas
+          </h3>
+          <div className="space-y-4">
+            {statsConfig.map((stat, index) => (
               <div
-                className={`p-2 ${getColorClasses(
-                  stat.color
-                )} rounded-lg border`}
+                key={index}
+                className={`flex items-center justify-between py-3 ${
+                  index !== statsConfig.length - 1
+                    ? "border-b border-slate-100"
+                    : ""
+                }`}
               >
-                <stat.icon className="h-5 w-5" />
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`h-10 w-10 ${getColorClasses(
+                      stat.color
+                    )} rounded-lg flex items-center justify-center border`}
+                  >
+                    <stat.icon className="h-5 w-5" />
+                  </div>
+                  <p className="text-sm font-medium text-slate-600">
+                    {stat.label}
+                  </p>
+                </div>
+                <p className="text-xl font-bold text-slate-900">{stat.value}</p>
               </div>
-              <div className="mb-4">
-                <p className="text-sm text-slate-600 font-medium">
-                  {stat.label}
-                </p>
-                <p className="text-2xl font-bold text-slate-800">
-                  {stat.value}
-                </p>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop View - Grid */}
+      <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {statsConfig.map((stat, index) => (
+          <Card
+            key={index}
+            className="bg-white border-slate-200 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-500">
+                    {stat.label}
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900 mt-2">
+                    {stat.value}
+                  </p>
+                </div>
+                <div
+                  className={`h-12 w-12 ${getColorClasses(
+                    stat.color
+                  )} rounded-lg flex items-center justify-center border`}
+                >
+                  <stat.icon className="h-6 w-6" />
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </>
   );
 }

@@ -128,19 +128,21 @@ export default function Header() {
       </Dialog>
 
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 bg-slate-700 text-white shadow-lg w-full border-b border-slate-600">
+      <header className="flex items-center justify-between px-6 py-4 bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] text-white shadow-lg w-full border-b border-blue-600">
         {/* Logo e Nome (clickável) */}
         <Link
           href="/"
-          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition"
+          className="flex items-center gap-3 cursor-pointer hover:scale-[1.01] transition-all"
         >
-          <Image
-            src="/favicon.ico"
-            alt="Logo"
-            width={50}
-            height={50}
-            className="w-10 h-10"
-          />
+          <div className="rounded-4xl bg-white hover:rotate-3 transition-all shadow-md">
+            <Image
+              src="/gerencie3d_logo_sem_escrita.png"
+              alt="Logo"
+              width={1000}
+              height={1000}
+              className="w-16 h-16"
+            />
+          </div>
           <div className="flex flex-col">
             <span className="text-xl font-bold">Gerencie 3D</span>
             {user && (
@@ -161,15 +163,17 @@ export default function Header() {
               key={link.href}
               href={link.href}
               className={`
-                flex items-center gap-2 px-3 py-2 rounded-md transition
+                flex items-center gap-2 px-3 py-2 rounded-md hover:scale-[1.03] transition-all
                 ${
                   pathname === link.href
-                    ? "bg-slate-600 text-white font-semibold"
-                    : "hover:bg-slate-600/50"
+                    ? "bg-blue-800 text-white font-semibold"
+                    : "hover:bg-white/20"
                 }
               `}
             >
-              {link.icon}
+              <span>
+                {link.icon}
+              </span>
               <span>{link.label}</span>
             </Link>
           ))}
@@ -177,7 +181,7 @@ export default function Header() {
           {/* Menu do Usuário Desktop */}
           <Popover open={userMenuOpen} onOpenChange={setUserMenuOpen}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-2 bg-slate-600 hover:bg-slate-500 text-white px-3 py-2 rounded-md transition cursor-pointer">
+              <button className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white px-3 py-2 rounded-md transition cursor-pointer">
                 <User size={20} />
                 <span>{user?.primeiroNome}</span>
                 <ChevronDown size={16} />
@@ -190,7 +194,7 @@ export default function Header() {
                     setShowChangePassword(true);
                     setUserMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-md transition w-full text-left"
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-md transition w-full text-left cursor-pointer"
                 >
                   <Lock size={16} />
                   <span>Alterar Senha</span>
@@ -201,7 +205,7 @@ export default function Header() {
                     setOpen(true);
                     setUserMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#e94a4a] hover:bg-[#e94a4ae3] rounded-md transition w-full text-left text-white"
+                  className="flex items-center gap-2 px-3 py-2 bg-[#e94a4a] hover:bg-[#e94a4ae3] rounded-md transition w-full text-left text-white cursor-pointer"
                 >
                   <Power size={16} />
                   <span>Sair</span>
@@ -214,7 +218,7 @@ export default function Header() {
         {/* Menu Hamburguer Mobile */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden flex items-center justify-center p-2 rounded-md bg-slate-600 hover:bg-slate-500 transition"
+          className="lg:hidden flex items-center justify-center p-2 rounded-md bg-blue-800 hover:bg-blue-900 transition"
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -222,7 +226,7 @@ export default function Header() {
 
       {/* Menu Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-slate-700 border-b border-slate-600 shadow-lg">
+        <div className="lg:hidden bg-gradient-to-br from-[#1e3a8a] to-[#1e40af] border-b border-blue-700 shadow-lg">
           <nav className="flex flex-col p-4 space-y-2">
             {filteredNavLinks.map((link) => (
               <Link
@@ -233,8 +237,8 @@ export default function Header() {
                   flex items-center gap-3 px-4 py-3 rounded-md transition
                   ${
                     pathname === link.href
-                      ? "bg-slate-600 text-white font-semibold"
-                      : "hover:bg-slate-600/50 text-white"
+                      ? "bg-blue-800 text-white font-semibold"
+                      : "hover:bg-white/20 text-white"
                   }
                 `}
               >
@@ -244,7 +248,7 @@ export default function Header() {
             ))}
 
             {/* Divider */}
-            <div className="h-px bg-slate-600 my-2" />
+            <div className="h-px bg-blue-700 my-2" />
 
             {/* User Info Mobile */}
             {user && (
@@ -262,7 +266,7 @@ export default function Header() {
                 setShowChangePassword(true);
                 setMobileMenuOpen(false);
               }}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-slate-600/50 rounded-md transition w-full text-left text-white"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-white/20 rounded-md transition w-full text-left text-white"
             >
               <Lock size={20} />
               <span>Alterar Senha</span>

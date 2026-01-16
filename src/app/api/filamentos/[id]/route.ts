@@ -118,7 +118,10 @@ export async function DELETE(
     }
 
     if (!process.env.JWT_SECRET) {
-      return NextResponse.json({ error: "Configuração inválida" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Configuração inválida" },
+        { status: 500 }
+      );
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as unknown as {
@@ -136,6 +139,53 @@ export async function DELETE(
     }
 
     const { id } = await params;
+
+    // Verificar se o filamento está sendo usado em alguma impressão ATIVA
+    // Ignorar impressões que falharam ou foram canceladas, pois o filamento já foi devolvido
+    const impressoesComFilamento = await db.impressaoFilamento.findFirst({
+      where: {
+        filamentoId: id,
+        impressao: {
+          status: {
+            notIn: ["falhou", "cancelada"],
+          },
+        },
+      },
+      include: {
+        impressao: {
+          select: {
+            nomeProjeto: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    if (impressoesComFilamento) {
+      return NextResponse.json(
+        {
+          error:
+            "Este filamento não pode ser excluído porque está sendo usado em uma ou mais impressões ativas.",
+          details: `Filamento usado na impressão: ${impressoesComFilamento.impressao.nomeProjeto} (${impressoesComFilamento.impressao.status})`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Deletar os registros de impressao_filamento de impressões que falharam ou foram canceladas
+    // pois o filamento já foi devolvido ao estoque
+    await db.impressaoFilamento.deleteMany({
+      where: {
+        filamentoId: id,
+        impressao: {
+          status: {
+            in: ["falhou", "cancelada"],
+          },
+        },
+      },
+    });
+
+    // Agora pode deletar o filamento sem conflito de foreign key
     await db.filamento.delete({
       where: { id },
     });

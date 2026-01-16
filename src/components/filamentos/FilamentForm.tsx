@@ -137,6 +137,7 @@ export default function FilamentForm({
           <Input
             id={`${idPrefix}precoCompra`}
             type="text"
+            inputMode="numeric"
             value={precoCompraInput.valorFormatado}
             onChange={precoCompraInput.handleChange}
             onKeyDown={precoCompraInput.handleKeyDown}

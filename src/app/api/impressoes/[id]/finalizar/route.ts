@@ -3,10 +3,10 @@ import prisma from "@/lib/db";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const impressaoId = params.id;
+    const { id: impressaoId } = await params;
 
     // Buscar a impressão
     const impressao = await prisma.impressao3D.findUnique({

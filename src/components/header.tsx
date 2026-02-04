@@ -74,10 +74,6 @@ const navLinks: NavLink[] = [
   },
 ];
 
-const getInitials = (firstName: string, lastName: string) => {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-};
-
 export default function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);

@@ -106,7 +106,7 @@ export default function FilamentDetailsModal({
                       </span>
                     </div>
                     <span className="font-bold text-slate-900">
-                      {filamento.pesoInicial}g
+                      {(filamento.pesoInicial / 1000).toFixed(3)}g
                     </span>
                   </div>
                 </div>
@@ -119,7 +119,7 @@ export default function FilamentDetailsModal({
                       </span>
                     </div>
                     <span className="font-bold text-green-600">
-                      {filamento.pesoAtual}g
+                      {filamento.pesoAtual.toFixed(2)}g
                     </span>
                   </div>
                 </div>

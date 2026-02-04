@@ -71,12 +71,14 @@ export default function FilamentForm({
       {/* Seção Tipo e Informações de Compra */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Tipo de Filamento */}
-        <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-5 rounded-xl border border-blue-100">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 p-5 rounded-xl border-2 border-blue-100/60 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-2 mb-3">
-            <Layers className="h-5 w-5 text-blue-600" />
+            <div className="h-8 w-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+              <Layers className="h-4.5 w-4.5 text-white" />
+            </div>
             <Label
               htmlFor={`${idPrefix}tipo`}
-              className="text-slate-800 font-bold text-sm"
+              className="text-slate-800 font-black text-sm uppercase tracking-wide"
             >
               Tipo de Filamento
             </Label>
@@ -85,12 +87,12 @@ export default function FilamentForm({
             value={formData.tipo}
             onValueChange={(value) => onChange({ ...formData, tipo: value })}
           >
-            <SelectTrigger className="bg-white border-slate-300 text-slate-800 shadow-sm">
+            <SelectTrigger className="bg-white border-2 border-blue-200 text-slate-800 shadow-sm hover:border-blue-400 transition-colors font-semibold">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white border-slate-200">
+            <SelectContent className="bg-white border-2 border-slate-200 shadow-xl">
               {TIPOS_FILAMENTOS.map((tipo) => (
-                <SelectItem key={tipo} value={tipo}>
+                <SelectItem key={tipo} value={tipo} className="font-semibold">
                   {tipo}
                 </SelectItem>
               ))}
@@ -99,12 +101,14 @@ export default function FilamentForm({
         </div>
 
         {/* Peso Inicial */}
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50/50 p-5 rounded-xl border-2 border-green-100/60 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-2 mb-3">
-            <Scale className="h-5 w-5 text-green-600" />
+            <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-md">
+              <Scale className="h-4.5 w-4.5 text-white" />
+            </div>
             <Label
               htmlFor={`${idPrefix}pesoInicial`}
-              className="text-slate-800 font-bold text-sm"
+              className="text-slate-800 font-black text-sm uppercase tracking-wide"
             >
               Peso Inicial (g)
             </Label>
@@ -118,18 +122,20 @@ export default function FilamentForm({
             onChange={(e) =>
               onChange({ ...formData, pesoInicial: e.target.value })
             }
-            className="bg-white border-slate-300 text-slate-800 shadow-sm"
+            className="bg-white border-2 border-green-200 text-slate-800 shadow-sm hover:border-green-400 transition-colors font-semibold"
             required
           />
         </div>
 
         {/* Preço de Compra */}
-        <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100">
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50/50 p-5 rounded-xl border-2 border-purple-100/60 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-2 mb-3">
-            <DollarSign className="h-5 w-5 text-purple-600" />
+            <div className="h-8 w-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
+              <DollarSign className="h-4.5 w-4.5 text-white" />
+            </div>
             <Label
               htmlFor={`${idPrefix}precoCompra`}
-              className="text-slate-800 font-bold text-sm"
+              className="text-slate-800 font-black text-sm uppercase tracking-wide"
             >
               Preço de Compra
             </Label>
@@ -141,7 +147,7 @@ export default function FilamentForm({
             value={precoCompraInput.valorFormatado}
             onChange={precoCompraInput.handleChange}
             onKeyDown={precoCompraInput.handleKeyDown}
-            className="bg-white border-slate-300 text-slate-800 font-medium shadow-sm"
+            className="bg-white border-2 border-purple-200 text-slate-800 font-bold shadow-sm hover:border-purple-400 transition-colors"
             placeholder="R$ 0,00"
             required
           />
@@ -149,10 +155,12 @@ export default function FilamentForm({
       </div>
 
       {/* Seção Cor */}
-      <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-5 rounded-xl border border-cyan-100">
+      <div className="bg-gradient-to-br from-cyan-50 to-sky-50/50 p-5 rounded-xl border-2 border-cyan-100/60 shadow-md hover:shadow-lg transition-shadow">
         <div className="flex items-center gap-2 mb-3">
-          <Palette className="h-5 w-5 text-cyan-600" />
-          <h3 className="text-slate-800 font-bold text-base">
+          <div className="h-8 w-8 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-lg flex items-center justify-center shadow-md">
+            <Palette className="h-4.5 w-4.5 text-white" />
+          </div>
+          <h3 className="text-slate-800 font-black text-base uppercase tracking-wide">
             Cor do Filamento
           </h3>
         </div>
@@ -168,12 +176,14 @@ export default function FilamentForm({
 
       {/* Seção Comprador */}
       {!isEdit && (
-        <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-5 rounded-xl border border-yellow-100">
+        <div className="bg-gradient-to-br from-yellow-50 to-orange-50/50 p-5 rounded-xl border-2 border-yellow-100/60 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center gap-2 mb-3">
-            <User className="h-5 w-5 text-yellow-600" />
+            <div className="h-8 w-8 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center shadow-md">
+              <User className="h-4.5 w-4.5 text-white" />
+            </div>
             <Label
               htmlFor="compradorId"
-              className="text-slate-800 font-bold text-base"
+              className="text-slate-800 font-black text-base uppercase tracking-wide"
             >
               Comprador
             </Label>
@@ -184,12 +194,16 @@ export default function FilamentForm({
               onChange({ ...formData, compradorId: value })
             }
           >
-            <SelectTrigger className="bg-white border-slate-300 text-slate-800 shadow-sm">
+            <SelectTrigger className="bg-white border-2 border-yellow-200 text-slate-800 shadow-sm hover:border-yellow-400 transition-colors font-semibold">
               <SelectValue placeholder="Selecione o comprador" />
             </SelectTrigger>
-            <SelectContent className="bg-white border-slate-200">
+            <SelectContent className="bg-white border-2 border-slate-200 shadow-xl">
               {usuarios.map((usuario) => (
-                <SelectItem key={usuario.id} value={usuario.id.toString()}>
+                <SelectItem
+                  key={usuario.id}
+                  value={usuario.id.toString()}
+                  className="font-semibold"
+                >
                   {usuario.primeiroNome} {usuario.ultimoNome}
                 </SelectItem>
               ))}
@@ -203,13 +217,13 @@ export default function FilamentForm({
           type="button"
           variant="outline"
           onClick={onCancel}
-          className="bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
+          className="bg-gradient-to-r from-slate-50 to-slate-100 border-2 border-slate-300 text-slate-700 hover:from-slate-100 hover:to-slate-200 shadow-md hover:shadow-lg transition-all font-bold hover:-translate-y-0.5"
         >
           Cancelar
         </Button>
         <Button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all font-bold hover:-translate-y-0.5 border-0"
         >
           {isEdit ? "Salvar Alterações" : "Criar Filamento"}
         </Button>

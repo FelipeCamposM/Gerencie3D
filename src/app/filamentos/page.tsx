@@ -15,6 +15,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Plus,
   Package,
   TrendingUp,
@@ -51,6 +59,8 @@ export default function FilamentosPage() {
     useState<FilamentoDetalhes | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showZerados, setShowZerados] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9; // 3 colunas x 3 linhas
 
   // Form state
   const [formData, setFormData] = useState({
@@ -66,6 +76,11 @@ export default function FilamentosPage() {
     fetchFilamentos();
     fetchUsuarios();
   }, []);
+
+  // Resetar página ao mudar filtro ou pesquisa
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [showZerados, searchTerm]);
 
   const fetchFilamentos = async () => {
     try {
@@ -267,24 +282,48 @@ export default function FilamentosPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-800">
-                Gerenciar Filamentos
-              </h1>
-              <p className="text-slate-600 mt-2">
-                Controle seu estoque de filamentos para impressão 3D
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <Package className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Gerenciar Filamentos
+                </h1>
+                <p className="text-slate-600 mt-1 font-medium">
+                  Controle seu estoque de filamentos para impressão 3D
+                </p>
+              </div>
             </div>
             <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
               <DialogTrigger asChild>
                 <button
                   onClick={resetForm}
-                  className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full md:w-auto bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-purple-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer font-bold border-0"
                 >
                   <Plus className="h-5 w-5" /> Novo Filamento
                 </button>
               </DialogTrigger>
               <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <button
+                  onClick={() => setCreateModalOpen(false)}
+                  className="cursor-pointer absolute right-4 top-4 h-8 w-8 bg-gradient-to-br from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-lg flex items-center justify-center text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 z-50"
+                  aria-label="Fechar"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
                 <DialogHeader>
                   <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
                     <Package className="h-5 w-5 text-blue-600" />
@@ -307,82 +346,83 @@ export default function FilamentosPage() {
             <>
               {/* Mobile View - Single Card */}
               <div className="md:hidden mb-8">
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
-                  <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                    Estatísticas
+                <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl p-6 border-2 border-slate-200">
+                  <h3 className="text-xl font-black text-slate-900 mb-5 flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 animate-pulse"></div>
+                    Estatísticas Gerais
                   </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between py-4 bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-xl px-4 border border-blue-100/60">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Package className="h-5 w-5 text-blue-600" />
+                        <div className="h-11 w-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                          <Package className="h-5.5 w-5.5 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-slate-600">
+                        <p className="text-sm font-bold text-blue-700">
                           Total de Filamentos
                         </p>
                       </div>
-                      <p className="text-xl font-bold text-slate-900">
+                      <p className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                         {totalFilamentos}
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center justify-between py-4 bg-gradient-to-br from-green-50 to-emerald-50/50 rounded-xl px-4 border border-green-100/60">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                          <TrendingUp className="h-5 w-5 text-green-600" />
+                        <div className="h-11 w-11 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
+                          <TrendingUp className="h-5.5 w-5.5 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-slate-600">
+                        <p className="text-sm font-bold text-green-700">
                           Peso Total Disponível
                         </p>
                       </div>
-                      <p className="text-xl font-bold text-green-600">
+                      <p className="text-2xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                         {(totalPeso / 1000).toFixed(1)}kg
                       </p>
                     </div>
 
-                    <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                    <div className="flex items-center justify-between py-4 bg-gradient-to-br from-purple-50 to-pink-50/50 rounded-xl px-4 border border-purple-100/60">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <DollarSign className="h-5 w-5 text-purple-600" />
+                        <div className="h-11 w-11 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                          <DollarSign className="h-5.5 w-5.5 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-slate-600">
+                        <p className="text-sm font-bold text-purple-700">
                           Investimento Total
                         </p>
                       </div>
-                      <p className="text-xl font-bold text-purple-600">
+                      <p className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                         R$ {totalInvestimento.toFixed(0)}
                       </p>
                     </div>
 
-                    <div className="py-3">
-                      <div className="flex items-center justify-between mb-2">
+                    <div className="py-4 bg-gradient-to-br from-orange-50 to-amber-50/50 rounded-xl px-4 border border-orange-100/60">
+                      <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <Layers className="h-5 w-5 text-orange-600" />
+                          <div className="h-11 w-11 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+                            <Layers className="h-5.5 w-5.5 text-white" />
                           </div>
-                          <p className="text-sm font-medium text-slate-600">
+                          <p className="text-sm font-bold text-orange-700">
                             Tipos de Material
                           </p>
                         </div>
                       </div>
                       <div className="flex gap-2 flex-wrap">
                         {filamentosPLA > 0 && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1.5 rounded-lg font-bold shadow-sm">
                             PLA: {filamentosPLA}
                           </span>
                         )}
                         {filamentosABS > 0 && (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-green-100 text-green-800 px-3 py-1.5 rounded-lg font-bold shadow-sm">
                             ABS: {filamentosABS}
                           </span>
                         )}
                         {filamentosPETG > 0 && (
-                          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-purple-100 text-purple-800 px-3 py-1.5 rounded-lg font-bold shadow-sm">
                             PETG: {filamentosPETG}
                           </span>
                         )}
                         {filamentosOutros > 0 && (
-                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-orange-100 text-orange-800 px-3 py-1.5 rounded-lg font-bold shadow-sm">
                             Outros: {filamentosOutros}
                           </span>
                         )}
@@ -394,85 +434,85 @@ export default function FilamentosPage() {
 
               {/* Desktop View - Grid */}
               <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-lg shadow-blue-500/20 p-6 border-2 border-blue-100 hover:shadow-2xl hover:shadow-blue-500/30 hover:-translate-y-1 transition-all duration-200 group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-500">
-                        Total de Filamentos
+                      <p className="text-sm font-bold text-blue-700 uppercase tracking-wide">
+                        Total Filamentos
                       </p>
-                      <p className="text-2xl font-bold text-slate-900 mt-2">
+                      <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mt-2">
                         {totalFilamentos}
                       </p>
                     </div>
-                    <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Package className="h-6 w-6 text-blue-600" />
+                    <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                      <Package className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-lg shadow-green-500/20 p-6 border-2 border-green-100 hover:shadow-2xl hover:shadow-green-500/30 hover:-translate-y-1 transition-all duration-200 group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-500">
-                        Peso Total Disponível
+                      <p className="text-sm font-bold text-green-700 uppercase tracking-wide">
+                        Peso Disponível
                       </p>
-                      <p className="text-2xl font-bold text-green-600 mt-2">
+                      <p className="text-3xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-2">
                         {(totalPeso / 1000).toFixed(1)}kg
                       </p>
                     </div>
-                    <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="h-6 w-6 text-green-600" />
+                    <div className="h-14 w-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-500/40 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                      <TrendingUp className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg shadow-purple-500/20 p-6 border-2 border-purple-100 hover:shadow-2xl hover:shadow-purple-500/30 hover:-translate-y-1 transition-all duration-200 group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-500">
-                        Investimento Total
+                      <p className="text-sm font-bold text-purple-700 uppercase tracking-wide">
+                        Investimento
                       </p>
-                      <p className="text-2xl font-bold text-purple-600 mt-2">
+                      <p className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-2">
                         R$ {totalInvestimento.toFixed(0)}
                       </p>
                     </div>
-                    <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <DollarSign className="h-6 w-6 text-purple-600" />
+                    <div className="h-14 w-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/40 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                      <DollarSign className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl shadow-lg shadow-orange-500/20 p-6 border-2 border-orange-100 hover:shadow-2xl hover:shadow-orange-500/30 hover:-translate-y-1 transition-all duration-200 group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-500">
-                        Tipos de Material
+                      <p className="text-sm font-bold text-orange-700 uppercase tracking-wide">
+                        Tipos Material
                       </p>
                       <div className="flex gap-2 mt-2 flex-wrap">
                         {filamentosPLA > 0 && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-lg font-bold shadow-sm">
                             PLA: {filamentosPLA}
                           </span>
                         )}
                         {filamentosABS > 0 && (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-lg font-bold shadow-sm">
                             ABS: {filamentosABS}
                           </span>
                         )}
                         {filamentosPETG > 0 && (
-                          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-lg font-bold shadow-sm">
                             PETG: {filamentosPETG}
                           </span>
                         )}
                         {filamentosOutros > 0 && (
-                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded font-medium">
+                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-lg font-bold shadow-sm">
                             Outros: {filamentosOutros}
                           </span>
                         )}
                       </div>
                     </div>
-                    <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <Layers className="h-6 w-6 text-orange-600" />
+                    <div className="h-14 w-14 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/40 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-200">
+                      <Layers className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </div>
@@ -482,15 +522,17 @@ export default function FilamentosPage() {
 
           {/* Card de Gastos por Usuário */}
           {!loading && filamentos.length > 0 && (
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow mb-8">
-              <div className="flex items-center gap-2 mb-6">
-                <User className="h-6 w-6 text-cyan-600" />
-                <h2 className="text-xl font-bold text-slate-800">
+            <div className="bg-gradient-to-br from-white to-slate-50 rounded-2xl shadow-xl p-6 border-2 border-slate-200 hover:shadow-2xl transition-shadow mb-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-10 w-10 bg-gradient-to-br from-cyan-500 to-sky-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <h2 className="text-xl font-black text-slate-800">
                   Gastos por Usuário
                 </h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {usuarios.map((usuario) => {
+                {usuarios.map((usuario, index) => {
                   const filamentosUsuario = filamentos.filter(
                     (f) => f.comprador.id === usuario.id
                   );
@@ -506,40 +548,74 @@ export default function FilamentosPage() {
 
                   if (filamentosUsuario.length === 0) return null;
 
+                  const gradients = [
+                    {
+                      from: "from-cyan-50",
+                      to: "to-sky-50/50",
+                      border: "border-cyan-200",
+                      iconBg: "from-cyan-500 to-sky-600",
+                      shadow: "shadow-cyan-500/30",
+                    },
+                    {
+                      from: "from-purple-50",
+                      to: "to-pink-50/50",
+                      border: "border-purple-200",
+                      iconBg: "from-purple-500 to-pink-600",
+                      shadow: "shadow-purple-500/30",
+                    },
+                    {
+                      from: "from-green-50",
+                      to: "to-emerald-50/50",
+                      border: "border-green-200",
+                      iconBg: "from-green-500 to-emerald-600",
+                      shadow: "shadow-green-500/30",
+                    },
+                    {
+                      from: "from-orange-50",
+                      to: "to-amber-50/50",
+                      border: "border-orange-200",
+                      iconBg: "from-orange-500 to-amber-600",
+                      shadow: "shadow-orange-500/30",
+                    },
+                  ];
+                  const gradient = gradients[index % gradients.length];
+
                   return (
                     <div
                       key={usuario.id}
-                      className="bg-gradient-to-br from-cyan-50 to-blue-50 p-4 rounded-lg border border-cyan-200"
+                      className={`bg-gradient-to-br ${gradient.from} ${gradient.to} p-4 rounded-xl border-2 ${gradient.border} shadow-md hover:shadow-lg transition-all`}
                     >
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="h-10 w-10 bg-cyan-100 rounded-full flex items-center justify-center">
-                          <User className="h-5 w-5 text-cyan-600" />
+                      <div className="flex items-center gap-3 mb-3">
+                        <div
+                          className={`h-11 w-11 bg-gradient-to-br ${gradient.iconBg} rounded-xl flex items-center justify-center shadow-lg ${gradient.shadow}`}
+                        >
+                          <User className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800">
+                          <p className="font-black text-slate-800">
                             {usuario.primeiroNome} {usuario.ultimoNome}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-slate-600 font-semibold">
                             {filamentosUsuario.length} filamento(s)
                           </p>
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-slate-600 flex items-center gap-1">
+                        <div className="flex items-center justify-between bg-white/60 rounded-lg px-3 py-2">
+                          <span className="text-sm text-slate-700 flex items-center gap-1 font-semibold">
                             <DollarSign className="h-4 w-4 text-purple-600" />
                             Total Gasto:
                           </span>
-                          <span className="font-bold text-purple-600">
+                          <span className="font-black text-purple-600">
                             R$ {totalGasto.toFixed(2)}
                           </span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-slate-600 flex items-center gap-1">
+                        <div className="flex items-center justify-between bg-white/60 rounded-lg px-3 py-2">
+                          <span className="text-sm text-slate-700 flex items-center gap-1 font-semibold">
                             <Package className="h-4 w-4 text-green-600" />
                             Total Comprado:
                           </span>
-                          <span className="font-bold text-green-600">
+                          <span className="font-black text-green-600">
                             {totalKg.toFixed(2)} kg
                           </span>
                         </div>
@@ -556,30 +632,32 @@ export default function FilamentosPage() {
             <div className="flex flex-col gap-4">
               {/* Desktop: Barra de pesquisa + Botão lado a lado */}
               <div className="hidden md:flex gap-4 items-center">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <div className="relative flex-1 group">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md group-focus-within:scale-110 transition-transform duration-200">
+                    <Search className="h-5 w-5 text-white" />
+                  </div>
                   <input
                     type="text"
                     placeholder="Pesquisar por tipo, cor ou comprador..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-16 pr-12 py-4 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-8 w-8 bg-gradient-to-br from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-lg flex items-center justify-center text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200"
                     >
                       <svg
-                        className="h-5 w-5"
+                        className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        strokeWidth={2.5}
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          strokeWidth={2}
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
@@ -590,11 +668,11 @@ export default function FilamentosPage() {
                 {/* Botão Toggle Desktop - Tamanho fixo */}
                 <Button
                   onClick={() => setShowZerados(!showZerados)}
-                  className={`w-56 ${
+                  className={`w-56 h-12 ${
                     showZerados
-                      ? "bg-orange-600 hover:bg-orange-700"
-                      : "bg-green-600 hover:bg-green-700"
-                  } text-white transition-all cursor-pointer shadow-md hover:shadow-lg h-12`}
+                      ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+                      : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                  } text-white transition-all cursor-pointer shadow-lg hover:shadow-xl font-bold hover:-translate-y-0.5 border-0`}
                 >
                   {showZerados ? (
                     <>
@@ -612,30 +690,32 @@ export default function FilamentosPage() {
 
               {/* Mobile: Barra de pesquisa e botão em coluna */}
               <div className="md:hidden flex flex-col gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <div className="relative flex-1 group">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md group-focus-within:scale-110 transition-transform duration-200">
+                    <Search className="h-5 w-5 text-white" />
+                  </div>
                   <input
                     type="text"
                     placeholder="Pesquisar por tipo, cor ou comprador..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-16 pr-12 py-4 bg-gradient-to-r from-white to-slate-50 border-2 border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm("")}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 h-8 w-8 bg-gradient-to-br from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-lg flex items-center justify-center text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200"
                     >
                       <svg
-                        className="h-5 w-5"
+                        className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        strokeWidth={2.5}
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          strokeWidth={2}
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
@@ -646,11 +726,11 @@ export default function FilamentosPage() {
                 {/* Botão Toggle Mobile - Largura total */}
                 <Button
                   onClick={() => setShowZerados(!showZerados)}
-                  className={`w-full ${
+                  className={`w-full h-12 ${
                     showZerados
-                      ? "bg-orange-600 hover:bg-orange-700"
-                      : "bg-green-600 hover:bg-green-700"
-                  } text-white transition-all cursor-pointer shadow-md hover:shadow-lg h-12`}
+                      ? "bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+                      : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                  } text-white transition-all cursor-pointer shadow-lg hover:shadow-xl font-bold border-0`}
                 >
                   {showZerados ? (
                     <>
@@ -690,16 +770,89 @@ export default function FilamentosPage() {
 
           {/* Lista de Filamentos */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filamentosFiltrados.map((filamento) => (
-              <FilamentCard
-                key={filamento.id}
-                filamento={filamento}
-                onViewDetails={fetchFilamentoDetalhes}
-                onEdit={openEditModal}
-                onDelete={handleDelete}
-              />
-            ))}
+            {filamentosFiltrados
+              .slice(
+                (currentPage - 1) * itemsPerPage,
+                currentPage * itemsPerPage
+              )
+              .map((filamento) => (
+                <FilamentCard
+                  key={filamento.id}
+                  filamento={filamento}
+                  onViewDetails={fetchFilamentoDetalhes}
+                  onEdit={openEditModal}
+                  onDelete={handleDelete}
+                />
+              ))}
           </div>
+
+          {/* Paginação */}
+          {filamentosFiltrados.length > itemsPerPage && (
+            <div className="mt-8">
+              <Pagination>
+                <PaginationContent className="flex flex-wrap gap-1">
+                  <PaginationItem>
+                    <PaginationPrevious
+                      namePrevious="Anterior"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
+                      className={`cursor-pointer ${
+                        currentPage === 1
+                          ? "opacity-50 cursor-not-allowed pointer-events-none"
+                          : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
+                      }`}
+                    />
+                  </PaginationItem>
+
+                  {Array.from(
+                    {
+                      length: Math.ceil(
+                        filamentosFiltrados.length / itemsPerPage
+                      ),
+                    },
+                    (_, i) => i + 1
+                  ).map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(page)}
+                        isActive={currentPage === page}
+                        className={`cursor-pointer ${
+                          currentPage === page
+                            ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0 shadow-lg font-bold"
+                            : "bg-white text-slate-700 border-2 border-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:border-blue-300 transition-all"
+                        }`}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      nameNext="Próximo"
+                      onClick={() =>
+                        setCurrentPage((prev) =>
+                          Math.min(
+                            Math.ceil(
+                              filamentosFiltrados.length / itemsPerPage
+                            ),
+                            prev + 1
+                          )
+                        )
+                      }
+                      className={`cursor-pointer ${
+                        currentPage ===
+                        Math.ceil(filamentosFiltrados.length / itemsPerPage)
+                          ? "opacity-50 cursor-not-allowed pointer-events-none"
+                          : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-md hover:shadow-lg transition-all"
+                      }`}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
 
           {filamentosFiltrados.length === 0 && filamentos.length > 0 && (
             <div className="text-center py-16 bg-white rounded-lg border border-slate-200 shadow-sm">
@@ -749,6 +902,25 @@ export default function FilamentosPage() {
           {/* Modal de Edição */}
           <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
             <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-2xl max-h-[90vh] overflow-y-auto">
+              <button
+                onClick={() => setEditModalOpen(false)}
+                className="absolute right-4 top-4 h-8 w-8 bg-gradient-to-br from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-lg flex items-center justify-center text-white shadow-md hover:shadow-lg hover:scale-110 transition-all duration-200 z-50"
+                aria-label="Fechar"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
               <DialogHeader>
                 <DialogTitle className="text-slate-800 text-xl flex items-center gap-2">
                   <Package className="h-5 w-5 text-blue-600" />

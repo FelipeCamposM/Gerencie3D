@@ -66,15 +66,15 @@ function UsuariosContent() {
         <div className="container mx-auto px-4 py-8">
           {/* Header Section */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-blue-500/10 rounded-lg border border-blue-200">
-                <Users className="h-8 w-8 text-blue-600" />
+            <div className="flex items-center gap-4 mb-2">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl border-2 border-blue-400 shadow-lg shadow-blue-500/30">
+                <Users className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-slate-800">
+                <h1 className="text-4xl font-black text-slate-800">
                   Gerenciar Usuários
                 </h1>
-                <p className="text-slate-600">
+                <p className="text-slate-600 mt-2 font-medium">
                   Administre os usuários do sistema
                 </p>
               </div>

@@ -337,17 +337,22 @@ function ImpressorasContent() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-800">
-              Impressoras 3D
-            </h1>
-            <p className="text-slate-600 mt-2">
-              Gerencie suas impressoras e monitore o status
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+              <Printer className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Impressoras 3D
+              </h1>
+              <p className="text-slate-600 mt-1 font-medium">
+                Gerencie suas impressoras e monitore o status
+              </p>
+            </div>
           </div>
           <button
             onClick={handleCreateClick}
-            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full md:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-lg shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer font-bold border-0"
           >
             <Printer className="h-5 w-5" />
             Nova Impressora
@@ -359,63 +364,67 @@ function ImpressorasContent() {
           <>
             {/* Mobile View - Single Card */}
             <div className="md:hidden mb-8">
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl shadow-xl p-6 border-2 border-slate-200">
+                <h3 className="text-lg font-black text-slate-900 mb-4 uppercase tracking-wide">
                   Estatísticas
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                  <div className="flex items-center justify-between py-3 border-b border-slate-200">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Printer className="h-5 w-5 text-blue-600" />
+                      <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                        <Printer className="h-5 w-5 text-white" />
                       </div>
-                      <p className="text-sm font-medium text-slate-600">
+                      <p className="text-sm font-bold text-slate-700 uppercase tracking-wide">
                         Total de Impressoras
                       </p>
                     </div>
-                    <p className="text-xl font-bold text-slate-900">
+                    <p className="text-xl font-black text-slate-900">
                       {impressoras.length}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                  <div className="flex items-center justify-between py-3 border-b border-slate-200">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
+                      <div className="h-10 w-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-md">
+                        <TrendingUp className="h-5 w-5 text-white" />
                       </div>
-                      <p className="text-sm font-medium text-slate-600">
+                      <p className="text-sm font-bold text-slate-700 uppercase tracking-wide">
                         Disponíveis
                       </p>
                     </div>
-                    <p className="text-xl font-bold text-green-600">
+                    <p className="text-xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                       {disponiveisCount}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                  <div className="flex items-center justify-between py-3 border-b border-slate-200">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <Activity className="h-5 w-5 text-blue-600" />
+                      <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center shadow-md">
+                        <Activity className="h-5 w-5 text-white" />
                       </div>
-                      <p className="text-sm font-medium text-slate-600">
+                      <p className="text-sm font-bold text-slate-700 uppercase tracking-wide">
                         Em Uso
                       </p>
                     </div>
-                    <p className="text-xl font-bold text-blue-600">
+                    <p className="text-xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                       {emUsoCount}
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between py-3 {manutencaoCount > 0 ? 'border-b border-slate-100' : ''}">
+                  <div
+                    className={`flex items-center justify-between py-3 ${
+                      manutencaoCount > 0 ? "border-b border-slate-200" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Package className="h-5 w-5 text-purple-600" />
+                      <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
+                        <Package className="h-5 w-5 text-white" />
                       </div>
-                      <p className="text-sm font-medium text-slate-600">
+                      <p className="text-sm font-bold text-slate-700 uppercase tracking-wide">
                         Filamento Total Usado
                       </p>
                     </div>
-                    <p className="text-xl font-bold text-purple-600">
+                    <p className="text-xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                       {(totalFilamento / 1000).toFixed(1)}kg
                     </p>
                   </div>
@@ -423,14 +432,14 @@ function ImpressorasContent() {
                   {manutencaoCount > 0 && (
                     <div className="flex items-center justify-between py-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                          <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        <div className="h-10 w-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg flex items-center justify-center shadow-md">
+                          <AlertTriangle className="h-5 w-5 text-white" />
                         </div>
-                        <p className="text-sm font-medium text-slate-600">
+                        <p className="text-sm font-bold text-slate-700 uppercase tracking-wide">
                           Em Manutenção
                         </p>
                       </div>
-                      <p className="text-xl font-bold text-orange-600">
+                      <p className="text-xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
                         {manutencaoCount}
                       </p>
                     </div>
@@ -441,81 +450,83 @@ function ImpressorasContent() {
 
             {/* Desktop View - Grid */}
             <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg p-6 border-2 border-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-500">
+                    <p className="text-sm font-bold text-slate-600 uppercase tracking-wide">
                       Total de Impressoras
                     </p>
-                    <p className="text-2xl font-bold text-slate-900 mt-2">
+                    <p className="text-3xl font-black text-slate-900 mt-2">
                       {impressoras.length}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Printer className="h-6 w-6 text-blue-600" />
+                  <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                    <Printer className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="bg-gradient-to-br from-white to-green-50 rounded-xl shadow-lg p-6 border-2 border-green-200 hover:shadow-xl hover:-translate-y-1 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-500">
+                    <p className="text-sm font-bold text-slate-600 uppercase tracking-wide">
                       Disponíveis
                     </p>
-                    <p className="text-2xl font-bold text-green-600 mt-2">
+                    <p className="text-3xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-2">
                       {disponiveisCount}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  <div className="h-14 w-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                    <TrendingUp className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-lg p-6 border-2 border-blue-200 hover:shadow-xl hover:-translate-y-1 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-500">Em Uso</p>
-                    <p className="text-2xl font-bold text-blue-600 mt-2">
+                    <p className="text-sm font-bold text-slate-600 uppercase tracking-wide">
+                      Em Uso
+                    </p>
+                    <p className="text-3xl font-black bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mt-2">
                       {emUsoCount}
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Activity className="h-6 w-6 text-blue-600" />
+                  <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                    <Activity className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6 border border-slate-200 hover:shadow-md transition-shadow">
+              <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-lg p-6 border-2 border-purple-200 hover:shadow-xl hover:-translate-y-1 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-slate-500">
+                    <p className="text-sm font-bold text-slate-600 uppercase tracking-wide">
                       Filamento Total Usado
                     </p>
-                    <p className="text-2xl font-bold text-purple-600 mt-2">
+                    <p className="text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-2">
                       {(totalFilamento / 1000).toFixed(1)}kg
                     </p>
                   </div>
-                  <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Package className="h-6 w-6 text-purple-600" />
+                  <div className="h-14 w-14 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                    <Package className="h-7 w-7 text-white" />
                   </div>
                 </div>
               </div>
 
               {manutencaoCount > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6 border border-orange-200 hover:shadow-md transition-shadow">
+                <div className="bg-gradient-to-br from-white to-orange-50 rounded-xl shadow-lg p-6 border-2 border-orange-200 hover:shadow-xl hover:-translate-y-1 transition-all group">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-slate-500">
+                      <p className="text-sm font-bold text-slate-600 uppercase tracking-wide">
                         Em Manutenção
                       </p>
-                      <p className="text-2xl font-bold text-orange-600 mt-2">
+                      <p className="text-3xl font-black bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mt-2">
                         {manutencaoCount}
                       </p>
                     </div>
-                    <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <AlertTriangle className="h-6 w-6 text-orange-600" />
+                    <div className="h-14 w-14 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                      <AlertTriangle className="h-7 w-7 text-white" />
                     </div>
                   </div>
                 </div>
@@ -540,7 +551,7 @@ function ImpressorasContent() {
             {impressoras.map((impressora) => (
               <div
                 key={impressora.id}
-                className="bg-white rounded-lg border border-slate-200 hover:shadow-lg transition-all shadow-sm overflow-hidden flex flex-col"
+                className="bg-gradient-to-br from-white to-slate-50 rounded-xl border-2 border-slate-200 hover:shadow-xl hover:-translate-y-1 transition-all shadow-lg overflow-hidden flex flex-col group"
               >
                 <div className="flex p-4 gap-4">
                   {/* Imagem à esquerda */}
@@ -644,14 +655,14 @@ function ImpressorasContent() {
                 <div className="flex gap-2 px-4 pb-4">
                   <button
                     onClick={() => handleDetailsClick(impressora)}
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 text-slate-700 px-4 py-2 rounded-lg transition-all text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 border-2 border-slate-300"
                   >
                     <Eye className="h-4 w-4" />
                     Detalhes
                   </button>
                   <button
                     onClick={() => handleEditClick(impressora)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2 rounded-lg transition-all text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 border-0"
                   >
                     <Edit className="h-4 w-4" />
                     Editar
@@ -665,10 +676,30 @@ function ImpressorasContent() {
 
       {/* Modal de Criação */}
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gradient-to-br from-white to-slate-50 border-2 border-slate-300 text-slate-800 max-w-3xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gradient-to-b [&::-webkit-scrollbar-thumb]:from-blue-400 [&::-webkit-scrollbar-thumb]:to-indigo-600 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-slate-100">
+          <button
+            onClick={() => setCreateModalOpen(false)}
+            className="absolute right-4 top-4 rounded-lg p-2 bg-gradient-to-br from-slate-100 to-slate-200 hover:from-red-100 hover:to-red-200 transition-all text-slate-600 hover:text-red-600 border-2 border-slate-300 hover:border-red-300 shadow-md hover:shadow-lg z-50"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
           <DialogHeader>
-            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
-              <Printer className="h-6 w-6 text-blue-600" />
+            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-3 font-black">
+              <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Printer className="h-6 w-6 text-white" />
+              </div>
               Nova Impressora
             </DialogTitle>
           </DialogHeader>
@@ -883,13 +914,13 @@ function ImpressorasContent() {
             <Button
               variant="outline"
               onClick={() => setCreateModalOpen(false)}
-              className="bg-white border-slate-300 text-slate-700"
+              className="bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 border-2 border-slate-300 text-slate-700 font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleCreateSave}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all border-0"
             >
               Criar Impressora
             </Button>
@@ -899,10 +930,30 @@ function ImpressorasContent() {
 
       {/* Modal de Edição */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gradient-to-br from-white to-slate-50 border-2 border-slate-300 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-3xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gradient-to-b [&::-webkit-scrollbar-thumb]:from-blue-400 [&::-webkit-scrollbar-thumb]:to-indigo-600 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-slate-100">
+          <button
+            onClick={() => setEditModalOpen(false)}
+            className="absolute right-4 top-4 rounded-lg p-2 bg-gradient-to-br from-slate-100 to-slate-200 hover:from-red-100 hover:to-red-200 transition-all text-slate-600 hover:text-red-600 border-2 border-slate-300 hover:border-red-300 shadow-md hover:shadow-lg z-50"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
           <DialogHeader>
-            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
-              <Edit className="h-6 w-6 text-blue-600" />
+            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-3 font-black">
+              <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Edit className="h-6 w-6 text-white" />
+              </div>
               Editar Impressora
             </DialogTitle>
           </DialogHeader>
@@ -1117,13 +1168,13 @@ function ImpressorasContent() {
             <Button
               variant="outline"
               onClick={() => setEditModalOpen(false)}
-              className="bg-white border-slate-300 text-slate-700"
+              className="bg-gradient-to-r from-slate-100 to-slate-200 hover:from-slate-200 hover:to-slate-300 border-2 border-slate-300 text-slate-700 font-bold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
             >
               Cancelar
             </Button>
             <Button
               onClick={handleSaveEdit}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all border-0"
             >
               Salvar Alterações
             </Button>
@@ -1133,10 +1184,30 @@ function ImpressorasContent() {
 
       {/* Modal de Detalhes */}
       <Dialog open={detailsModalOpen} onOpenChange={setDetailsModalOpen}>
-        <DialogContent className="bg-white border-slate-200 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gradient-to-br from-white to-slate-50 border-2 border-slate-300 text-slate-800 max-w-[calc(100vw-2rem)] md:max-w-4xl max-h-[90vh] overflow-y-auto [&::-webkit-scrollbar]:w-3 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gradient-to-b [&::-webkit-scrollbar-thumb]:from-blue-400 [&::-webkit-scrollbar-thumb]:to-indigo-600 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-slate-100">
+          <button
+            onClick={() => setDetailsModalOpen(false)}
+            className="absolute right-4 top-4 rounded-lg p-2 bg-gradient-to-br from-slate-100 to-slate-200 hover:from-red-100 hover:to-red-200 transition-all text-slate-600 hover:text-red-600 border-2 border-slate-300 hover:border-red-300 shadow-md hover:shadow-lg z-50"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
           <DialogHeader>
-            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-2">
-              <Printer className="h-6 w-6 text-blue-600" />
+            <DialogTitle className="text-slate-800 text-2xl flex items-center gap-3 font-black">
+              <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Printer className="h-6 w-6 text-white" />
+              </div>
               Detalhes da Impressora
             </DialogTitle>
           </DialogHeader>
@@ -1399,7 +1470,7 @@ function ImpressorasContent() {
           <DialogFooter>
             <Button
               onClick={() => setDetailsModalOpen(false)}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all border-0"
             >
               Fechar
             </Button>

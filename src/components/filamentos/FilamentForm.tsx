@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ColorPicker from "./ColorPicker";
 import { Usuario } from "@/types/filamento";
 import { useCurrencyInput } from "@/utils/currencyInput";
@@ -204,7 +205,23 @@ export default function FilamentForm({
                   value={usuario.id.toString()}
                   className="font-semibold"
                 >
-                  {usuario.primeiroNome} {usuario.ultimoNome}
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-6 w-6 ring-2 ring-cyan-200">
+                      {usuario.imagemUsuario &&
+                      usuario.imagemUsuario.length > 0 ? (
+                        <AvatarImage
+                          src={`data:image/jpeg;base64,${usuario.imagemUsuario}`}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-sky-600 text-white flex items-center justify-center">
+                        <User className="h-3 w-3" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <span>
+                      {usuario.primeiroNome} {usuario.ultimoNome}
+                    </span>
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>

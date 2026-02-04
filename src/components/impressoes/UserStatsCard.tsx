@@ -1,4 +1,12 @@
-import { User, Printer, Package, TrendingUp, Award } from "lucide-react";
+import {
+  User,
+  Printer,
+  Package,
+  TrendingUp,
+  Award,
+  DollarSign,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Impressao {
   id: string;
@@ -6,8 +14,10 @@ interface Impressao {
     id: number;
     primeiroNome: string;
     ultimoNome: string;
+    imagemUsuario?: string | null;
   };
   filamentoTotalUsado: number;
+  custoTotal: number;
 }
 
 interface UserStatsCardProps {
@@ -23,13 +33,16 @@ export function UserStatsCard({ impressoes }: UserStatsCardProps) {
       usuariosMap.set(userId, {
         id: userId,
         nome: `${impressao.usuario.primeiroNome} ${impressao.usuario.ultimoNome}`,
+        imagemUsuario: impressao.usuario.imagemUsuario,
         impressoes: 0,
         filamentoUsado: 0,
+        gastoTotal: 0,
       });
     }
     const userData = usuariosMap.get(userId);
     userData.impressoes += 1;
     userData.filamentoUsado += impressao.filamentoTotalUsado;
+    userData.gastoTotal += impressao.custoTotal;
   });
 
   const usuarios = Array.from(usuariosMap.values());
@@ -110,11 +123,22 @@ export function UserStatsCard({ impressoes }: UserStatsCardProps) {
                 {/* Avatar e nome */}
                 <div className="flex items-start gap-3 mb-4">
                   <div className="relative">
-                    <div
-                      className={`h-14 w-14 bg-gradient-to-br ${gradiente} rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
+                    <Avatar
+                      className={`h-14 w-14 ring-4 ring-white shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
                     >
-                      <User className="h-7 w-7 text-white drop-shadow-md" />
-                    </div>
+                      {usuario.imagemUsuario &&
+                      usuario.imagemUsuario.length > 0 ? (
+                        <AvatarImage
+                          src={`data:image/jpeg;base64,${usuario.imagemUsuario}`}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback
+                        className={`bg-gradient-to-br ${gradiente} text-white flex items-center justify-center`}
+                      >
+                        <User className="h-7 w-7 drop-shadow-md" />
+                      </AvatarFallback>
+                    </Avatar>
                     <div
                       className={`absolute -bottom-1 -right-1 h-6 w-6 bg-gradient-to-br ${gradiente} rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-white shadow`}
                     >
@@ -173,32 +197,27 @@ export function UserStatsCard({ impressoes }: UserStatsCardProps) {
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Barra de progresso visual */}
-                <div className="mt-4 pt-3 border-t border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full bg-gradient-to-r ${gradiente} rounded-full transition-all duration-500 shadow-sm`}
-                        style={{
-                          width: `${Math.min(
-                            (usuario.impressoes /
-                              Math.max(...usuarios.map((u) => u.impressoes))) *
-                              100,
-                            100
-                          )}%`,
-                        }}
-                      />
+                  {/* Gasto Total */}
+                  <div className="relative bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-3 border border-amber-100/50 group-hover:from-amber-100 group-hover:to-orange-100 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-8 w-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center shadow-sm">
+                          <DollarSign className="h-4 w-4 text-white" />
+                        </div>
+                        <span className="text-xs font-semibold text-slate-700">
+                          Gasto Total
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-base font-black bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                          {new Intl.NumberFormat("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          }).format(usuario.gastoTotal)}
+                        </span>
+                      </div>
                     </div>
-                    <span className="text-xs font-bold text-slate-400">
-                      {Math.round(
-                        (usuario.impressoes /
-                          Math.max(...usuarios.map((u) => u.impressoes))) *
-                          100
-                      )}
-                      %
-                    </span>
                   </div>
                 </div>
               </div>

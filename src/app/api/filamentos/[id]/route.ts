@@ -18,6 +18,7 @@ export async function GET(
             primeiroNome: true,
             ultimoNome: true,
             email: true,
+            imagemUsuario: true,
           },
         },
         ultimoUsuario: {
@@ -25,6 +26,7 @@ export async function GET(
             id: true,
             primeiroNome: true,
             ultimoNome: true,
+            imagemUsuario: true,
           },
         },
         impressoes: {
@@ -53,7 +55,28 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(filamento);
+    // Converter imagemUsuario de Buffer para base64
+    const filamentoComImagem = {
+      ...filamento,
+      comprador: {
+        ...filamento.comprador,
+        imagemUsuario: filamento.comprador.imagemUsuario
+          ? Buffer.from(filamento.comprador.imagemUsuario).toString("base64")
+          : null,
+      },
+      ultimoUsuario: filamento.ultimoUsuario
+        ? {
+            ...filamento.ultimoUsuario,
+            imagemUsuario: filamento.ultimoUsuario.imagemUsuario
+              ? Buffer.from(filamento.ultimoUsuario.imagemUsuario).toString(
+                  "base64"
+                )
+              : null,
+          }
+        : null,
+    };
+
+    return NextResponse.json(filamentoComImagem);
   } catch (error) {
     console.error("Erro ao buscar filamento:", error);
     return NextResponse.json(

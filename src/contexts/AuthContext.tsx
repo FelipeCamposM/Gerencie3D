@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (userData: User, userToken: string) => void;
   logout: () => void;
   refreshAuth: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const login = (userData: User, userToken: string) => {
-    if (process.env.NODE_ENV !== 'production') console.log("AuthProvider: Fazendo login", userData);
+    if (process.env.NODE_ENV !== "production")
+      console.log("AuthProvider: Fazendo login", userData);
     setUser(userData);
     setToken(userToken);
     localStorage.setItem("user", JSON.stringify(userData));
@@ -37,7 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    if (process.env.NODE_ENV !== 'production') console.log("AuthProvider: Fazendo logout");
+    if (process.env.NODE_ENV !== "production")
+      console.log("AuthProvider: Fazendo logout");
     setUser(null);
     setToken(null);
     localStorage.removeItem("user");
@@ -50,7 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: "include",
       });
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') console.error("Erro ao fazer logout no servidor:", error);
+      if (process.env.NODE_ENV !== "production")
+        console.error("Erro ao fazer logout no servidor:", error);
     }
 
     // Redirecionar para login
@@ -71,7 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem("token", data.token);
       } else if (response.status === 401) {
         // Token expirado ou inválido
-  if (process.env.NODE_ENV !== 'production') console.log("Token expirado, fazendo logout");
+        if (process.env.NODE_ENV !== "production")
+          console.log("Token expirado, fazendo logout");
         setUser(null);
         setToken(null);
         localStorage.removeItem("user");
@@ -79,7 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push("/login");
       }
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') console.error("Erro ao verificar autenticação:", error);
+      if (process.env.NODE_ENV !== "production")
+        console.error("Erro ao verificar autenticação:", error);
       setUser(null);
       setToken(null);
       localStorage.removeItem("user");
@@ -90,7 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-  if (process.env.NODE_ENV !== 'production') console.log("AuthProvider: Inicializando autenticação");
+      if (process.env.NODE_ENV !== "production")
+        console.log("AuthProvider: Inicializando autenticação");
 
       if (typeof window === "undefined") {
         setIsLoading(false);
@@ -103,7 +110,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storedToken = localStorage.getItem("token");
 
         if (storedUser && storedToken) {
-          if (process.env.NODE_ENV !== 'production') console.log("AuthProvider: Dados encontrados no localStorage");
+          if (process.env.NODE_ENV !== "production")
+            console.log("AuthProvider: Dados encontrados no localStorage");
           setUser(JSON.parse(storedUser));
           setToken(storedToken);
 
@@ -120,10 +128,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem("token");
           }
         } else {
-          if (process.env.NODE_ENV !== 'production') console.log("AuthProvider: Nenhum dado encontrado no localStorage");
+          if (process.env.NODE_ENV !== "production")
+            console.log("AuthProvider: Nenhum dado encontrado no localStorage");
         }
       } catch (error) {
-        if (process.env.NODE_ENV !== 'production') console.error("AuthProvider: Erro ao inicializar:", error);
+        if (process.env.NODE_ENV !== "production")
+          console.error("AuthProvider: Erro ao inicializar:", error);
         setUser(null);
         setToken(null);
         localStorage.removeItem("user");
@@ -143,12 +153,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isAuthenticated) return;
 
     const interval = setInterval(async () => {
-  if (process.env.NODE_ENV !== 'production') console.log("Verificando validade do token...");
+      if (process.env.NODE_ENV !== "production")
+        console.log("Verificando validade do token...");
       await refreshAuth();
     }, 5 * 60 * 1000); // 5 minutos
 
     return () => clearInterval(interval);
   }, [isAuthenticated, refreshAuth]);
+
+  const refreshUser = useCallback(async (): Promise<void> => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/usuarios/${user.id}`);
+      if (response.ok) {
+        const userData = await response.json();
+        const updatedUser = {
+          ...user,
+          primeiroNome: userData.primeiroNome,
+          ultimoNome: userData.ultimoNome,
+          email: userData.email,
+          imagemUsuario: userData.imagemUsuario,
+          impressoesRealizadas: userData.impressoesRealizadas,
+        };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar dados do usuário:", error);
+    }
+  }, [user]);
 
   const value: AuthContextType = {
     user,
@@ -158,6 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     logout,
     refreshAuth,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

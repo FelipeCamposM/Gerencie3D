@@ -41,6 +41,8 @@ export async function GET(request: Request) {
         ultimoNome: true,
         email: true,
         role: true,
+        imagemUsuario: true,
+        impressoesRealizadas: true,
         createdAt: true,
       },
     });
@@ -52,8 +54,17 @@ export async function GET(request: Request) {
       );
     }
 
+    // Converter imagemUsuario de Buffer para base64 string
+    const userWithImage = {
+      ...user,
+      imagemUsuario: user.imagemUsuario
+        ? Buffer.from(user.imagemUsuario).toString("base64")
+        : null,
+      createdAt: user.createdAt.toISOString(),
+    };
+
     return NextResponse.json({
-      user,
+      user: userWithImage,
       token,
     });
   } catch (error) {

@@ -17,6 +17,7 @@ import {
   FileText,
   Archive,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface FilamentDetailsModalProps {
   open: boolean;
@@ -235,10 +236,24 @@ export default function FilamentDetailsModal({
                     Comprador
                   </span>
                 </div>
-                <p className="text-lg font-semibold text-slate-900">
-                  {filamento.comprador.primeiroNome}{" "}
-                  {filamento.comprador.ultimoNome}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8 ring-2 ring-blue-200">
+                    {filamento.comprador.imagemUsuario &&
+                    filamento.comprador.imagemUsuario.length > 0 ? (
+                      <AvatarImage
+                        src={`data:image/jpeg;base64,${filamento.comprador.imagemUsuario}`}
+                        className="object-cover"
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="text-lg font-semibold text-slate-900">
+                    {filamento.comprador.primeiroNome}{" "}
+                    {filamento.comprador.ultimoNome}
+                  </p>
+                </div>
               </div>
               {filamento.ultimoUsuario && (
                 <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
@@ -248,10 +263,24 @@ export default function FilamentDetailsModal({
                       Último Usuário
                     </span>
                   </div>
-                  <p className="text-lg font-semibold text-slate-900">
-                    {filamento.ultimoUsuario.primeiroNome}{" "}
-                    {filamento.ultimoUsuario.ultimoNome}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8 ring-2 ring-purple-200">
+                      {filamento.ultimoUsuario.imagemUsuario &&
+                      filamento.ultimoUsuario.imagemUsuario.length > 0 ? (
+                        <AvatarImage
+                          src={`data:image/jpeg;base64,${filamento.ultimoUsuario.imagemUsuario}`}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white flex items-center justify-center">
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="text-lg font-semibold text-slate-900">
+                      {filamento.ultimoUsuario.primeiroNome}{" "}
+                      {filamento.ultimoUsuario.ultimoNome}
+                    </p>
+                  </div>
                 </div>
               )}
               {filamento.ultimaUtilizacao && (

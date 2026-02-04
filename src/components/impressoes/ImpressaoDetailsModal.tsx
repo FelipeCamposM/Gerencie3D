@@ -22,6 +22,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Impressao {
   id: string;
@@ -42,6 +43,7 @@ interface Impressao {
     id: number;
     primeiroNome: string;
     ultimoNome: string;
+    imagemUsuario?: string | null;
   };
   impressora: {
     id: number;
@@ -302,10 +304,24 @@ export function ImpressaoDetailsModal({
                     Usuário
                   </p>
                 </div>
-                <p className="text-slate-900 font-bold">
-                  {impressao.usuario.primeiroNome}{" "}
-                  {impressao.usuario.ultimoNome}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8 ring-2 ring-purple-200">
+                    {impressao.usuario.imagemUsuario &&
+                    impressao.usuario.imagemUsuario.length > 0 ? (
+                      <AvatarImage
+                        src={`data:image/jpeg;base64,${impressao.usuario.imagemUsuario}`}
+                        className="object-cover"
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white flex items-center justify-center">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="text-slate-900 font-bold">
+                    {impressao.usuario.primeiroNome}{" "}
+                    {impressao.usuario.ultimoNome}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

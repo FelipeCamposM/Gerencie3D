@@ -36,6 +36,7 @@ import FilamentCard from "@/components/filamentos/FilamentCard";
 import FilamentForm from "@/components/filamentos/FilamentForm";
 import FilamentDetailsModal from "@/components/filamentos/FilamentDetailsModal";
 import { Filamento, Usuario, FilamentoDetalhes } from "@/types/filamento";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function FilamentosPage() {
   const { user } = useAuth();
@@ -586,11 +587,30 @@ export default function FilamentosPage() {
                       className={`bg-gradient-to-br ${gradient.from} ${gradient.to} p-4 rounded-xl border-2 ${gradient.border} shadow-md hover:shadow-lg transition-all`}
                     >
                       <div className="flex items-center gap-3 mb-3">
-                        <div
-                          className={`h-11 w-11 bg-gradient-to-br ${gradient.iconBg} rounded-xl flex items-center justify-center shadow-lg ${gradient.shadow}`}
+                        <Avatar
+                          className={`h-11 w-11 ring-4 ${
+                            index % 4 === 0
+                              ? "ring-cyan-400/60"
+                              : index % 4 === 1
+                              ? "ring-purple-400/60"
+                              : index % 4 === 2
+                              ? "ring-green-400/60"
+                              : "ring-orange-400/60"
+                          } shadow-lg shadow-slate-900/20`}
                         >
-                          <User className="h-5 w-5 text-white" />
-                        </div>
+                          {usuario.imagemUsuario &&
+                          usuario.imagemUsuario.length > 0 ? (
+                            <AvatarImage
+                              src={`data:image/jpeg;base64,${usuario.imagemUsuario}`}
+                              className="object-cover"
+                            />
+                          ) : null}
+                          <AvatarFallback
+                            className={`bg-gradient-to-br ${gradient.iconBg} text-white flex items-center justify-center`}
+                          >
+                            <User className="h-6 w-6" />
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
                           <p className="font-black text-slate-800">
                             {usuario.primeiroNome} {usuario.ultimoNome}

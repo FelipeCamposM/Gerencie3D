@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   getUserDisplayName,
@@ -37,6 +38,7 @@ import {
   Package,
   Menu,
   X,
+  UserCircle,
 } from "lucide-react";
 
 type NavLink = {
@@ -71,6 +73,10 @@ const navLinks: NavLink[] = [
     adminOnly: true,
   },
 ];
+
+const getInitials = (firstName: string, lastName: string) => {
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+};
 
 export default function Header() {
   const pathname = usePathname();
@@ -171,9 +177,7 @@ export default function Header() {
                 }
               `}
             >
-              <span>
-                {link.icon}
-              </span>
+              <span>{link.icon}</span>
               <span>{link.label}</span>
             </Link>
           ))}
@@ -181,33 +185,53 @@ export default function Header() {
           {/* Menu do Usuário Desktop */}
           <Popover open={userMenuOpen} onOpenChange={setUserMenuOpen}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white px-3 py-2 rounded-md transition cursor-pointer">
-                <User size={20} />
-                <span>{user?.primeiroNome}</span>
+              <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-xl transition cursor-pointer border-2 border-white/20 hover:border-white/30 shadow-lg">
+                <Avatar className="h-8 w-8 ring-2 ring-white/50 shadow-md">
+                  {user?.imagemUsuario && user.imagemUsuario.length > 0 ? (
+                    <AvatarImage
+                      src={`data:image/jpeg;base64,${user.imagemUsuario}`}
+                      className="object-cover"
+                    />
+                  ) : null}
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center">
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-semibold">{user?.primeiroNome}</span>
                 <ChevronDown size={16} />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-48 bg-white border-slate-200 text-slate-900 p-1 shadow-lg">
-              <div className="flex flex-col">
+            <PopoverContent className="w-56 bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 text-slate-900 p-2 shadow-xl">
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={() => {
+                    window.location.href = "/perfil";
+                    setUserMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-3 py-2.5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 rounded-lg transition w-full text-left cursor-pointer font-medium text-slate-700 hover:text-blue-700"
+                >
+                  <UserCircle size={18} className="text-blue-600" />
+                  <span>Gerenciar Perfil</span>
+                </button>
                 <button
                   onClick={() => {
                     setShowChangePassword(true);
                     setUserMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 hover:bg-slate-100 rounded-md transition w-full text-left cursor-pointer"
+                  className="flex items-center gap-3 px-3 py-2.5 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 rounded-lg transition w-full text-left cursor-pointer font-medium text-slate-700 hover:text-purple-700"
                 >
-                  <Lock size={16} />
+                  <Lock size={18} className="text-purple-600" />
                   <span>Alterar Senha</span>
                 </button>
-                <div className="h-px bg-slate-200 my-1" />
+                <div className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent my-1" />
                 <button
                   onClick={() => {
                     setOpen(true);
                     setUserMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 px-3 py-2 bg-[#e94a4a] hover:bg-[#e94a4ae3] rounded-md transition w-full text-left text-white cursor-pointer"
+                  className="flex items-center gap-3 px-3 py-2.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 rounded-lg transition w-full text-left text-white cursor-pointer font-bold shadow-md hover:shadow-lg"
                 >
-                  <Power size={16} />
+                  <Power size={18} />
                   <span>Sair</span>
                 </button>
               </div>
@@ -252,15 +276,38 @@ export default function Header() {
 
             {/* User Info Mobile */}
             {user && (
-              <div className="px-4 py-2 text-sm text-gray-300">
-                Olá,{" "}
-                <strong className="text-green-400">
-                  {getUserDisplayName(user)}
-                </strong>
+              <div className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-xl border-2 border-white/20">
+                <Avatar className="h-10 w-10 ring-2 ring-white/50 shadow-md">
+                  {user?.imagemUsuario && user.imagemUsuario.length > 0 ? (
+                    <AvatarImage
+                      src={`data:image/jpeg;base64,${user.imagemUsuario}`}
+                      className="object-cover"
+                    />
+                  ) : null}
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center">
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-sm">
+                  <div className="text-white font-bold">
+                    {getUserDisplayName(user)}
+                  </div>
+                  <div className="text-blue-200 text-xs">{user.email}</div>
+                </div>
               </div>
             )}
 
             {/* Menu do Usuário Mobile */}
+            <button
+              onClick={() => {
+                window.location.href = "/perfil";
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-white/20 rounded-lg transition w-full text-left text-white font-medium"
+            >
+              <UserCircle size={20} />
+              <span>Gerenciar Perfil</span>
+            </button>
             <button
               onClick={() => {
                 setShowChangePassword(true);

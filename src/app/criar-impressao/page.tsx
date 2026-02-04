@@ -15,8 +15,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
-import { Trash2, Plus, DollarSign, TrendingUp, Package } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  DollarSign,
+  TrendingUp,
+  Package,
+  Printer,
+  FileText,
+  Clock,
+  User,
+  Layers3,
+} from "lucide-react";
 import {
   FilamentoSimples as Filamento,
   FilamentoSelecionado,
@@ -308,24 +320,48 @@ function CriarImpressaoContent() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20">
       <Header />
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <form onSubmit={handleSubmit}>
-          {/* Card Único */}
-          <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-md">
-            <h2 className="text-2xl font-bold text-slate-800 mb-6 pb-4 border-b border-slate-200">
-              Nova Impressão 3D
-            </h2>
+          {/* Header do Card */}
+          <div className="bg-white p-8 rounded-2xl border-2 border-slate-200 shadow-xl mb-6">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                  <Printer className="h-7 w-7 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 h-5 w-5 bg-green-500 rounded-full border-2 border-white animate-pulse" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  Nova Impressão 3D
+                </h2>
+                <p className="text-slate-500 font-medium text-sm">
+                  Preencha os dados para iniciar uma nova impressão
+                </p>
+              </div>
+            </div>
+          </div>
 
+          {/* Card Principal */}
+          <div className="bg-white p-8 rounded-2xl border-2 border-slate-200 shadow-xl">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Coluna 1: Informações Básicas */}
-              <div className="space-y-4">
-                <div>
+              <div className="space-y-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-black text-slate-800 text-lg">
+                    Informações Básicas
+                  </h3>
+                </div>
+
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50/50 p-5 rounded-xl border-2 border-blue-100/60 shadow-md">
                   <Label
                     htmlFor="nomeProjeto"
-                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
+                    className="text-slate-800 font-bold text-sm mb-2 flex items-center gap-2"
                   >
+                    <FileText className="h-4 w-4 text-blue-600" />
                     Nome do Projeto *
                   </Label>
                   <Input
@@ -334,17 +370,18 @@ function CriarImpressaoContent() {
                     onChange={(e) =>
                       setFormData({ ...formData, nomeProjeto: e.target.value })
                     }
-                    className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
+                    className="bg-white border-2 border-blue-200 text-slate-800 h-11 focus:border-blue-400 transition-colors font-semibold"
                     placeholder="Ex: Suporte para monitor"
                     required
                   />
                 </div>
 
-                <div>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50/50 p-5 rounded-xl border-2 border-purple-100/60 shadow-md">
                   <Label
                     htmlFor="impressoraId"
-                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
+                    className="text-slate-800 font-bold text-sm mb-2 flex items-center gap-2"
                   >
+                    <Printer className="h-4 w-4 text-purple-600" />
                     Impressora *
                   </Label>
                   <Select
@@ -353,10 +390,10 @@ function CriarImpressaoContent() {
                       setFormData({ ...formData, impressoraId: value })
                     }
                   >
-                    <SelectTrigger className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors w-full">
-                      <SelectValue placeholder="Selecione" />
+                    <SelectTrigger className="bg-white border-2 border-purple-200 text-slate-800 h-11 focus:border-purple-400 transition-colors font-semibold w-full">
+                      <SelectValue placeholder="Selecione a impressora" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-slate-200">
+                    <SelectContent className="bg-white border-2 border-slate-200 shadow-xl">
                       {impressoras.length === 0 ? (
                         <SelectItem
                           value="none"
@@ -370,7 +407,7 @@ function CriarImpressaoContent() {
                           <SelectItem
                             key={impressora.id}
                             value={impressora.id.toString()}
-                            className="text-slate-800"
+                            className="text-slate-800 font-semibold"
                           >
                             {impressora.nome} - {impressora.modelo}
                           </SelectItem>
@@ -380,11 +417,12 @@ function CriarImpressaoContent() {
                   </Select>
                 </div>
 
-                <div>
-                  <Label className="text-slate-700 font-semibold text-sm mb-1.5 block">
+                <div className="bg-gradient-to-br from-cyan-50 to-sky-50/50 p-5 rounded-xl border-2 border-cyan-100/60 shadow-md">
+                  <Label className="text-slate-800 font-bold text-sm mb-2 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-cyan-600" />
                     Tempo de Impressão *
                   </Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Input
                         id="horas"
@@ -395,7 +433,7 @@ function CriarImpressaoContent() {
                         onChange={(e) =>
                           setFormData({ ...formData, horas: e.target.value })
                         }
-                        className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
+                        className="bg-white border-2 border-cyan-200 text-slate-800 h-11 focus:border-cyan-400 transition-colors font-semibold"
                         placeholder="Horas"
                       />
                     </div>
@@ -410,64 +448,74 @@ function CriarImpressaoContent() {
                         onChange={(e) =>
                           setFormData({ ...formData, minutos: e.target.value })
                         }
-                        className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
+                        className="bg-white border-2 border-cyan-200 text-slate-800 h-11 focus:border-cyan-400 transition-colors font-semibold"
                         placeholder="Minutos"
                       />
                     </div>
                   </div>
                   {formData.tempoImpressao &&
                     parseInt(formData.tempoImpressao) > 0 && (
-                      <p className="text-blue-600 text-xs mt-1.5 font-medium">
-                        ⏱️ Total: {formData.tempoImpressao} minutos
-                      </p>
+                      <div className="mt-3 bg-white p-3 rounded-lg border-2 border-cyan-200">
+                        <p className="text-cyan-700 text-sm font-bold flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          Total:{" "}
+                          {Math.floor(
+                            parseInt(formData.tempoImpressao) / 60
+                          )}h {parseInt(formData.tempoImpressao) % 60}min
+                        </p>
+                      </div>
                     )}
                 </div>
 
-                <div>
-                  <Label
-                    htmlFor="custosAdicionais"
-                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
-                  >
-                    Custos Adicionais
-                  </Label>
-                  <Input
-                    id="custosAdicionais"
-                    type="text"
-                    inputMode="numeric"
-                    value={custosAdicionaisInput.valorFormatado}
-                    onChange={custosAdicionaisInput.handleChange}
-                    onKeyDown={custosAdicionaisInput.handleKeyDown}
-                    className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
-                    placeholder="R$ 0,00"
-                  />
+                <div className="flex gap-2">
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 p-5 rounded-xl border-2 border-amber-100/60 shadow-md">
+                    <Label
+                      htmlFor="custosAdicionais"
+                      className="text-slate-800 font-bold text-sm mb-2 flex items-center gap-2"
+                    >
+                      <DollarSign className="h-4 w-4 text-amber-600" />
+                      Custos Adicionais
+                    </Label>
+                    <Input
+                      id="custosAdicionais"
+                      type="text"
+                      inputMode="numeric"
+                      value={custosAdicionaisInput.valorFormatado}
+                      onChange={custosAdicionaisInput.handleChange}
+                      onKeyDown={custosAdicionaisInput.handleKeyDown}
+                      className="bg-white border-2 border-amber-200 text-slate-800 h-11 focus:border-amber-400 transition-colors font-semibold"
+                      placeholder="R$ 0,00"
+                    />
+                  </div>
+
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50/50 p-5 rounded-xl border-2 border-green-100/60 shadow-md">
+                    <Label
+                      htmlFor="markup"
+                      className="text-slate-800 font-bold text-sm mb-2 flex items-center gap-2"
+                    >
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      Markup (Multiplicador)
+                    </Label>
+                    <Input
+                      id="markup"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      min="1"
+                      value={formData.markup}
+                      onChange={(e) =>
+                        setFormData({ ...formData, markup: e.target.value })
+                      }
+                      className="bg-white border-2 border-green-200 text-slate-800 h-11 focus:border-green-400 transition-colors font-semibold"
+                      placeholder="4"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <Label
-                    htmlFor="markup"
-                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
-                  >
-                    Markup
-                  </Label>
-                  <Input
-                    id="markup"
-                    type="number"
-                    inputMode="decimal"
-                    step="0.1"
-                    min="1"
-                    value={formData.markup}
-                    onChange={(e) =>
-                      setFormData({ ...formData, markup: e.target.value })
-                    }
-                    className="bg-slate-50 border-slate-300 text-slate-800 h-10 focus:bg-white transition-colors"
-                    placeholder="4"
-                  />
-                </div>
-
-                <div>
+                <div className="bg-gradient-to-br from-slate-50 to-gray-50/50 p-5 rounded-xl border-2 border-slate-200 shadow-md">
                   <Label
                     htmlFor="observacoes"
-                    className="text-slate-700 font-semibold text-sm mb-1.5 block"
+                    className="text-slate-800 font-bold text-sm mb-2 flex items-center gap-2"
                   >
                     Observações
                   </Label>
@@ -477,29 +525,32 @@ function CriarImpressaoContent() {
                     onChange={(e) =>
                       setFormData({ ...formData, observacoes: e.target.value })
                     }
-                    className="bg-slate-50 border-slate-300 text-slate-800 min-h-[100px] text-sm focus:bg-white transition-colors resize-none"
-                    placeholder="Observações..."
+                    className="bg-white border-2 border-slate-300 text-slate-800 min-h-[100px] text-sm focus:border-slate-400 transition-colors resize-none font-medium"
+                    placeholder="Observações adicionais sobre a impressão..."
                   />
                 </div>
               </div>
 
               {/* Coluna 2: Filamentos */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <Label className="text-slate-700 font-semibold text-sm">
-                    Filamentos *
-                  </Label>
+              <div className="space-y-5">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="flex items-center gap-2">
+                    <Layers3 className="h-5 w-5 text-purple-600" />
+                    <h3 className="font-black text-slate-800 text-lg">
+                      Filamentos Utilizados
+                    </h3>
+                  </div>
                   <Button
                     type="button"
                     onClick={adicionarFilamento}
-                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-8 px-3 text-xs shadow-sm"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white h-9 px-4 text-sm shadow-lg shadow-green-500/30 font-bold"
                   >
-                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    <Plus className="h-4 w-4 mr-1.5" />
                     Adicionar
                   </Button>
                 </div>
 
-                <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+                <div className="space-y-4 max-h-[620px] overflow-y-auto pr-2 scrollbar-dark">
                   {filamentosSelecionados.map((filamentoSel, index) => {
                     const filamentoAtual = filamentos.find(
                       (f) => f.id === filamentoSel.filamentoId
@@ -513,43 +564,77 @@ function CriarImpressaoContent() {
                     return (
                       <div
                         key={index}
-                        className="bg-gradient-to-br from-slate-50 to-blue-50 p-3 rounded-lg border border-slate-300 shadow-sm space-y-2.5"
+                        className="bg-gradient-to-br from-white to-purple-50/30 p-4 rounded-xl border-2 border-purple-200 shadow-md hover:shadow-lg transition-all space-y-3"
                       >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">
+                            Filamento #{index + 1}
+                          </span>
+                          {filamentosSelecionados.length > 1 && (
+                            <Button
+                              type="button"
+                              onClick={() => removerFilamento(index)}
+                              variant="destructive"
+                              size="sm"
+                              className="h-7 w-7 p-0 shadow-sm"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+
                         <Select
                           value={filamentoSel.filamentoId}
                           onValueChange={(value) =>
                             atualizarFilamento(index, "filamentoId", value)
                           }
                         >
-                          <SelectTrigger className="bg-white border-slate-300 text-slate-800 !h-12 text-sm w-full">
+                          <SelectTrigger className="bg-white border-2 border-purple-300 text-slate-800 h-12 font-semibold hover:border-purple-400 transition-colors w-full">
                             <SelectValue placeholder="Selecione o filamento" />
                           </SelectTrigger>
-                          <SelectContent className="bg-white border-slate-200">
+                          <SelectContent className="bg-white border-2 border-slate-200 shadow-xl max-h-[300px]">
                             {filamentos.map((filamento) => (
                               <SelectItem
                                 key={filamento.id}
                                 value={filamento.id}
-                                className="text-slate-800 text-sm py-2"
+                                className="text-slate-800 font-semibold py-3"
                               >
-                                <div className="flex flex-col gap-0.5">
-                                  <div className="flex items-center gap-1.5">
-                                    <div
-                                      className="w-3 h-3 rounded-full border border-slate-300"
-                                      style={{ backgroundColor: filamento.cor }}
-                                    />
-                                    <span className="font-medium">
-                                      {filamento.tipo}
-                                    </span>
-                                    <span>-</span>
-                                    <span>{filamento.nomeCor}</span>
-                                    <span className="text-slate-500 text-xs ml-auto">
-                                      ({filamento.pesoAtual.toFixed(0)}g)
-                                    </span>
-                                  </div>
-                                  <div className="text-xs text-slate-500 ml-4">
-                                    Comprador:{" "}
-                                    {filamento.comprador.primeiroNome}{" "}
-                                    {filamento.comprador.ultimoNome}
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-8 w-8 ring-2 ring-purple-200">
+                                    {filamento.comprador.imagemUsuario &&
+                                    filamento.comprador.imagemUsuario.length >
+                                      0 ? (
+                                      <AvatarImage
+                                        src={`data:image/jpeg;base64,${filamento.comprador.imagemUsuario}`}
+                                        className="object-cover"
+                                      />
+                                    ) : null}
+                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white flex items-center justify-center">
+                                      <User className="h-4 w-4" />
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex flex-col gap-0.5 flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                                        style={{
+                                          backgroundColor: filamento.cor,
+                                        }}
+                                      />
+                                      <span className="font-bold text-slate-800">
+                                        {filamento.tipo}
+                                      </span>
+                                      <span className="text-slate-600">-</span>
+                                      <span className="text-slate-700">
+                                        {filamento.nomeCor}
+                                      </span>
+                                    </div>
+                                    <div className="text-xs text-slate-500 ml-6">
+                                      Comprador:{" "}
+                                      {filamento.comprador.primeiroNome} •{" "}
+                                      {filamento.pesoAtual.toFixed(0)}g
+                                      disponível
+                                    </div>
                                   </div>
                                 </div>
                               </SelectItem>
@@ -557,8 +642,11 @@ function CriarImpressaoContent() {
                           </SelectContent>
                         </Select>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-3 items-center">
                           <div className="flex-1">
+                            <Label className="text-xs font-bold text-slate-700 mb-1.5 block">
+                              Quantidade (gramas)
+                            </Label>
                             <Input
                               type="number"
                               inputMode="decimal"
@@ -597,37 +685,25 @@ function CriarImpressaoContent() {
                                   value
                                 );
                               }}
-                              className="bg-white border-slate-300 text-slate-800 h-9 text-sm"
-                              placeholder="Gramas"
+                              className="bg-white border-2 border-slate-300 text-slate-800 h-10 font-semibold focus:border-purple-400 transition-colors"
+                              placeholder="0.0"
                             />
                           </div>
-
-                          {filamentosSelecionados.length > 1 && (
-                            <Button
-                              type="button"
-                              onClick={() => removerFilamento(index)}
-                              variant="destructive"
-                              size="sm"
-                              className="h-9 w-9 p-0"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
                         </div>
 
                         {/* Informação de sobra no carretel */}
                         {filamentoAtual && quantidadeUsada > 0 && (
-                          <div className="bg-white p-2 rounded border border-slate-200">
-                            <div className="flex justify-between items-center text-xs">
-                              <span className="text-slate-600">
+                          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-lg border-2 border-blue-200 shadow-sm">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-bold text-slate-700">
                                 Sobrará no carretel:
                               </span>
                               <span
-                                className={
+                                className={`text-sm font-black ${
                                   sobra < 100
-                                    ? "font-bold text-amber-600"
-                                    : "font-bold text-green-600"
-                                }
+                                    ? "text-amber-600"
+                                    : "text-green-600"
+                                }`}
                               >
                                 {sobra.toFixed(1)}g
                               </span>
@@ -639,12 +715,15 @@ function CriarImpressaoContent() {
                   })}
                 </div>
 
-                <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-3 rounded-lg shadow-sm">
-                  <div className="flex justify-between text-white">
-                    <span className="font-semibold text-sm">
-                      Total de Filamento:
-                    </span>
-                    <span className="font-bold text-lg">
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-xl shadow-lg shadow-purple-500/30">
+                  <div className="flex justify-between items-center text-white">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-5 w-5" />
+                      <span className="font-bold text-sm">
+                        Total de Filamento:
+                      </span>
+                    </div>
+                    <span className="font-black text-2xl">
                       {calcularFilamentoTotal().toFixed(1)}g
                     </span>
                   </div>

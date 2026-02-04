@@ -4,6 +4,8 @@ export interface User {
   ultimoNome: string;
   email: string;
   role: string;
+  imagemUsuario?: string | null;
+  impressoesRealizadas?: number | null;
   createdAt: string;
 }
 

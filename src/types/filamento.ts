@@ -3,6 +3,7 @@ export interface Usuario {
   primeiroNome: string;
   ultimoNome: string;
   email?: string;
+  imagemUsuario?: string | null;
 }
 
 export interface Filamento {

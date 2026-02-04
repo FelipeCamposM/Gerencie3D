@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
             primeiroNome: true,
             ultimoNome: true,
             email: true,
+            imagemUsuario: true,
           },
         },
         impressora: {
@@ -51,7 +52,20 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(impressoes);
+    // Converter imagemUsuario de Buffer para base64
+    const impressoesComImagem = impressoes.map((impressao) => ({
+      ...impressao,
+      usuario: impressao.usuario
+        ? {
+            ...impressao.usuario,
+            imagemUsuario: impressao.usuario.imagemUsuario
+              ? Buffer.from(impressao.usuario.imagemUsuario).toString("base64")
+              : null,
+          }
+        : null,
+    }));
+
+    return NextResponse.json(impressoesComImagem);
   } catch (error) {
     console.error("Erro ao buscar impressões:", error);
     return NextResponse.json(

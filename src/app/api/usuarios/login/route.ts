@@ -21,6 +21,17 @@ export async function POST(request: Request) {
       where: {
         email: data.email,
       },
+      select: {
+        id: true,
+        primeiroNome: true,
+        ultimoNome: true,
+        email: true,
+        role: true,
+        senhaHash: true,
+        imagemUsuario: true,
+        impressoesRealizadas: true,
+        createdAt: true,
+      },
     });
 
     if (!user) {
@@ -59,7 +70,11 @@ export async function POST(request: Request) {
       ultimoNome: user.ultimoNome,
       email: user.email,
       role: user.role,
-      createdAt: user.createdAt,
+      imagemUsuario: user.imagemUsuario
+        ? Buffer.from(user.imagemUsuario).toString("base64")
+        : null,
+      impressoesRealizadas: user.impressoesRealizadas,
+      createdAt: user.createdAt.toISOString(),
     };
 
     const response = NextResponse.json({

@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, User } from "lucide-react";
 import { Filamento } from "@/types/filamento";
 import { useAuth } from "@/contexts/AuthContext";
 import { isUserAdmin } from "@/lib/auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface FilamentCardProps {
   filamento: Filamento;
@@ -136,14 +137,28 @@ export default function FilamentCard({
         </div>
 
         <div className="bg-gradient-to-br from-cyan-50 to-sky-50/50 rounded-xl p-3 border border-cyan-100/60">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-bold text-cyan-700 uppercase tracking-wide">
               Comprador:
             </span>
-            <span className="font-black text-slate-800">
-              {filamento.comprador.primeiroNome}{" "}
-              {filamento.comprador.ultimoNome}
-            </span>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-6 w-6 ring-2 ring-cyan-200">
+                {filamento.comprador.imagemUsuario &&
+                filamento.comprador.imagemUsuario.length > 0 ? (
+                  <AvatarImage
+                    src={`data:image/jpeg;base64,${filamento.comprador.imagemUsuario}`}
+                    className="object-cover"
+                  />
+                ) : null}
+                <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-sky-600 text-white flex items-center justify-center">
+                  <User className="h-3 w-3" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="font-black text-slate-800 text-sm">
+                {filamento.comprador.primeiroNome}{" "}
+                {filamento.comprador.ultimoNome}
+              </span>
+            </div>
           </div>
         </div>
       </div>

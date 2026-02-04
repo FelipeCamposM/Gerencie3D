@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
         ultimoNome: true,
         email: true,
         role: true,
+        imagemUsuario: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -27,7 +28,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(usuarios);
+    // Converter imagemUsuario de Buffer para base64
+    const usuariosComImagem = usuarios.map((usuario) => ({
+      ...usuario,
+      imagemUsuario: usuario.imagemUsuario
+        ? Buffer.from(usuario.imagemUsuario).toString("base64")
+        : null,
+    }));
+
+    return NextResponse.json(usuariosComImagem);
   } catch (error) {
     console.error("Erro ao buscar usuários:", error);
     return NextResponse.json(

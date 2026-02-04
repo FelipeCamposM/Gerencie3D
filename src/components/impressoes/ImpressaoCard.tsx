@@ -14,6 +14,7 @@ import {
   Activity,
 } from "lucide-react";
 import { formatPrice } from "@/utils/formatPrice";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Impressao {
   id: string;
@@ -34,6 +35,7 @@ interface Impressao {
     id: number;
     primeiroNome: string;
     ultimoNome: string;
+    imagemUsuario?: string | null;
   };
   impressora: {
     id: number;
@@ -140,21 +142,6 @@ export function ImpressaoCard({
         return "from-orange-500 to-amber-600";
       default:
         return "from-gray-500 to-slate-600";
-    }
-  };
-
-  const getStatusBgColor = (status: string) => {
-    switch (status) {
-      case "concluida":
-        return "bg-emerald-50/80 border-emerald-200/50";
-      case "em_andamento":
-        return "bg-blue-50/80 border-blue-200/50";
-      case "cancelada":
-        return "bg-red-50/80 border-red-200/50";
-      case "falhou":
-        return "bg-orange-50/80 border-orange-200/50";
-      default:
-        return "bg-gray-50/80 border-gray-200/50";
     }
   };
 
@@ -272,10 +259,24 @@ export function ImpressaoCard({
                 <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-0.5">
                   Responsável
                 </p>
-                <p className="text-sm font-bold text-slate-800 truncate">
-                  {impressao.usuario.primeiroNome}{" "}
-                  {impressao.usuario.ultimoNome}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-6 w-6 ring-2 ring-purple-200">
+                    {impressao.usuario.imagemUsuario &&
+                    impressao.usuario.imagemUsuario.length > 0 ? (
+                      <AvatarImage
+                        src={`data:image/jpeg;base64,${impressao.usuario.imagemUsuario}`}
+                        className="object-cover"
+                      />
+                    ) : null}
+                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white flex items-center justify-center">
+                      <User className="h-3 w-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="text-sm font-bold text-slate-800 truncate">
+                    {impressao.usuario.primeiroNome}{" "}
+                    {impressao.usuario.ultimoNome}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

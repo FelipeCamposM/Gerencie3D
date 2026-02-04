@@ -23,6 +23,7 @@ export type Impressao = {
     primeiroNome: string;
     ultimoNome: string;
     email: string;
+    imagemUsuario?: string | null;
   };
   impressora?: {
     id: number;

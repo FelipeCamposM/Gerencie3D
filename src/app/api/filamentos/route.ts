@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
             primeiroNome: true,
             ultimoNome: true,
             email: true,
+            imagemUsuario: true,
           },
         },
         ultimoUsuario: {
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
             id: true,
             primeiroNome: true,
             ultimoNome: true,
+            imagemUsuario: true,
           },
         },
       },
@@ -36,10 +38,24 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Calcular porcentagem restante para cada filamento
+    // Calcular porcentagem restante para cada filamento e converter imagemUsuario
     const filamentosComPorcentagem = filamentos.map((fil) => ({
       ...fil,
       porcentagemRestante: (fil.pesoAtual / fil.pesoInicial) * 100,
+      comprador: {
+        ...fil.comprador,
+        imagemUsuario: fil.comprador.imagemUsuario
+          ? Buffer.from(fil.comprador.imagemUsuario).toString("base64")
+          : null,
+      },
+      ultimoUsuario: fil.ultimoUsuario
+        ? {
+            ...fil.ultimoUsuario,
+            imagemUsuario: fil.ultimoUsuario.imagemUsuario
+              ? Buffer.from(fil.ultimoUsuario.imagemUsuario).toString("base64")
+              : null,
+          }
+        : null,
     }));
 
     return NextResponse.json(filamentosComPorcentagem);

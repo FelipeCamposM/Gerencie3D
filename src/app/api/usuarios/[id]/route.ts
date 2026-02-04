@@ -19,6 +19,8 @@ export async function GET(
         ultimoNome: true,
         email: true,
         role: true,
+        imagemUsuario: true,
+        impressoesRealizadas: true,
         createdAt: true,
         updatedAt: true,
         impressorasUsadas: {
@@ -67,7 +69,15 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(usuario);
+    // Converter imagemUsuario de Buffer para base64 string
+    const usuarioWithImage = {
+      ...usuario,
+      imagemUsuario: usuario.imagemUsuario
+        ? Buffer.from(usuario.imagemUsuario).toString("base64")
+        : null,
+    };
+
+    return NextResponse.json(usuarioWithImage);
   } catch (error) {
     console.error("Erro ao buscar usuário:", error);
     return NextResponse.json(
@@ -85,7 +95,15 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { primeiroNome, ultimoNome, email, password, role } = body;
+    const {
+      primeiroNome,
+      ultimoNome,
+      email,
+      password,
+      role,
+      imagemUsuario,
+      removeImage,
+    } = body;
 
     const userId = parseInt(id);
     if (isNaN(userId)) {
@@ -133,6 +151,16 @@ export async function PUT(
       updateData.senhaHash = await bcrypt.hash(password, 10);
     }
 
+    // Handle image upload
+    if (removeImage) {
+      updateData.imagemUsuario = null;
+    } else if (imagemUsuario) {
+      // Convert base64 to Buffer
+      const base64Data = imagemUsuario.replace(/^data:image\/\w+;base64,/, "");
+      const imageBuffer = Buffer.from(base64Data, "base64");
+      updateData.imagemUsuario = imageBuffer;
+    }
+
     const usuario = await db.usuario.update({
       where: { id: userId },
       data: updateData,
@@ -142,12 +170,22 @@ export async function PUT(
         ultimoNome: true,
         email: true,
         role: true,
+        imagemUsuario: true,
+        impressoesRealizadas: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
-    return NextResponse.json(usuario);
+    // Converter imagemUsuario de Buffer para base64 string
+    const usuarioWithImage = {
+      ...usuario,
+      imagemUsuario: usuario.imagemUsuario
+        ? Buffer.from(usuario.imagemUsuario).toString("base64")
+        : null,
+    };
+
+    return NextResponse.json(usuarioWithImage);
   } catch (error) {
     console.error("Erro ao atualizar usuário:", error);
     return NextResponse.json(

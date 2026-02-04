@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Header from "../../components/header";
 import ProtectedRoute from "../../components/ProtectedRoute";
@@ -87,6 +87,10 @@ function CriarImpressaoContent() {
   const [filamentosSelecionados, setFilamentosSelecionados] = useState<
     FilamentoSelecionado[]
   >([{ filamentoId: "", quantidadeUsada: "" }]);
+
+  // Refs para os scrollers de tempo
+  const horasScrollRef = useRef<HTMLDivElement>(null);
+  const minutosScrollRef = useRef<HTMLDivElement>(null);
 
   // Atualizar tempo total em minutos quando horas ou minutos mudam
   useEffect(() => {
@@ -422,37 +426,154 @@ function CriarImpressaoContent() {
                     <Clock className="h-4 w-4 text-cyan-600" />
                     Tempo de Impressão *
                   </Label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Input
-                        id="horas"
-                        type="number"
-                        inputMode="numeric"
-                        min="0"
-                        value={formData.horas}
-                        onChange={(e) =>
-                          setFormData({ ...formData, horas: e.target.value })
-                        }
-                        className="bg-white border-2 border-cyan-200 text-slate-800 h-11 focus:border-cyan-400 transition-colors font-semibold"
-                        placeholder="Horas"
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        id="minutos"
-                        type="number"
-                        inputMode="numeric"
-                        min="0"
-                        max="59"
-                        value={formData.minutos}
-                        onChange={(e) =>
-                          setFormData({ ...formData, minutos: e.target.value })
-                        }
-                        className="bg-white border-2 border-cyan-200 text-slate-800 h-11 focus:border-cyan-400 transition-colors font-semibold"
-                        placeholder="Minutos"
-                      />
+
+                  {/* Versão Desktop - Inputs de texto */}
+                  <div className="hidden lg:block">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Input
+                          id="horas"
+                          type="number"
+                          inputMode="numeric"
+                          min="0"
+                          value={formData.horas}
+                          onChange={(e) =>
+                            setFormData({ ...formData, horas: e.target.value })
+                          }
+                          className="bg-white border-2 border-cyan-200 text-slate-800 h-11 focus:border-cyan-400 transition-colors font-semibold"
+                          placeholder="Horas"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          id="minutos"
+                          type="number"
+                          inputMode="numeric"
+                          min="0"
+                          max="59"
+                          value={formData.minutos}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              minutos: e.target.value,
+                            })
+                          }
+                          className="bg-white border-2 border-cyan-200 text-slate-800 h-11 focus:border-cyan-400 transition-colors font-semibold"
+                          placeholder="Minutos"
+                        />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Versão Mobile - Seletor estilo iOS */}
+                  <div className="lg:hidden">
+                    <div className="bg-white rounded-xl border-2 border-cyan-200 p-4 shadow-inner">
+                      <div className="flex items-center justify-center gap-2">
+                        {/* Scroll de Horas */}
+                        <div className="relative">
+                          <div
+                            ref={horasScrollRef}
+                            className="h-32 w-20 overflow-y-scroll snap-y snap-mandatory scrollbar-hide scroll-smooth"
+                            onScroll={(e) => {
+                              const scrollTop = e.currentTarget.scrollTop;
+                              const itemHeight = 40;
+                              const index = Math.round(scrollTop / itemHeight);
+                              setFormData({
+                                ...formData,
+                                horas: index.toString(),
+                              });
+                            }}
+                          >
+                            <div className="h-12" />
+                            {Array.from({ length: 100 }, (_, i) => i).map(
+                              (hora) => (
+                                <div
+                                  key={hora}
+                                  className="h-10 flex items-center justify-center snap-center cursor-pointer hover:bg-cyan-50 transition-colors"
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      horas: hora.toString(),
+                                    });
+                                    if (horasScrollRef.current) {
+                                      horasScrollRef.current.scrollTop =
+                                        hora * 40;
+                                    }
+                                  }}
+                                >
+                                  <span
+                                    className={`text-2xl font-bold transition-all ${
+                                      formData.horas === hora.toString()
+                                        ? "text-cyan-600 scale-110"
+                                        : "text-slate-400 scale-90"
+                                    }`}
+                                  >
+                                    {hora}
+                                  </span>
+                                </div>
+                              )
+                            )}
+                            <div className="h-12" />
+                          </div>
+                          <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 border-y-2 border-cyan-300 pointer-events-none bg-cyan-100/20" />
+                        </div>
+
+                        <span className="text-2xl font-bold text-slate-600">
+                          :
+                        </span>
+
+                        {/* Scroll de Minutos */}
+                        <div className="relative">
+                          <div
+                            ref={minutosScrollRef}
+                            className="h-32 w-20 overflow-y-scroll snap-y snap-mandatory scrollbar-hide scroll-smooth"
+                            onScroll={(e) => {
+                              const scrollTop = e.currentTarget.scrollTop;
+                              const itemHeight = 40;
+                              const index = Math.round(scrollTop / itemHeight);
+                              setFormData({
+                                ...formData,
+                                minutos: index.toString(),
+                              });
+                            }}
+                          >
+                            <div className="h-12" />
+                            {Array.from({ length: 60 }, (_, i) => i).map(
+                              (minuto) => (
+                                <div
+                                  key={minuto}
+                                  className="h-10 flex items-center justify-center snap-center cursor-pointer hover:bg-cyan-50 transition-colors"
+                                  onClick={() => {
+                                    setFormData({
+                                      ...formData,
+                                      minutos: minuto.toString(),
+                                    });
+                                    if (minutosScrollRef.current) {
+                                      minutosScrollRef.current.scrollTop =
+                                        minuto * 40;
+                                    }
+                                  }}
+                                >
+                                  <span
+                                    className={`text-2xl font-bold transition-all ${
+                                      formData.minutos === minuto.toString()
+                                        ? "text-cyan-600 scale-110"
+                                        : "text-slate-400 scale-90"
+                                    }`}
+                                  >
+                                    {minuto.toString().padStart(2, "0")}
+                                  </span>
+                                </div>
+                              )
+                            )}
+                            <div className="h-12" />
+                          </div>
+                          <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 border-y-2 border-cyan-300 pointer-events-none bg-cyan-100/20" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   {formData.tempoImpressao &&
                     parseInt(formData.tempoImpressao) > 0 && (
                       <div className="mt-3 bg-white p-3 rounded-lg border-2 border-cyan-200">
